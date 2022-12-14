@@ -25,9 +25,23 @@ class User(Document):
     last_name: str  # shalaev
     role: Role  # student/teacher/admin
     reward_type: Reward  # trip/grant/none
+    """
+    {
+      "_id": {
+        "$oid": "********************"
+      },
+    "phone_number": "89854839731",
+    "password": "1",
+    "user": 703757403,
+    "first_name": "alex",
+    "last_name": "shalaev",
+    "role": "student",
+    "reward_type": "trip"
+    }
+    """
 
     class Settings:
-        name = "student"  # database document name
+        name = "users"  # database document name
 
 
 """

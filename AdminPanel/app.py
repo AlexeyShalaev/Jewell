@@ -1,9 +1,10 @@
 # Flask imports
-from flask import Flask, render_template
-from flask_login import LoginManager
-from flask_toastr import Toastr
+from flask import *
+from flask_login import *
+from flask_toastr import *
 
 from AdminPanel.ext.webui.view import view
+from AdminPanel.ext.webui.error import error
 from AdminPanel.ext.webui.api import api
 from AdminPanel.ext.webui.student import student
 from AdminPanel.ext.webui.teacher import teacher
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)  # logging
 # flask
 app = Flask(config.flask.app_name)
 app.register_blueprint(view)
+app.register_blueprint(error)
 app.register_blueprint(api)
 app.register_blueprint(student)
 app.register_blueprint(teacher)
@@ -33,8 +35,9 @@ login_manager.login_message = config.flask.login_manager["login_message"]
 login_manager.login_message_category = config.flask.login_manager["login_message_category"]
 
 
+# https://gist.github.com/leongjinqwen/a205cbe8185d8c83f9d300cc6c8634f1
 @login_manager.user_loader
-def load_user(phone_number):
+def load_user(phone_number: str):
     user = UserLogin().fromDB(phone_number)
     if user:
         return user

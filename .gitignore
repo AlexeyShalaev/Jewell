@@ -1,5 +1,5 @@
 # custom ignores
-idea/
+.idea/
 .env
 
 # Byte-compiled / optimized / DLL files

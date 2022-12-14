@@ -1,109 +1,114 @@
 <!DOCTYPE html>
-<html lang="en" data-layout-mode="detached" data-topbar-color="dark" data-sidenav-color="light" data-sidenav-user="true">
+<html lang="en" data-layout-mode="detached" data-topbar-color="dark" data-sidenav-color="light"
+      data-sidenav-user="true">
 
-    <head>
-        <meta charset="utf-8" />
-        <title>Register | Hyper - Responsive Bootstrap 5 Admin Dashboard</title>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
-        <meta content="Coderthemes" name="author" />
+<head>
+    <meta charset="utf-8"/>
+    <title>Register | Jewell Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
 
-        <!-- App favicon -->
-        <link rel="shortcut icon" href="../../../assets/images/favicon.ico">
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="../../../assets/images/favicon.ico">
 
-        <!-- Theme Config Js -->
-        <script src="../../../assets/js/hyper-config.js"></script>
+    <!-- Theme Config Js -->
+    <script src="../../../assets/js/hyper-config.js"></script>
 
-        <!-- Icons css -->
-        <link href="../../../assets/css/icons.min.css" rel="stylesheet" type="text/css" />
+    <!-- Icons css -->
+    <link href="../../../assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
 
-        <!-- App css -->
-        <link href="../../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style" />
-    </head>
+    <!-- App css -->
+    <link href="../../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
+</head>
 
-    <body class="authentication-bg">
+<body class="authentication-bg">
+{{ toastr.include_toastr_js() }}
+<div class="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xxl-4 col-lg-5">
+                <div class="card">
+                    <!-- Logo-->
+                    <div class="card-header pt-4 pb-4 text-center bg-primary">
+                        <a class="logo-dark" href="{{url_for('view.landing')}}">
+                            <span><img src="../../../assets/images/logo-dark.png" alt="logo"></span>
+                        </a>
+                    </div>
 
-        <div class="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5">
-            <div class="container">
-                <div class="row justify-content-center">
-                    <div class="col-xxl-4 col-lg-5">
-                        <div class="card">
-                            <!-- Logo-->
-                            <div class="card-header pt-4 pb-4 text-center bg-primary">
-                                <a href="index.html">
-                                    <span><img src="../../../assets/images/logo.png" alt="logo" height="22"></span>
-                                </a>
+                    <div class="card-body p-4">
+
+                        <div class="text-center w-75 m-auto">
+                            <h4 class="text-dark-50 text-center mt-0 fw-bold">Регистрация</h4>
+                            <p class="text-muted mb-4">Нет аккаунта? Создайте, это займет у вас мгновение.</p>
+                        </div>
+
+                        <form action="{{ url_for('view.register', version=1)}}" method="post">
+
+                            <div class="mb-3">
+                                <label for="fullname" class="form-label">Имя</label>
+                                <input class="form-control" type="text" id="fullname" name="fullname"
+                                       placeholder="Введите имя"
+                                       required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="phonenumber" class="form-label">Номер телефона</label>
+                                <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
+                                       pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                       placeholder="Введите номер">
                             </div>
 
-                            <div class="card-body p-4">
-                                
-                                <div class="text-center w-75 m-auto">
-                                    <h4 class="text-dark-50 text-center mt-0 fw-bold">Free Sign Up</h4>
-                                    <p class="text-muted mb-4">Don't have an account? Create your account, it takes less than a minute </p>
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Пароль</label>
+                                <div class="input-group input-group-merge">
+                                    <input type="password" id="password" name="password" class="form-control"
+                                           placeholder="Введите пароль">
+                                    <div class="input-group-text" data-password="false">
+                                        <span class="password-eye"></span>
+                                    </div>
                                 </div>
+                            </div>
 
-                                <form action="#">
+                            <div class="mb-3 text-center">
+                                <button class="btn btn-primary" type="submit">Зарегистрироваться</button>
+                            </div>
 
-                                    <div class="mb-3">
-                                        <label for="fullname" class="form-label">Full Name</label>
-                                        <input class="form-control" type="text" id="fullname" placeholder="Enter your name" required>
-                                    </div>
+                        </form>
+                    </div> <!-- end card-body -->
+                </div>
+                <!-- end card -->
 
-                                    <div class="mb-3">
-                                        <label for="emailaddress" class="form-label">Email address</label>
-                                        <input class="form-control" type="email" id="emailaddress" required placeholder="Enter your email">
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Password</label>
-                                        <div class="input-group input-group-merge">
-                                            <input type="password" id="password" class="form-control" placeholder="Enter your password">
-                                            <div class="input-group-text" data-password="false">
-                                                <span class="password-eye"></span>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3">
-                                        <div class="form-check">
-                                            <input type="checkbox" class="form-check-input" id="checkbox-signup">
-                                            <label class="form-check-label" for="checkbox-signup">I accept <a href="#" class="text-muted">Terms and Conditions</a></label>
-                                        </div>
-                                    </div>
-
-                                    <div class="mb-3 text-center">
-                                        <button class="btn btn-primary" type="submit"> Sign Up </button>
-                                    </div>
-
-                                </form>
-                            </div> <!-- end card-body -->
-                        </div>
-                        <!-- end card -->
-
-                        <div class="row mt-3">
-                            <div class="col-12 text-center">
-                                <p class="text-muted">Already have account? <a href="pages-login.html" class="text-muted ms-1"><b>Log In</b></a></p>
-                            </div> <!-- end col-->
-                        </div>
-                        <!-- end row -->
-
-                    </div> <!-- end col -->
+                <div class="row mt-3">
+                    <div class="col-12 text-center">
+                        <p class="text-muted">Уже есть аккаунт? <a href="{{url_for('view.login')}}"
+                                                                   class="text-muted ms-1"><b>Войти</b></a></p>
+                    </div> <!-- end col-->
                 </div>
                 <!-- end row -->
-            </div>
-            <!-- end container -->
+
+            </div> <!-- end col -->
         </div>
-        <!-- end page -->
+        <!-- end row -->
+    </div>
+    <!-- end container -->
+</div>
+<!-- end page -->
 
-        <footer class="footer footer-alt">
-            2018 - <script>document.write(new Date().getFullYear())</script> © Hyper - Coderthemes.com
-        </footer>
+<footer class="footer footer-alt">
+    © 2022 -
+    <script>document.write(new Date().getFullYear())</script>
+    Jewell Club. Designed and coded by
+    Alex Shalaev
+</footer>
 
-        <!-- Vendor js -->
-        <script src="../../../assets/js/vendor.min.js"></script>
-        
-        <!-- App js -->
-        <script src="../../../assets/js/app.min.js"></script>
+<!-- Vendor js -->
+<script src="../../../assets/js/vendor.min.js"></script>
 
-    </body>
+<!-- App js -->
+<script src="../../../assets/js/app.min.js"></script>
+
+</body>
 </html>

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="detached" data-topbar-color="dark" data-sidenav-color="light"
+      data-sidenav-user="true">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Landing Page | Jewell Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="../assets/images/favicon.ico">
+
+    <!-- Theme Config Js -->
+    <script src="../assets/js/hyper-config.js"></script>
+
+    <!-- Icons css -->
+    <link href="../assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- App css -->
+    <link href="../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+
+</head>
+
+<body>
+
+<!-- NAVBAR START -->
+<nav class="navbar navbar-expand-lg py-lg-3 navbar-dark">
+    <div class="container">
+
+        <!-- logo -->
+        <a class="navbar-brand me-lg-5">
+            <img src="../assets/images/logo.png" alt="logo" class="logo-dark" height="22"/>
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+                aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <i class="mdi mdi-menu"></i>
+        </button>
+
+        <!-- menus -->
+        <div class="collapse navbar-collapse" id="navbarNavDropdown">
+
+            <!-- left menu -->
+            <ul class="navbar-nav me-auto align-items-center">
+                <li class="nav-item mx-lg-1">
+                    <a class="nav-link active" href="">Главная</a>
+                </li>
+                <li class="nav-item mx-lg-1">
+                    <a class="nav-link" href="https://jewellclub.ru/">Jewell Club</a>
+                </li>
+                <li class="nav-item mx-lg-1">
+                    <a class="nav-link" href="https://yahad.ru/">Yahad</a>
+                </li>
+            </ul>
+
+
+        </div>
+    </div>
+</nav>
+<!-- NAVBAR END -->
+
+<!-- START HERO -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-5">
+                <div class="mt-md-4">
+                    <div>
+                        <span class="badge bg-danger rounded-pill">Шалом</span>
+                        <span class="text-white-50 ms-1">Добро пожаловать!</span>
+                    </div>
+                    <h2 class="text-white fw-normal mb-4 mt-3 hero-title">
+                        Панель управления JEWELL CLUB
+                    </h2>
+
+                    <p class="mb-4 font-16 text-white-50">Данный сайт поможет вам в управлении своими еврейскими
+                        делами.</p>
+
+                    <a href="{{url_for('view.login')}}" target="_blank" class="btn btn-success">Вперед<i
+                            class="mdi mdi-arrow-right ms-1"></i></a>
+                </div>
+            </div>
+            <div class="col-md-5 offset-md-2">
+                <div class="text-md-end mt-3 mt-md-0">
+                    <img src="../assets/images/logo2022.png" alt="" class="img-fluid"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- END HERO -->
+
+<!-- START FEATURES 1 -->
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="text-center">
+                    <h3>Новый <span class="text-primary">дизайн</span></h3>
+                    <p class="text-muted mt-2">Новые возможности</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mt-1">
+            <div class="col-lg-4 col-md-6">
+                <div class="demo-box text-center mt-3">
+                    <img src="../assets/images/layouts/layout-1.png" alt="demo-img"
+                         class="img-fluid shadow-sm rounded">
+                    <h5 class="mt-3 f-17">Vertical Layout</h5>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="demo-box text-center mt-3">
+                    <img src="../assets/images/layouts/layout-2.png" alt="demo-img"
+                         class="img-fluid shadow-sm rounded">
+                    <h5 class="mt-3 f-17">Horizontal Layout</h5>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="demo-box text-center mt-3">
+                    <img src="../assets/images/layouts/layout-3.png" alt="demo-img"
+                         class="img-fluid shadow-sm rounded">
+                    <h5 class="mt-3 f-17">Detached Layout</h5>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="demo-box text-center mt-3">
+                    <img src="../assets/images/layouts/layout-5.png" alt="demo-img"
+                         class="img-fluid shadow-sm rounded">
+                    <h5 class="mt-3 f-17">Light Sidenav Layout</h5>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="demo-box text-center mt-3">
+                    <img src="../assets/images/layouts/layout-6.png" alt="demo-img"
+                         class="img-fluid shadow-sm rounded">
+                    <h5 class="mt-3 f-17">Boxed Layout</h5>
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-md-6">
+                <div class="demo-box text-center mt-3">
+                    <img src="../assets/images/layouts/layout-4.png" alt="demo-img"
+                         class="img-fluid shadow-sm rounded">
+                    <h5 class="mt-3 f-17">Semi Dark Layout</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<!-- END FEATURES 1 -->
+
+<!-- START FOOTER -->
+<footer class="bg-dark py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6">
+                <img src="../assets/images/logo.png" alt="logo" class="logo-dark" height="22"/>
+                <p class="text-muted mt-4">Религиозная организация ортодоксального иудаизма —
+                    <br>Московская Марьинорощинская Еврейская Община
+                </p>
+
+                <ul class="social-list list-inline mt-3">
+                    <li class="list-inline-item text-center">
+                        <a href="https://vk.com/jewellclub" target="_blank">
+                            <img src="../assets/images/brands/icon-vk.svg" alt="vk" height="20">
+                        </a>
+                    </li>
+                </ul>
+
+            </div>
+
+            <div class="col-lg-2 col-md-4 mt-3 mt-lg-0">
+                <h5 class="text-light">Адрес</h5>
+
+                <ul class="list-unstyled ps-0 mb-0 mt-3">
+                    <li class="mt-2"><a class="text-muted">Москва, 2й Вышеславцев пер., д. 5а, 7-ой этаж</a></li>
+                </ul>
+
+            </div>
+
+            <div class="col-lg-2 col-md-4 mt-3 mt-lg-0">
+                <h5 class="text-light">Телефоны</h5>
+
+                <ul class="list-unstyled ps-0 mb-0 mt-3">
+                    <li class="mt-2"><a class="text-muted">+7 (495) 645-0-506</a></li>
+                    <li class="mt-2"><a class="text-muted">+7 (999) 555-1-613</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="mt-5">
+                    <p class="text-muted mt-4 text-center mb-0">© 2022 -
+                        <script>document.write(new Date().getFullYear())</script>
+                        Jewell Club. Designed and coded by
+                        Alex Shalaev
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+<!-- END FOOTER -->
+<!-- Vendor js -->
+<script src="../assets/js/vendor.min.js"></script>
+
+<!-- App js -->
+<script src="../assets/js/app.min.js"></script>
+
+</body>
+
+</html>

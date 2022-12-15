@@ -1,4 +1,7 @@
 from AdminPanel.ext.models.userModel import *
+from AdminPanel.ext.database.users import *
+from AdminPanel.ext.database.recover_pw import *
+from AdminPanel.ext.models.recover_pw import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
@@ -46,14 +49,13 @@ def login():
             try:
                 input_phone_number = request.form.get("phonenumber")
                 input_password = request.form.get("password")
-                user = User.find_one(User.phone_number == input_phone_number).run()
-                print(user)
-                if user is None:
+                user = get_user_by_phone_number(phone_number=input_phone_number)
+                if user.success is False:
                     flash('Пользователь не найден!', 'warning')
                 else:
-                    if check_password_hash(user.password, input_password):
+                    if check_password_hash(user.data.password, input_password):
                         # авторизуем пользователя
-                        login_user(user)
+                        login_user(user.data)
                         flash('Вы успешно авторизовались!', 'success')
                         logger.info(f'авторизован пользователь {input_phone_number}')
                         return redirect(request.args.get("next") or url_for("view.landing"))
@@ -63,6 +65,17 @@ def login():
                 logger.error(ex)
         templates = ['auth-login.html', 'auth-login-2.html']  # для случайной генерации шаблона
         return render_template("custom/authentication/" + choice(templates))
+
+
+# Уровень:              logout
+# База данных:          -
+# HTML:                 auth-logout
+@view.route('/logout')
+def logout():
+    logout_user()
+    flash("Вы вышли из аккаунта", "success")
+    templates = ['auth-logout.html', 'auth-logout-2.html']  # для случайной генерации шаблона
+    return render_template("custom/authentication/" + choice(templates))
 
 
 # Уровень:              recoverpw
@@ -80,9 +93,20 @@ def recoverpw(version):
             return redirect("/admin/home")
     else:
         if request.method == "POST":
-            phone_number = request.form.get("phonenumber")
-            # TODO: recoverpw
-            return phone_number
+            try:
+                input_phone_number = request.form.get("phonenumber")
+                user = get_user_by_phone_number(phone_number=input_phone_number)
+                if user.success is False:
+                    flash('Пользователь не найден!', 'warning')
+                else:
+                    add_recover(input_phone_number, user.data.id, user.data.telegram_id)
+                    if user.data.telegram_id is None:
+                        flash('Ваш запрос передан администрации на рассмотрение!', 'info')
+                    else:
+                        flash('Наш бот отправит вам в телеграмме новый пароль!', 'info')
+                    return redirect("/login")
+            except Exception as ex:
+                logger.error(ex)
         if version == "2":
             return render_template("custom/authentication/auth-recoverpw-2.html")
         else:

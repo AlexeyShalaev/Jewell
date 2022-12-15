@@ -2,5 +2,4 @@ flask~=2.2.2
 flask-toastr~=0.5.8
 flask-login~=0.6.2
 pymongo~=4.3.3
-bunnet~=1.0.1
 flask-script

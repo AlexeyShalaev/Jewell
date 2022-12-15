@@ -1,14 +1,18 @@
 from pymongo import MongoClient
-from bunnet import init_bunnet
-from AdminPanel.ext.models.userModel import *
 from AdminPanel.config import load_config
+from dataclasses import dataclass
 import logging
 
 config = load_config()  # config
 logger = logging.getLogger(__name__)  # logging
 
-client = MongoClient(config.db.conn)  # pymongo client
-
-init_bunnet(database=client.jewell, document_models=[User])  # https://github.com/roman-right/bunnet
+db = MongoClient(config.db.conn).jewell  # jewell - название БД
 
 logger.info('Database engine inited')
+
+
+@dataclass
+class MongoDBResult:
+    # Класс для возврата данных
+    success: bool
+    data: ...

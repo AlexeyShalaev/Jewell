@@ -9,7 +9,7 @@ from ext.webui.api import api
 from ext.webui.student import student
 from ext.webui.teacher import teacher
 from ext.webui.admin import admin
-from AdminPanel.ext.models.userModel import *
+from AdminPanel.ext.database.users import *
 
 import logging
 from config import load_config
@@ -38,8 +38,9 @@ login_manager.login_message_category = config.flask.login_manager["login_message
 # https://gist.github.com/leongjinqwen/a205cbe8185d8c83f9d300cc6c8634f1
 @login_manager.user_loader
 def load_user(id):
-    return None
-    #return User.find_one(User.id == PydanticObjectId(id)).run()
+    user = get_user_by_id(id)
+    if user.success:
+        return user.data
 
 
 def main():

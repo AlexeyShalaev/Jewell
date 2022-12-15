@@ -1,9 +1,8 @@
+from AdminPanel.ext.models.userModel import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
-from AdminPanel.ext.models.jewell import *
 from AdminPanel.ext.crypt import *
-from AdminPanel.ext.database.UserLogin import UserLogin
 import logging
 from random import choice
 
@@ -17,11 +16,11 @@ logger = logging.getLogger(__name__)  # logging
 @view.route('/')
 def landing():
     if current_user.is_authenticated:
-        if current_user.user.role == Role.STUDENT:
+        if current_user.role == Role.STUDENT:
             return redirect("/student/home")
-        elif current_user.user.role == Role.TEACHER:
+        elif current_user.role == Role.TEACHER:
             return redirect("/teacher/home")
-        elif current_user.user.role == Role.ADMIN:
+        elif current_user.role == Role.ADMIN:
             return redirect("/admin/home")
     else:
         return render_template("landing.html")
@@ -36,11 +35,11 @@ def landing():
 @view.route('/login', methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        if current_user.user.role == Role.STUDENT:
+        if current_user.role == Role.STUDENT:
             return redirect("/student/home")
-        elif current_user.user.role == Role.TEACHER:
+        elif current_user.role == Role.TEACHER:
             return redirect("/teacher/home")
-        elif current_user.user.role == Role.ADMIN:
+        elif current_user.role == Role.ADMIN:
             return redirect("/admin/home")
     else:
         if request.method == "POST":
@@ -48,16 +47,16 @@ def login():
                 input_phone_number = request.form.get("phonenumber")
                 input_password = request.form.get("password")
                 user = User.find_one(User.phone_number == input_phone_number).run()
+                print(user)
                 if user is None:
                     flash('Пользователь не найден!', 'warning')
                 else:
                     if check_password_hash(user.password, input_password):
                         # авторизуем пользователя
-                        user_login = UserLogin().create(user)
-                        login_user(user_login)
+                        login_user(user)
                         flash('Вы успешно авторизовались!', 'success')
                         logger.info(f'авторизован пользователь {input_phone_number}')
-                        return redirect(request.args.get("next") or url_for("landing"))
+                        return redirect(request.args.get("next") or url_for("view.landing"))
                     else:
                         flash('Неверный пароль!', 'warning')
             except Exception as ex:
@@ -73,11 +72,11 @@ def login():
 @view.route('/recoverpw/<version>', methods=["GET", "POST"])
 def recoverpw(version):
     if current_user.is_authenticated:
-        if current_user.user.role == Role.STUDENT:
+        if current_user.role == Role.STUDENT:
             return redirect("/student/home")
-        elif current_user.user.role == Role.TEACHER:
+        elif current_user.role == Role.TEACHER:
             return redirect("/teacher/home")
-        elif current_user.user.role == Role.ADMIN:
+        elif current_user.role == Role.ADMIN:
             return redirect("/admin/home")
     else:
         if request.method == "POST":
@@ -97,11 +96,11 @@ def recoverpw(version):
 @view.route('/register/<version>', methods=["GET", "POST"])
 def register(version):
     if current_user.is_authenticated:
-        if current_user.user.role == Role.STUDENT:
+        if current_user.role == Role.STUDENT:
             return redirect("/student/home")
-        elif current_user.user.role == Role.TEACHER:
+        elif current_user.role == Role.TEACHER:
             return redirect("/teacher/home")
-        elif current_user.user.role == Role.ADMIN:
+        elif current_user.role == Role.ADMIN:
             return redirect("/admin/home")
     else:
         if request.method == "POST":

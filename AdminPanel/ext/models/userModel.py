@@ -1,8 +1,7 @@
-from bunnet import Document, Indexed, PydanticObjectId
-from pydantic import BaseModel
-from typing import Optional
 from enum import Enum
-from datetime import datetime
+
+from bunnet import Document, PydanticObjectId
+from flask_login import UserMixin
 
 
 class Reward(Enum):
@@ -17,7 +16,8 @@ class Role(Enum):
     ADMIN = 'admin'  # админ
 
 
-class User(Document):
+class User(Document, UserMixin):
+    id: PydanticObjectId
     phone_number: str  # 79854839731
     password: str  # qwerty1234
     user_id: int  # 703757403 - telegram chat id
@@ -25,6 +25,11 @@ class User(Document):
     last_name: str  # shalaev
     role: Role  # student/teacher/admin
     reward_type: Reward  # trip/grant/none
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        print('constructor')
+
     """
     {
       "_id": {
@@ -32,7 +37,7 @@ class User(Document):
       },
     "phone_number": "89854839731",
     "password": "1",
-    "user": 703757403,
+    "user_id": 703757403,
     "first_name": "alex",
     "last_name": "shalaev",
     "role": "student",

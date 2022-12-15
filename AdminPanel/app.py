@@ -3,13 +3,13 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from AdminPanel.ext.webui.view import view
-from AdminPanel.ext.webui.error import error
-from AdminPanel.ext.webui.api import api
-from AdminPanel.ext.webui.student import student
-from AdminPanel.ext.webui.teacher import teacher
-from AdminPanel.ext.webui.admin import admin
-from AdminPanel.ext.database.UserLogin import UserLogin
+from ext.webui.view import view
+from ext.webui.error import error
+from ext.webui.api import api
+from ext.webui.student import student
+from ext.webui.teacher import teacher
+from ext.webui.admin import admin
+from AdminPanel.ext.models.userModel import *
 
 import logging
 from config import load_config
@@ -37,10 +37,9 @@ login_manager.login_message_category = config.flask.login_manager["login_message
 
 # https://gist.github.com/leongjinqwen/a205cbe8185d8c83f9d300cc6c8634f1
 @login_manager.user_loader
-def load_user(phone_number: str):
-    user = UserLogin().fromDB(phone_number)
-    if user:
-        return user
+def load_user(id):
+    return None
+    #return User.find_one(User.id == PydanticObjectId(id)).run()
 
 
 def main():

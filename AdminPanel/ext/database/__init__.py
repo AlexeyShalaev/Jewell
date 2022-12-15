@@ -1,7 +1,7 @@
 from pymongo import MongoClient
 from bunnet import init_bunnet
-from AdminPanel.ext.models.jewell import *
-from ...config import load_config
+from AdminPanel.ext.models.userModel import *
+from AdminPanel.config import load_config
 import logging
 
 config = load_config()  # config

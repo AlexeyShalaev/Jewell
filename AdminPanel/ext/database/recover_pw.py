@@ -29,7 +29,7 @@ def get_recover_by_id(id) -> MongoDBResult:
 
 
 # проверка запроса на восстановление по user ID
-def get_recover_by_user_id(user_id: int) -> MongoDBResult:
+def get_recover_by_user_id(user_id: str) -> MongoDBResult:
     res = db.recovers.find_one({'user_id': ObjectId(user_id)})
     if res:
         return MongoDBResult(True, RecoverPW(res))

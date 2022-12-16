@@ -25,8 +25,10 @@ class User(UserMixin):
     telegram_id: int  # 703757403 - telegram chat id
     first_name: str  # alex
     last_name: str  # shalaev
+    birthday: str  # 27.05.2004
     role: Role  # student/teacher/admin
-    reward_type: Reward  # trip/grant/none
+    reward: Reward  # trip/grant/none
+    access_token: str  # поле для хранения временного токена, который можно использовать для подтверждений чего-либо
 
     def __init__(self, data):
         self.id = data['_id']
@@ -35,8 +37,10 @@ class User(UserMixin):
         self.telegram_id = data['telegram_id']
         self.first_name = data['first_name']
         self.last_name = data['last_name']
+        self.birthday = data['birthday']
         self.role = Role(data['role'])
-        self.reward_type = Reward(data['reward_type'])
+        self.reward = Reward(data['reward'])
+        self.access_token = data['access_token']
 
     def to_json(self):
         # TODO: проверить , что JSON-serializer работает корректно
@@ -46,24 +50,11 @@ class User(UserMixin):
                            "telegram_id": self.telegram_id,
                            "first_name": self.first_name,
                            "last_name": self.last_name,
+                           "birthday": self.birthday,
                            "role": self.role,
-                           "reward_type": self.reward_type,
+                           "reward": self.reward,
+                           "access_token": self.access_token
                            })
-
-    """
-    {
-      "_id": {
-        "$oid": "********************"
-      },
-    "phone_number": "89854839731",
-    "password": "1",
-    "telegram_id": 703757403,
-    "first_name": "alex",
-    "last_name": "shalaev",
-    "role": "student",
-    "reward_type": "trip"
-    }
-    """
 
 
 """

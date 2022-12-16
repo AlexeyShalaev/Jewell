@@ -96,11 +96,14 @@ def recoverpw(version):
             if user.success is False:
                 flash('Пользователь не найден!', 'warning')
             else:
-                add_recover(input_phone_number, user.data.id, user.data.telegram_id)
-                if user.data.telegram_id is None:
-                    flash('Ваш запрос передан администрации на рассмотрение!', 'info')
+                if get_recover_by_phone(input_phone_number):
+                    flash('Вы уже запрашивали смену пароля. Вопрос на рассмотрении у администрации!', 'info')
                 else:
-                    flash('Наш бот отправит вам в телеграмме новый пароль!', 'info')
+                    add_recover(input_phone_number, user.data.id, user.data.telegram_id)
+                    if user.data.telegram_id is None:
+                        flash('Ваш запрос передан администрации на рассмотрение!', 'info')
+                    else:
+                        flash('Наш бот отправит вам ссылку на восстановление пароля!', 'info')
                 return redirect("/login")
         except Exception as ex:
             logger.error(ex)
@@ -139,7 +142,9 @@ def register(version):
         return render_template("custom/authentication/auth-register.html")
 
 
-# Registered
+# Уровень:              registered
+# База данных:          User
+# HTML:                 registered
 @view.route('/registered', methods=['POST', 'GET'])
 @login_required
 def registered():
@@ -148,11 +153,49 @@ def registered():
         return redirect(url)
     if request.method == "POST":
         try:
-            pass
+            input_first_name = request.form.get("first_name")
+            input_last_name = request.form.get("last_name")
+            input_birthday = request.form.get("birthday")
+            update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
+                                   birthday=input_birthday)
+            flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
         except Exception as ex:
             logger.error(ex)
-    return render_template("custom/authentication/registered.html")
+    return render_template("custom/authentication/registered.html",
+                           telegram_validated=current_user.telegram_id is not None)
 
+
+# Уровень:              registered/token
+# База данных:          User
+# HTML:                 -
+@view.route('/registered/token', methods=['POST'])
+def registered_token():
+    try:
+        if current_user.telegram_id is None:
+            status, token = create_token()
+            if status:
+                update_user(current_user.id, 'access_token', token)
+                return json.dumps({'icon': 'info', 'title': 'Telegram',
+                                   'text': 'Отправьте данный токен нашему телеграмм боту и он привяжет ваш аккаунт.',
+                                   'footer': f'<a href="https://t.me/yahad_alex_bot">{token}</a>'}), 200, {
+                           'ContentType': 'application/json'}
+            else:
+                return json.dumps({'icon': 'warning', 'title': 'Telegram',
+                                   'text': 'Не удалось создать токен для привязывания вашего аккаунта к телеграм боту.',
+                                   }), 200, {
+                           'ContentType': 'application/json'}
+        else:
+            return json.dumps({'icon': 'success', 'title': 'Telegram',
+                               'text': 'Ваш аккаунт уже привязан к телеграм боту.',
+                               }), 200, {
+                       'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'icon': 'error', 'title': 'Ошибка',
+                           'text': str(ex)
+                           }), 200, {'ContentType': 'application/json'}
+
+
+# Miscellaneous routines
 
 def normal_phone_number(phone_number: str) -> str:
     # функция возвращает номер телефона в формате 8XXXXXXXXXX

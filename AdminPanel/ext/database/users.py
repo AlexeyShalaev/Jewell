@@ -35,6 +35,18 @@ def get_users() -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
+# получение записей о всех пользователях по роли
+def get_users_by_role(role: Role) -> MongoDBResult:
+    res = db.users.find({'role': role.value})
+    if res:
+        users = []
+        for i in list(res):
+            users.append(User(i))
+        return MongoDBResult(True, users)
+    else:
+        return MongoDBResult(False, [])
+
+
 # получение пользователя по ID
 def get_user_by_id(id) -> MongoDBResult:
     user = db.users.find_one({'_id': ObjectId(id)})
@@ -57,6 +69,17 @@ def get_user_by_phone_number(phone_number: str) -> MongoDBResult:
         return MongoDBResult(False, None)
 
 
+# получение пользователя по access_token
+def get_user_by_access_token(access_token: str) -> MongoDBResult:
+    user = db.users.find_one({'access_token': access_token})
+    if user:
+        # пользователь существует
+        return MongoDBResult(True, User(user))
+    else:
+        # пользователя нет
+        return MongoDBResult(False, None)
+
+
 # добавление пользователя
 def add_user(phone_number: str, password: str):
     db.users.insert_one({
@@ -65,8 +88,10 @@ def add_user(phone_number: str, password: str):
         "telegram_id": None,
         "first_name": None,
         "last_name": None,
+        "birthday": None,
         "role": "registered",
-        "reward_type": "null"
+        "reward": "null",
+        "access_token": None
     })
 
 
@@ -76,8 +101,16 @@ def add_users(users):
 
 
 # обновление данных пользователя по ID
-def update(id, key, value):
+def update_user(id, key, value):
     db.users.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
+
+
+def update_registered_user(id, first_name, last_name, birthday):
+    db.users.update_one({'_id': ObjectId(id)}, {"$set": {
+        "first_name": first_name,
+        "last_name": last_name,
+        "birthday": birthday
+    }})
 
 
 # удаление пользователя по ID

@@ -46,11 +46,7 @@
 
                 <!-- form -->
                 <form action="{{ url_for('view.register', version=2)}}" method="post">
-                    <div class="mb-3">
-                        <label for="fullname" class="form-label">Имя</label>
-                        <input class="form-control" type="text" id="fullname" name="fullname" placeholder="Введите имя"
-                               required>
-                    </div>
+
                     <div class="mb-3">
                         <label for="phonenumber" class="form-label">Номер телефона</label>
                         <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
@@ -59,7 +55,7 @@
                     </div>
                     <div class="mb-3">
                         <label for="password" class="form-label">Пароль</label>
-                        <input class="form-control" type="password" required id="password" name="password"
+                        <input class="form-control" type="password" required id="password" name="password" minlength="4"
                                placeholder="Введите пароль">
                     </div>
                     <div class="mb-0 d-grid text-center">

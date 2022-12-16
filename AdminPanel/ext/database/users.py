@@ -65,8 +65,8 @@ def add_user(phone_number: str, password: str):
         "telegram_id": None,
         "first_name": None,
         "last_name": None,
-        "role": "student",
-        "reward_type": None
+        "role": "registered",
+        "reward_type": "null"
     })
 
 

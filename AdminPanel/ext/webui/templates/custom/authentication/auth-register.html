@@ -49,12 +49,6 @@
                         <form action="{{ url_for('view.register', version=1)}}" method="post">
 
                             <div class="mb-3">
-                                <label for="fullname" class="form-label">Имя</label>
-                                <input class="form-control" type="text" id="fullname" name="fullname"
-                                       placeholder="Введите имя"
-                                       required>
-                            </div>
-                            <div class="mb-3">
                                 <label for="phonenumber" class="form-label">Номер телефона</label>
                                 <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
                                        pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
@@ -64,7 +58,8 @@
                             <div class="mb-3">
                                 <label for="password" class="form-label">Пароль</label>
                                 <div class="input-group input-group-merge">
-                                    <input type="password" id="password" name="password" class="form-control"
+                                    <input type="password" id="password" name="password" minlength="4" required
+                                           class="form-control"
                                            placeholder="Введите пароль">
                                     <div class="input-group-text" data-password="false">
                                         <span class="password-eye"></span>

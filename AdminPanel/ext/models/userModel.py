@@ -11,9 +11,11 @@ class Reward(Enum):
 
 
 class Role(Enum):
+    REGISTERED = 'registered'  # зарегистрированный пользователь, ждущий одобрения принятия
     STUDENT = 'student'  # студент
     TEACHER = 'teacher'  # учитель
     ADMIN = 'admin'  # админ
+    NULL = 'null'  # ничего
 
 
 class User(UserMixin):

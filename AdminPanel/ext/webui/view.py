@@ -9,15 +9,15 @@ from AdminPanel.ext.crypt import *
 import logging
 from random import choice
 
-view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
 logger = logging.getLogger(__name__)  # logging
+view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
 
 
 def auto_redirect(ignore_role=Role.NULL):
     if current_user.is_authenticated:
         if current_user.role == ignore_role:
             return False, None
-        if current_user.role == Role.REGISTERED:
+        elif current_user.role == Role.REGISTERED:
             return True, "/registered"
         elif current_user.role == Role.STUDENT:
             return True, "/student/home"
@@ -74,10 +74,13 @@ def login():
 # HTML:                 auth-logout
 @view.route('/logout')
 def logout():
-    logout_user()
-    flash("Вы вышли из аккаунта", "success")
-    templates = ['auth-logout.html', 'auth-logout-2.html']  # для случайной генерации шаблона
-    return render_template("custom/authentication/" + choice(templates))
+    if current_user.is_authenticated:
+        logout_user()
+        flash("Вы вышли из аккаунта", "success")
+        templates = ['auth-logout.html', 'auth-logout-2.html']  # для случайной генерации шаблона
+        return render_template("custom/authentication/" + choice(templates))
+    else:
+        return redirect(url_for("view.landing"))
 
 
 # Уровень:              recoverpw

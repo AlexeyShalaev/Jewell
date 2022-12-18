@@ -47,7 +47,7 @@ Profile
                                     </div>
                                 </form>
                             </div>
-                            <div class="col">
+                            <div class="col me-3">
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">{{current_user.last_name}}
                                         {{current_user.first_name}}</h4>
@@ -73,7 +73,7 @@ Profile
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col me-3">
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">Telegram
                                         {% if current_user.telegram_id %}
@@ -92,6 +92,29 @@ Profile
                                                 onmouseenter="tg_token('show');"><span class="placeholder w-100"></span>
                                             </h5>
                                             <p class="mb-0 font-13 text-white-50">Токен подтверждения</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <div>
+                                    <h4 id="auth_status" class="mt-1 mb-1 text-white">Авторизация
+                                        {% if current_user.telegram_auth %}
+                                        <div class="spinner-grow text-success spinner-grow-sm" role="status"></div>
+                                        {% else %}
+                                        <div class="spinner-grow text-danger spinner-grow-sm" role="status"></div>
+                                        {% endif %}
+                                    </h4>
+                                    <p class="font-13 text-white-50">Вход через телеграмм бота</p>
+
+
+                                    <ul class="mb-0 list-inline text-light">
+                                        <li class="list-inline-item me-3">
+                                            <!-- Success Switch-->
+                                            <input onclick="change_tg_auth()" type="checkbox" id="telegram_auth"
+                                                   data-switch="success"/>
+                                            <label for="telegram_auth" data-on-label="On" data-off-label="Off"></label>
+                                            <p class="mb-0 font-13 text-white-50">____________________</p>
                                         </li>
                                     </ul>
                                 </div>
@@ -227,6 +250,10 @@ Profile
 
 <script>
     $(document).ready(function () {
+        let tg_auth = document.getElementById("telegram_auth");
+        tg_auth.checked = "{{current_user.telegram_auth}}" === "True";
+
+
         beauty_phone("{{current_user.phone_number}}");
 
         var readURL = function (input) {
@@ -288,6 +315,40 @@ Profile
         }
     }
 
+    function change_tg_auth() {
+        let tg_auth = document.getElementById("telegram_auth");
+        let auth_status = document.getElementById("auth_status");
+        try {
+            $.ajax({
+                type: 'POST',
+                url: 'account/telegram/auth',
+                data: {
+                    'status': tg_auth.checked
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success) {
+                        $.NotificationApp.send("Авторизация", "Вы изменили способ авторизации", "top-right", "#10C469", "success");
+                    } else {
+                        $.NotificationApp.send("Авторизация", "Не удалось изменить способ авторизации", "top-right", "#FF5B5B", "error");
+                    }
+                }
+            });
+            if ("{{current_user.telegram_id}}" === "None") {
+                tg_auth.checked = false;
+                auth_status.innerHTML = "Авторизация <div class=\"spinner-grow text-danger spinner-grow-sm\" role=\"status\"></div>";
+            } else {
+                if (tg_auth.checked) {
+                    auth_status.innerHTML = "Авторизация <div class=\"spinner-grow text-success spinner-grow-sm\" role=\"status\"></div>";
+                } else {
+                    auth_status.innerHTML = "Авторизация <div class=\"spinner-grow text-danger spinner-grow-sm\" role=\"status\"></div>";
+                }
+            }
+        } catch (e) {
+        }
+        call_down("telegram_auth");
+    }
+
     function tg_token(action) {
         let token_box = document.getElementById("tg-token");
         if (Number("{{current_user.telegram_id}}") > 0) {
@@ -315,6 +376,11 @@ Profile
                 token_box.innerHTML = "<span class=\"placeholder w-100 bg-danger\"></span>";
             }
         }
+    }
+
+    function call_down(id) {
+        document.getElementById(id).disabled = true;
+        setTimeout(() => document.getElementById(id).disabled = false, 1000);
     }
 
 </script>

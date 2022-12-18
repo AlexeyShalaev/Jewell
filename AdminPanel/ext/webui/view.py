@@ -2,6 +2,7 @@ from AdminPanel.ext.models.userModel import *
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.database.recover_pw import *
 from AdminPanel.ext.models.recover_pw import *
+from AdminPanel.ext.telegram_bot.message import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
@@ -60,6 +61,10 @@ def login():
                     login_user(user.data)
                     flash('Вы успешно авторизовались!', 'success')
                     logger.info(f'авторизован пользователь {input_phone_number}')
+                    if user.data.telegram_id is not None:
+                        msg = f'Совершен вход в ваш аккаунт. (IP: {request.remote_addr})\n' \
+                              'Если это не вы срочно смените пароль в настройках.'
+                        send_message(msg, user.data.telegram_id)
                     return redirect(request.args.get("next") or url_for("view.login"))
                 else:
                     flash('Неверный пароль!', 'warning')
@@ -67,6 +72,25 @@ def login():
             logger.error(ex)
     templates = ['auth-login.html', 'auth-login-2.html']  # для случайной генерации шаблона
     return render_template("custom/authentication/" + choice(templates))
+
+
+@view.route('/login/<access_token>', methods=["GET", "POST"])
+def tg_login(access_token):
+    if len(access_token) != 32:
+        return redirect(url_for('view.login'))
+    status, url = auto_redirect()
+    if status:
+        return redirect(url)
+    try:
+        user = get_user_by_access_token(access_token)
+        if user.success:
+            # авторизуем пользователя
+            login_user(user.data)
+            flash('Вы успешно авторизовались!', 'success')
+            update_user(user.data.id, 'access_token', '')
+    except Exception as ex:
+        logger.error(ex)
+    return redirect(request.args.get("next") or url_for("view.login"))
 
 
 # Уровень:              logout

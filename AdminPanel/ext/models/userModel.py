@@ -23,6 +23,7 @@ class User(UserMixin):
     phone_number: str  # 79854839731
     password: str  # qwerty1234
     telegram_id: int  # 703757403 - telegram chat id
+    telegram_auth: bool  # false
     first_name: str  # alex
     last_name: str  # shalaev
     birthday: str  # 27.05.2004
@@ -35,6 +36,7 @@ class User(UserMixin):
         self.phone_number = data['phone_number']
         self.password = data['password']
         self.telegram_id = data['telegram_id']
+        self.telegram_auth = data['telegram_auth']
         self.first_name = data['first_name']
         self.last_name = data['last_name']
         self.birthday = data['birthday']
@@ -48,6 +50,7 @@ class User(UserMixin):
                            "phone_number": self.phone_number,
                            "password": self.password,
                            "telegram_id": self.telegram_id,
+                           "telegram_auth": self.telegram_auth,
                            "first_name": self.first_name,
                            "last_name": self.last_name,
                            "birthday": self.birthday,

@@ -20,9 +20,15 @@ class FlaskConfig:
 
 
 @dataclass
+class TgBot:
+    token: str
+
+
+@dataclass
 class Config:  # class config
     db: DbConfig
     flask: FlaskConfig
+    tg_bot: TgBot
 
 
 def load_config(path: str = ".env"):
@@ -41,5 +47,8 @@ def load_config(path: str = ".env"):
                 'login_message': env.str('LOGIN_MESSAGE'),
                 'login_message_category': env.str('LOGIN_MESSAGE_CATEGORY'),
             },
+        ),
+        tg_bot=TgBot(
+            token=env.str("BOT_TOKEN")
         )
     )

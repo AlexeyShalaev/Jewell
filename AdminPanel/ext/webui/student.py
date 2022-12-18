@@ -41,7 +41,7 @@ def student_home():
     return render_template("home.html")
 
 
-# Уровень:              Главная страница
+# Уровень:              account
 # База данных:          User
 # HTML:                 account
 @student.route('/account', methods=['POST', 'GET'])
@@ -70,6 +70,7 @@ def student_account():
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')
+            return redirect(url_for('student.student_account'))
         else:
             flash('Такое расширение файла не подходит', category='warning')
     return render_template("account.html")
@@ -154,3 +155,32 @@ def get_telegram_token():
     except Exception as ex:
         logger.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              account/telegram/auth
+# База данных:          User
+# HTML:                 -
+@student.route('account/telegram/auth', methods=['POST'])
+def set_telegram_auth():
+    try:
+        if current_user.telegram_id is not None:
+            status = request.form['status'] == "true"
+            update_user(current_user.id, 'telegram_auth', status)
+            return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              Главная страница
+# База данных:          User
+# HTML:                 attendance
+@student.route('/attendance', methods=['POST', 'GET'])
+@login_required
+def student_attendance():
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    if request.method == "POST":
+        pass
+    return render_template("attendance.html")

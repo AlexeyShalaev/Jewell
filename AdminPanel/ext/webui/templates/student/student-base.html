@@ -21,6 +21,9 @@
     <!-- Theme Config Js -->
     <script src="../../assets/js/hyper-config.js"></script>
 
+    <!-- Toast css -->
+    <link href="../../assets/vendor/jquery-toast-plugin/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
+
     <!-- Icons css -->
     <link href="../../assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
     <!-- Icons css -->
@@ -459,7 +462,7 @@
                 </li>
 
                 <li class="side-nav-item">
-                    <a href="#" class="side-nav-link">
+                    <a href="{{url_for('student.student_attendance')}}" class="side-nav-link">
                         <i class="fa-regular fa-calendar-check"></i>
                         <span class="badge bg-success float-end">5</span>
                         <span> Посещаемость </span>
@@ -1107,12 +1110,26 @@
 <!-- Apex Charts js -->
 <script src="../../assets/vendor/apexcharts/apexcharts.min.js"></script>
 
+<!-- Charts js -->
+<script src="../../assets/vendor/chart.js/chart.min.js"></script>
+<script src="../../assets/vendor/apexcharts/apexcharts.min.js"></script>
+
+
 <!-- Vector Map js -->
 <script src="../../assets/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-1.2.2.min.js"></script>
 <script src="../../assets/vendor/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js"></script>
 
 <!-- Dashboard App js -->
 <script src="../../assets/js/pages/demo.dashboard.js"></script>
+
+<!-- Code Highlight js -->
+<script src="../../assets/vendor/highlightjs/highlight.pack.min.js"></script>
+<script src="../../assets/js/hyper-syntax.js"></script>
+
+<script src="../../assets/vendor/jquery-toast-plugin/jquery.toast.min.js"></script>
+
+<!-- Toastr Demo js -->
+<script src="../../assets/js/pages/demo.toastr.js"></script>
 
 <!-- App js -->
 <script src="../../assets/js/app.min.js"></script>

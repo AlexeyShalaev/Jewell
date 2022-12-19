@@ -18,7 +18,7 @@ class RecoverPW:
 
     def to_json(self):
         # TODO: проверить , что JSON-serializer работает корректно
-        return json.dumps({"_id": int(str(self.id)),
+        return json.dumps({"_id": str(self.id),
                            "phone_number": self.phone_number,
                            "user_id": self.user_id,
                            "telegram_id": self.telegram_id,

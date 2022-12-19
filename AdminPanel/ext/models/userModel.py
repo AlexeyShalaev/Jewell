@@ -46,7 +46,7 @@ class User(UserMixin):
 
     def to_json(self):
         # TODO: проверить , что JSON-serializer работает корректно
-        return json.dumps({"_id": int(str(self.id)),
+        return json.dumps({"_id": str(self.id),
                            "phone_number": self.phone_number,
                            "password": self.password,
                            "telegram_id": self.telegram_id,

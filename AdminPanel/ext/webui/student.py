@@ -2,6 +2,7 @@ import os
 
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.models.recover_pw import *
+from AdminPanel.ext.database.offers import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
@@ -172,7 +173,7 @@ def set_telegram_auth():
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
-# Уровень:              Главная страница
+# Уровень:              attendance
 # База данных:          User
 # HTML:                 attendance
 @student.route('/attendance', methods=['POST', 'GET'])
@@ -184,3 +185,48 @@ def student_attendance():
     if request.method == "POST":
         pass
     return render_template("attendance.html")
+
+
+# Уровень:              offers
+# База данных:          Offers
+# HTML:                 offers
+@student.route('/offers', methods=['POST', 'GET'])
+@login_required
+def student_offers():
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    if request.method == "POST":
+        pass
+    offers = get_offers()
+    if len(offers.data) == 0:
+        return render_template("no-offers.html")
+    return render_template("offers.html", offers=offers.data)
+
+
+# Уровень:              offers/count
+# База данных:          Offers
+# HTML:                 -
+@student.route('offers/count', methods=['POST'])
+def offers_count():
+    try:
+        cnt = len(get_offers().data)
+        if cnt > 0:
+            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              mezuzah
+# База данных:          mezuzah
+# HTML:                 mezuzah
+@student.route('/mezuzah', methods=['POST', 'GET'])
+@login_required
+def student_mezuzah():
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    if request.method == "POST":
+        pass
+    return render_template("mezuzah.html")

@@ -1,0 +1,189 @@
+{% extends 'student-base.html' %}
+
+{% block title %}
+Mezuzah
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block body %}
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{url_for('student.student_home')}}">Студент</a></li>
+                    <li class="breadcrumb-item"><a>Навигатор</a></li>
+                    <li class="breadcrumb-item active">Мезуза</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Мезуза на дом</h4>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+
+                <!-- Steps Information -->
+                <div class="tab-content">
+
+                    <!-- Billing Content-->
+                    <div class="tab-pane active show" id="billing-information" role="tabpanel">
+                        <div class="row">
+                            <div class="col-lg-8">
+                                <h4 class="mt-2">Оформление заказа</h4>
+
+                                <p class="text-muted mb-4">Заполните форму ниже, чтобы
+                                    отправить запрос на получение услуги.</p>
+
+                                <form>
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="mb-3">
+                                                <label for="billing-address" class="form-label">Адрес</label>
+                                                <input class="form-control" type="text" placeholder="Введите ваш адрес"
+                                                       id="billing-address">
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row -->
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="billing-town-city" class="form-label">Страна</label>
+                                                <input class="form-control" type="text"
+                                                       placeholder="Введите вашу страну" id="billing-town-city">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="billing-state" class="form-label">Город</label>
+                                                <input class="form-control" type="text" placeholder="Введите вашу город"
+                                                       id="billing-state">
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div class="mb-3">
+                                                <label for="billing-zip-postal" class="form-label">Индекс</label>
+                                                <input class="form-control" type="text"
+                                                       placeholder="Введите ваш почтовый индекс"
+                                                       id="billing-zip-postal">
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row -->
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <div class="mb-3">
+                                                <label class="form-label">Товар</label>
+                                                <select data-toggle="select2" title="Country"
+                                                        data-select2-id="select2-data-1-pehp" tabindex="-1"
+                                                        class="select2-hidden-accessible" aria-hidden="true">
+                                                    <option value="0" data-select2-id="select2-data-3-aamz">Выберите
+                                                        товар
+                                                    </option>
+                                                    <option value="mezuzah">Мезуза</option>
+                                                    <option value="candlestick">Подсвечник</option>
+                                                </select><span
+                                                    class="select2 select2-container select2-container--default"
+                                                    dir="ltr" data-select2-id="select2-data-2-20ym"
+                                                    style="width: 208px;"><span class="selection"><span
+                                                    class="select2-selection select2-selection--single" role="combobox"
+                                                    aria-haspopup="true" aria-expanded="false" title="Country"
+                                                    tabindex="0" aria-disabled="false"
+                                                    aria-labelledby="select2-bm51-container"
+                                                    aria-controls="select2-bm51-container"><span
+                                                    class="select2-selection__rendered" id="select2-bm51-container"
+                                                    role="textbox" aria-readonly="true"
+                                                    title="Select Country"></span><span
+                                                    class="select2-selection__arrow" role="presentation"><b
+                                                    role="presentation"></b></span></span></span><span
+                                                    class="dropdown-wrapper" aria-hidden="true"></span></span>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row -->
+
+                                    <div class="row">
+                                        <div class="col-12">
+
+                                            <div class="mb-3 mt-3">
+                                                <label for="example-textarea" class="form-label">Комментарии к
+                                                    заказу:</label>
+                                                <textarea class="form-control" id="example-textarea" rows="3"
+                                                          placeholder="Напишите сюда.."></textarea>
+                                            </div>
+                                        </div>
+                                    </div> <!-- end row -->
+
+                                    <div class="row mt-4">
+                                        <div class="col-sm-6">
+                                            <div class="text-sm-end">
+                                                <a href="apps-ecommerce-checkout.html" class="btn btn-danger">
+                                                    <i class="mdi mdi-truck-fast me-1"></i> Отправить </a>
+                                            </div>
+                                        </div> <!-- end col -->
+                                    </div> <!-- end row -->
+                                </form>
+                            </div>
+                            <div class="col-lg-4">
+                                <div class="border p-3 mt-4 mt-lg-0 rounded">
+                                    <h4 class="header-title mb-3">Товары</h4>
+
+                                    <div class="table-responsive">
+                                        <table class="table table-nowrap table-centered mb-0">
+                                            <tbody>
+                                            <tr>
+                                                <td>
+                                                    <img src="../../assets/images/products/product-1.jpg"
+                                                         alt="contact-img"
+                                                         title="contact-img" class="rounded me-2" height="48">
+                                                    <p class="m-0 d-inline-block align-middle">
+                                                        <a href="apps-ecommerce-products-details.html"
+                                                           class="text-body fw-semibold">Мезуза</a>
+                                                        <br>
+                                                    </p>
+                                                </td>
+                                                <td class="text-end">
+                                                    бесплатно
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <img src="../../assets/images/products/product-2.jpg"
+                                                         alt="contact-img"
+                                                         title="contact-img" class="rounded me-2" height="48">
+                                                    <p class="m-0 d-inline-block align-middle">
+                                                        <a href="apps-ecommerce-products-details.html"
+                                                           class="text-body fw-semibold">Подсвечник</a>
+                                                        <br>
+                                                    </p>
+                                                </td>
+                                                <td class="text-end">
+                                                    бесплатно
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <!-- end table-responsive -->
+                                </div> <!-- end .border-->
+
+                            </div> <!-- end col -->
+                        </div> <!-- end row-->
+                    </div>
+                    <!-- End Billing Information Content-->
+
+                </div> <!-- end tab content-->
+
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+</div>
+<!-- end row-->
+
+{% endblock %}

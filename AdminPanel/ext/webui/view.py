@@ -1,6 +1,8 @@
-from AdminPanel.ext.models.userModel import *
+from AdminPanel.ext.logistics import *
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.database.recover_pw import *
+from AdminPanel.ext.database.flask_sessions import *
+from AdminPanel.ext.models.userModel import *
 from AdminPanel.ext.models.recover_pw import *
 from AdminPanel.ext.telegram_bot.message import *
 from flask import *
@@ -12,21 +14,6 @@ from random import choice
 
 logger = logging.getLogger(__name__)  # logging
 view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
-
-
-def auto_redirect(ignore_role=Role.NULL):
-    if current_user.is_authenticated:
-        if current_user.role == ignore_role:
-            return False, None
-        elif current_user.role == Role.REGISTERED:
-            return True, "/registered"
-        elif current_user.role == Role.STUDENT:
-            return True, "/student/home"
-        elif current_user.role == Role.TEACHER:
-            return True, "/teacher/home"
-        elif current_user.role == Role.ADMIN:
-            return True, "/admin/home"
-    return False, None
 
 
 # Уровень:              Главная страница
@@ -59,6 +46,10 @@ def login():
                 if check_password_hash(user.data.password, input_password):
                     # авторизуем пользователя
                     login_user(user.data)
+                    add_flask_session(id=session.get('_id'),
+                                      user_id=session.get('_user_id'),
+                                      fresh=session.get('_fresh'),
+                                      ip=str(request.remote_addr))
                     flash('Вы успешно авторизовались!', 'success')
                     logger.info(f'авторизован пользователь {input_phone_number}')
                     if user.data.telegram_id is not None:
@@ -74,6 +65,9 @@ def login():
     return render_template("custom/authentication/" + choice(templates))
 
 
+# Уровень:              login/<access_token>
+# База данных:          User
+# HTML:                 -
 @view.route('/login/<access_token>', methods=["GET", "POST"])
 def tg_login(access_token):
     if len(access_token) != 32:
@@ -86,6 +80,10 @@ def tg_login(access_token):
         if user.success:
             # авторизуем пользователя
             login_user(user.data)
+            add_flask_session(id=session.get('_id'),
+                              user_id=session.get('_user_id'),
+                              fresh=session.get('_fresh'),
+                              ip=str(request.remote_addr))
             flash('Вы успешно авторизовались!', 'success')
             update_user(user.data.id, 'access_token', '')
     except Exception as ex:
@@ -99,6 +97,7 @@ def tg_login(access_token):
 @view.route('/logout')
 def logout():
     if current_user.is_authenticated:
+        delete_flask_session(session.get('_id'))
         logout_user()
         flash("Вы вышли из аккаунта", "success")
         templates = ['auth-logout.html', 'auth-logout-2.html']  # для случайной генерации шаблона
@@ -175,9 +174,14 @@ def register(version):
 @view.route('/registered', methods=['POST', 'GET'])
 @login_required
 def registered():
+    # auto redirect
     status, url = auto_redirect(ignore_role=Role.REGISTERED)
     if status:
         return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
     if request.method == "POST":
         try:
             input_first_name = request.form.get("first_name")
@@ -220,6 +224,21 @@ def registered_token():
         return json.dumps({'icon': 'error', 'title': 'Ошибка',
                            'text': str(ex)
                            }), 200, {'ContentType': 'application/json'}
+
+
+# secure
+
+# Уровень:              sessions/logout/<id>
+# База данных:          flask_sessions
+# HTML:                 -
+@view.route('/sessions/logout/<id>', methods=['POST'])
+def sessions(id):
+    try:
+        delete_flask_session(id)
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(str(ex))
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
 # Miscellaneous routines

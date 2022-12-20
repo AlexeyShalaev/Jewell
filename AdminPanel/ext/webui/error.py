@@ -5,7 +5,6 @@ from AdminPanel.ext.models.userModel import *
 import logging
 
 error = Blueprint('error', __name__, template_folder='templates/custom/errors', static_folder='assets')  # route
-logger = logging.getLogger(__name__)  # logging
 
 
 @error.app_errorhandler(404)

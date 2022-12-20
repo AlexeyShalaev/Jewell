@@ -1,8 +1,9 @@
 import os
-
+from AdminPanel.ext.logistics import *
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.models.recover_pw import *
 from AdminPanel.ext.database.offers import *
+from AdminPanel.ext.database.flask_sessions import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
@@ -14,21 +15,6 @@ student = Blueprint('student', __name__, url_prefix='/student', template_folder=
                     static_folder='assets')
 
 
-def auto_redirect(ignore_role=Role.NULL):
-    if current_user.is_authenticated:
-        if current_user.role == ignore_role:
-            return False, None
-        if current_user.role == Role.REGISTERED:
-            return True, "/registered"
-        elif current_user.role == Role.STUDENT:
-            return True, "/student/home"
-        elif current_user.role == Role.TEACHER:
-            return True, "/teacher/home"
-        elif current_user.role == Role.ADMIN:
-            return True, "/admin/home"
-    return False, None
-
-
 # Уровень:              Главная страница
 # База данных:          User
 # HTML:                 home
@@ -36,9 +22,15 @@ def auto_redirect(ignore_role=Role.NULL):
 @student.route('/home', methods=['POST', 'GET'])
 @login_required
 def student_home():
+    # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
     if status:
         return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+    # TODO сделать домашнюю страницу
     return render_template("home.html")
 
 
@@ -48,9 +40,14 @@ def student_home():
 @student.route('/account', methods=['POST', 'GET'])
 @login_required
 def student_account():
+    # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
     if status:
         return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
     if request.method == "POST":
         avatar = request.files['avatar']
         img_type = avatar.filename.split('.')[-1]
@@ -179,11 +176,18 @@ def set_telegram_auth():
 @student.route('/attendance', methods=['POST', 'GET'])
 @login_required
 def student_attendance():
+    # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
     if status:
         return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
     if request.method == "POST":
+        # TODO сделать логику запросов
         pass
+    # TODO сделать страницу
     return render_template("attendance.html")
 
 
@@ -193,14 +197,23 @@ def student_attendance():
 @student.route('/offers', methods=['POST', 'GET'])
 @login_required
 def student_offers():
+    # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
     if status:
         return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
     if request.method == "POST":
         pass
     offers = get_offers()
     if len(offers.data) == 0:
         return render_template("no-offers.html")
+    if request.method == "POST":
+        # TODO сделать логику запросов
+        pass
+    # TODO сделать страницу
     return render_template("offers.html", offers=offers.data)
 
 
@@ -224,9 +237,16 @@ def offers_count():
 @student.route('/mezuzah', methods=['POST', 'GET'])
 @login_required
 def student_mezuzah():
+    # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
     if status:
         return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
     if request.method == "POST":
+        # TODO сделать логику запросов
         pass
+    # TODO сделать страницу
     return render_template("mezuzah.html")

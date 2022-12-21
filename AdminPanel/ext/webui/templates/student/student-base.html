@@ -455,7 +455,7 @@
                 <li class="side-nav-title side-nav-item">Курсы</li>
 
                 <li class="side-nav-item">
-                    <a href="#" class="side-nav-link">
+                    <a href="{{url_for('student.student_schedule')}}" class="side-nav-link">
                         <i class="fa-solid fa-calendar-days"></i>
                         <span> Расписание </span>
                     </a>
@@ -481,7 +481,7 @@
                 <li class="side-nav-item">
                     <a href="#" class="side-nav-link">
                         <i><img src="../../assets/icons/sprites/network-icon-16.jpg"
-                                style="height: 20px;width: 20px;display: block;"></img></i>
+                                style="height: 20px;width: 20px;"></img></i>
                         <span> Связи </span>
                     </a>
                 </li>
@@ -574,7 +574,9 @@
 
     <!-- ============================================================== -->
     <!-- End Page content -->
-    <!-- ============================================================== -->
+    <!-- ==============================================
+    set_offers_cnt();
+================ -->
 
 </div>
 <!-- END wrapper -->
@@ -1102,9 +1104,10 @@
 
     function set_offers_cnt() {
         try {
+            const link = "{{url_for('student.offers_count')}}";
             $.ajax({
                 type: 'POST',
-                url: 'offers/count',
+                url: link,
                 success: function (result) {
                     document.getElementById("offers_cnt").innerText = JSON.parse(result).data;
                 }

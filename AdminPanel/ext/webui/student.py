@@ -1,7 +1,9 @@
 import os
+import random
 from AdminPanel.ext.logistics import *
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.database.offers import *
+from AdminPanel.ext.database.courses import *
 from AdminPanel.ext.database.flask_sessions import *
 from flask import *
 from flask_toastr import *
@@ -190,6 +192,75 @@ def student_attendance():
     return render_template("attendance.html")
 
 
+# Уровень:              courses/schedule
+# База данных:          User
+# HTML:                 schedule
+@student.route('/courses/schedule', methods=['POST', 'GET'])
+@login_required
+def student_schedule():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+    return render_template("schedule.html")
+
+
+# Уровень:              courses/schedule/timetable
+# База данных:          Courses
+# HTML:                 -
+@student.route('/courses/schedule/timetable', methods=['POST'])
+def get_schedule():
+    try:
+        resp = get_courses()
+        times = set()
+        courses_names = set()
+        if resp.success:
+            courses = resp.data
+            filtered_courses = []
+            for course in courses:
+                courses_names.add(course.name)
+                teachers = []
+                try:
+                    for teacher in course.teachers:
+                        r = get_user_by_id(teacher)
+                        if r.success:
+                            teachers.append(f'{r.data.first_name} {r.data.last_name}')
+                except Exception:
+                    pass
+                filtered_courses.append({
+                    "name": course.name,
+                    "timetable": course.timetable,
+                    "teachers": teachers
+                })
+                for k, v in course.timetable.items():
+                    times.add(v.to_string())
+            times = [Time.from_string(time) for time in times]
+            times.sort()
+            colors = dict()
+            for name in courses_names:
+                colors[name] = get_random_color()
+            return json.dumps(
+                {'success': True, 'times': times, 'courses': filtered_courses, 'colors': colors}), 200, {
+                       'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              -
+# База данных:          -
+# HTML:                 -
+def get_random_color():
+    random_number = random.randint(0, 16777215)
+    hex_number = str(hex(random_number))
+    hex_number = '#' + hex_number[2:]
+    return hex_number
+
+
 # Уровень:              offers
 # База данных:          Offers
 # HTML:                 offers
@@ -219,7 +290,7 @@ def student_offers():
 # Уровень:              offers/count
 # База данных:          Offers
 # HTML:                 -
-@student.route('offers/count', methods=['POST'])
+@student.route('/offers/count', methods=['POST'])
 def offers_count():
     try:
         cnt = len(get_offers().data)

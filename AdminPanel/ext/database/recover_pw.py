@@ -46,21 +46,11 @@ def get_recover_by_phone(phone_number: str) -> MongoDBResult:
         return MongoDBResult(False, None)
 
 
-# проверка запроса на восстановление по telegram chat id
-def get_recover_by_telegram_id(telegram_id: int) -> MongoDBResult:
-    res = db.recovers.find_one({'telegram_id': telegram_id})
-    if res:
-        return MongoDBResult(True, RecoverPW(res))
-    else:
-        return MongoDBResult(False, None)
-
-
 # добавление пользователя
-def add_recover(phone_number: str, user_id: str, telegram_id: str):
+def add_recover(phone_number: str, user_id: str):
     db.recovers.insert_one({
         "phone_number": phone_number,
-        "user_id": ObjectId(user_id),
-        "telegram_id": telegram_id
+        "user_id": ObjectId(user_id)
     })
 
 

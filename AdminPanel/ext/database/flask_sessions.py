@@ -43,10 +43,11 @@ def get_flask_session_by_id(id) -> MongoDBResult:
 
 
 # добавление сессии
-def add_flask_session(id, user_id, fresh, ip):
+def add_flask_session(id, user_id, user_agent, fresh, ip):
     db.flask_sessions.insert_one({
         '_id': id,
         "user_id": ObjectId(user_id),
+        "user_agent": str(user_agent),
         "fresh": fresh,
         "ip": ip
     })

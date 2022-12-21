@@ -5,10 +5,10 @@ from AdminPanel.ext.database.flask_sessions import *
 from AdminPanel.ext.models.userModel import *
 from AdminPanel.ext.models.recover_pw import *
 from AdminPanel.ext.telegram_bot.message import *
+from AdminPanel.ext.crypt import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
-from AdminPanel.ext.crypt import *
 import logging
 from random import choice
 
@@ -48,13 +48,16 @@ def login():
                     login_user(user.data)
                     add_flask_session(id=session.get('_id'),
                                       user_id=session.get('_user_id'),
+                                      user_agent=request.user_agent,
                                       fresh=session.get('_fresh'),
-                                      ip=str(request.remote_addr))
+                                      ip=get_info_by_ip(request.remote_addr))
+                    update_user(user.data.id, 'access_token', '')
                     flash('Вы успешно авторизовались!', 'success')
                     logger.info(f'авторизован пользователь {input_phone_number}')
                     if user.data.telegram_id is not None:
                         msg = f'Совершен вход в ваш аккаунт. (IP: {request.remote_addr})\n' \
                               'Если это не вы срочно смените пароль в настройках.'
+                        # TODO: норм безопасность
                         send_message(msg, user.data.telegram_id)
                     return redirect(request.args.get("next") or url_for("view.login"))
                 else:
@@ -82,8 +85,9 @@ def tg_login(access_token):
             login_user(user.data)
             add_flask_session(id=session.get('_id'),
                               user_id=session.get('_user_id'),
+                              user_agent=request.user_agent,
                               fresh=session.get('_fresh'),
-                              ip=str(request.remote_addr))
+                              ip=get_info_by_ip(request.remote_addr))
             flash('Вы успешно авторизовались!', 'success')
             update_user(user.data.id, 'access_token', '')
     except Exception as ex:
@@ -122,14 +126,25 @@ def recoverpw(version):
             if user.success is False:
                 flash('Пользователь не найден!', 'warning')
             else:
-                if get_recover_by_phone(input_phone_number):
+                if get_recover_by_phone(input_phone_number).success:
                     flash('Вы уже запрашивали смену пароля. Вопрос на рассмотрении у администрации!', 'info')
                 else:
-                    add_recover(input_phone_number, user.data.id, user.data.telegram_id)
                     if user.data.telegram_id is None:
+                        add_recover(input_phone_number, user.data.id)
                         flash('Ваш запрос передан администрации на рассмотрение!', 'info')
                     else:
-                        flash('Наш бот отправит вам ссылку на восстановление пароля!', 'info')
+                        status, token = create_token()
+                        if status:
+                            update_user(user.data.id, 'access_token', token)
+                            recover_url = request.host_url + 'login/' + token
+                            msg = f'Произошел запрос на восстановление доступа к аккаунту.\n' \
+                                  f'Перейдите по ссылке и смените пароль.\n' \
+                                  f'{recover_url}' \
+                                  '\nЕсли это не вы срочно смените пароль в настройках.'
+                            send_message(msg, user.data.telegram_id)
+                            flash('Наш бот отправит вам ссылку на временный доступ к аккаунту!', 'success')
+                        else:
+                            flash('Не удалось отправить ссылку на восстановление пароля!', 'warning')
                 return redirect("/login")
         except Exception as ex:
             logger.error(ex)
@@ -232,7 +247,7 @@ def registered_token():
 # База данных:          flask_sessions
 # HTML:                 -
 @view.route('/sessions/logout/<id>', methods=['POST'])
-def sessions(id):
+def sessions_logout(id):
     try:
         delete_flask_session(id)
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}

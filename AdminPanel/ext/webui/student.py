@@ -1,7 +1,6 @@
 import os
 from AdminPanel.ext.logistics import *
 from AdminPanel.ext.database.users import *
-from AdminPanel.ext.models.recover_pw import *
 from AdminPanel.ext.database.offers import *
 from AdminPanel.ext.database.flask_sessions import *
 from flask import *

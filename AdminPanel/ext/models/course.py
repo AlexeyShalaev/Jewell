@@ -44,6 +44,8 @@ class Course:
     name: str  # название
     timetable: dict  # расписание
 
+    # TODO расширить данные
+
     def __init__(self, data):
         self.id = data['_id']
         self.teachers = data['teachers']

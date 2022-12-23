@@ -302,7 +302,7 @@ def offers_count():
 
 
 # Уровень:              mezuzah
-# База данных:          mezuzah
+# База данных:          TODO: products
 # HTML:                 mezuzah
 @student.route('/mezuzah', methods=['POST', 'GET'])
 @login_required

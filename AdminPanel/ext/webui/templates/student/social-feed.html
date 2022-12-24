@@ -1,0 +1,779 @@
+{% extends 'student-base.html' %}
+
+{% block title %}
+Feed
+{% endblock %}
+
+{% block body %}
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{url_for('student.student_home')}}">Студент</a></li>
+                    <li class="breadcrumb-item">Net Working</li>
+                    <li class="breadcrumb-item active">Лента</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Лента</h4>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-1">
+        <!-- start profile info -->
+        <div class="card">
+            <div class="card-body">
+
+                <div class="d-flex align-self-start">
+                    <img class="avatar-img d-flex align-self-start rounded me-2" src=""
+                         alt="Dominic Keller" height="48">
+                    <div class="w-100 overflow-hidden">
+                        <h5 class="mt-1 mb-0">{{current_user.first_name}} {{current_user.last_name}}</h5>
+                        <p class="mb-1 mt-1 text-muted">{{current_user.birthday}}</p>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush mt-2">
+                    {% if current_user.sex.value == 'male' %}
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-person me-1"></i>Мужчина</a>
+                    {% elif current_user.sex.value == 'female' %}
+                    <a class="list-group-item list-group-item-action border-0"><i
+                            class="fa-solid fa-person-dress me-1"></i>Женщина</a>
+                    {% endif %}
+
+                    {% if current_user.location != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i
+                            class="fa-solid fa-location-dot me-1"></i>{{current_user.location}}</a>
+                    {% endif %}
+
+                    {% if current_user.languages != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-language me-1"></i>
+                        {% for language in current_user.languages %}
+                        {{language}}
+                        {% endfor %}
+                    </a>
+                    {% endif %}
+
+                    {% if current_user.profession != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-user-tie me-1"></i>{{current_user.profession}}</a>
+                    {% endif %}
+
+                    {% if current_user.university != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i
+                            class="fa-solid fa-graduation-cap me-1"></i>{{current_user.university}}</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <!-- end profile info -->
+
+
+        <!-- tags -->
+        <div class="card ribbon-box">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="header-title">Теги</h4>
+                </div>
+
+                {% if current_user.tags != None %}
+                <ul class="list-group list-group-flush">
+                    {% for tag in current_user.tags %}
+                    <li class="list-group-item">{{tag}}</li>
+                    {% endfor %}
+                </ul>
+                {% else%}
+                <div class="ribbon ribbon-warning float-start"><i class="mdi mdi-access-point me-1"></i>Предупреждение
+                </div>
+                <div class="ribbon-content">
+                    Заполните теги для лучшей работы сервиса Net Working
+                </div>
+                {% endif %}
+
+
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+    </div> <!-- end col -->
+
+    <div class="col-xxl-6 col-lg-12 order-lg-2 order-xxl-1">
+
+        <div class="card">
+            <div class="card-body p-0">
+                <ul class="nav nav-tabs nav-bordered" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a href="#newpost" data-bs-toggle="tab" aria-expanded="false" class="nav-link active px-3 py-2"
+                           aria-selected="true" role="tab">
+                            <i class="mdi mdi-pencil-box-multiple font-18 d-md-none d-block"></i>
+                            <span class="d-none d-md-block">Новый пост</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#profile-edit" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
+                           aria-selected="false" tabindex="-1" role="tab">
+                            <i class="mdi mdi-image font-18 d-md-none d-block"></i>
+                            <span class="d-none d-md-block">Настройки профиля</span>
+                        </a>
+                    </li>
+                </ul> <!-- end nav-->
+
+                <div class="tab-content">
+                    <div class="tab-pane show active p-3" id="newpost" role="tabpanel">
+                        <!-- comment box -->
+                        <div class="border rounded">
+                            <form action="#" class="comment-area-box">
+                                <textarea rows="4" class="form-control border-0 resize-none"
+                                          placeholder="Напишите что-то...."></textarea>
+                                <div class="p-2 bg-light d-flex justify-content-between align-items-center">
+                                    <button type="submit" class="btn btn-sm btn-success"><i
+                                            class="uil uil-message me-1"></i>Опубликовать
+                                    </button>
+                                </div>
+                            </form>
+                        </div> <!-- end .border-->
+                        <!-- end comment box -->
+                    </div> <!-- end preview-->
+                </div> <!-- end tab-content-->
+                <div class="tab-content">
+                    <div class="tab-pane show p-3" id="profile-edit" role="tabpanel">
+                        <!-- comment box -->
+                        <form>
+                            <div id="progressbarwizard">
+
+                                <ul class="nav nav-pills nav-justified form-wizard-header mb-3" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a href="#profile-1" data-bs-toggle="tab" data-toggle="tab"
+                                           class="nav-link rounded-0 py-2 active" aria-selected="true" role="tab">
+                                            <i class="mdi mdi-account-circle font-18 align-middle me-1"></i>
+                                            <span class="d-none d-sm-inline">Основные</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a href="#profile-2" data-bs-toggle="tab" data-toggle="tab"
+                                           class="nav-link rounded-0 py-2" aria-selected="false" tabindex="-1"
+                                           role="tab">
+                                            <i class="mdi mdi-face-man-profile font-18 align-middle me-1"></i>
+                                            <span class="d-none d-sm-inline">Языки и теги</span>
+                                        </a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a href="#finish" data-bs-toggle="tab" data-toggle="tab"
+                                           class="nav-link rounded-0 py-2" aria-selected="false" tabindex="-1"
+                                           role="tab">
+                                            <i class="mdi mdi-checkbox-marked-circle-outline font-18 align-middle me-1"></i>
+                                            <span class="d-none d-sm-inline">Сохранение</span>
+                                        </a>
+                                    </li>
+                                </ul>
+
+                                <div class="tab-content b-0 mb-3">
+
+                                    <div id="bar" class="progress mb-3" style="height: 7px;">
+                                        <div class="bar progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                             style="width: 33.3333%;"></div>
+                                    </div>
+
+                                    <div class="tab-pane active show" id="profile-1" role="tabpanel">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="row mb-3">
+                                                    <label class="col-md-3 col-form-label" for="editSex">Пол</label>
+                                                    <div class="col-md-9">
+                                                        <select id="editSex" class="form-select mb-3">
+                                                            <option value="{{current_user.sex.value}}" selected>
+                                                                {% if current_user.sex.value == 'male' %}
+                                                                Мужчина
+                                                                {% elif current_user.sex.value == 'female' %}
+                                                                Женщина
+                                                                {% endif %}
+                                                            </option>
+                                                            <option value="male">Мужчина</option>
+                                                            <option value="female">Женщина</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <label class="col-md-3 col-form-label" for="editLocation">
+                                                        Локация</label>
+                                                    <div class="col-md-9">
+                                                        <input type="text" placeholder="Россия, Москва"
+                                                               id="editLocation" name="editLocation"
+                                                               class="form-control" value="{{current_user.location}}">
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <label class="col-md-3 col-form-label" for="editProfession">
+                                                        Профессия</label>
+                                                    <div class="col-md-9">
+                                                        <input type="text" id="editProfession" name="editProfession"
+                                                               class="form-control" value="{{current_user.profession}}">
+                                                    </div>
+                                                </div>
+
+                                                <div class="row mb-3">
+                                                    <label class="col-md-3 col-form-label" for="editUniversity">
+                                                        Университет/Колледж/Школа</label>
+                                                    <div class="col-md-9">
+                                                        <input type="text" id="editUniversity" name="editUniversity"
+                                                               class="form-control" value="{{current_user.university}}">
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end col -->
+                                        </div> <!-- end row -->
+
+                                        <ul class="list-inline wizard mb-0">
+                                            <li class="next list-inline-item float-end">
+                                                <a class="btn btn-info">Далее <i
+                                                        class="mdi mdi-arrow-right ms-1"></i></a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="tab-pane" id="profile-2" role="tabpanel">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="row mb-3">
+                                                    <label class="col-md-3 col-form-label"
+                                                           for="editLanguages">Языки</label>
+                                                    <div class="col-md-9">
+                                                        <!-- Multiple Select -->
+                                                        <select id="editLanguages"
+                                                                class="select2 form-control select2-multiple"
+                                                                data-toggle="select2" multiple="multiple"
+                                                                data-placeholder="Выбрать ...">
+                                                            {% if current_user.languages != None %}
+                                                            {% for language in current_user.languages %}
+                                                            <option selected value="{{language}}">{{language}}</option>
+                                                            {% endfor %}
+                                                            {% endif %}
+                                                            <option value="Afrikaans">Afrikaans</option>
+                                                            <option value="Albanian">Albanian</option>
+                                                            <option value="Amharic">Amharic</option>
+                                                            <option value="Arabic">Arabic</option>
+                                                            <option value="Aragonese">Aragonese</option>
+                                                            <option value="Armenian">Armenian</option>
+                                                            <option value="Asturian">Asturian</option>
+                                                            <option value="Azerbaijani">Azerbaijani</option>
+                                                            <option value="Basque">Basque</option>
+                                                            <option value="Belarusian">Belarusian</option>
+                                                            <option value="Bengali">Bengali</option>
+                                                            <option value="Bosnian">Bosnian</option>
+                                                            <option value="Breton">Breton</option>
+                                                            <option value="Bulgarian">Bulgarian</option>
+                                                            <option value="Catalan">Catalan</option>
+                                                            <option value="Central Kurdish">Central Kurdish</option>
+                                                            <option value="Chinese">Chinese</option>
+                                                            <option value="Chinese (Hong Kong)">Chinese (Hong Kong)
+                                                            </option>
+                                                            <option value="Chinese (Simplified)">Chinese (Simplified)
+                                                            </option>
+                                                            <option value="Chinese (Traditional)">Chinese
+                                                                (Traditional)
+                                                            </option>
+                                                            <option value="Corsican">Corsican</option>
+                                                            <option value="Croatian">Croatian</option>
+                                                            <option value="Czech">Czech</option>
+                                                            <option value="Danish">Danish</option>
+                                                            <option value="Dutch">Dutch</option>
+                                                            <option value="English">English</option>
+                                                            <option value="English (Australia)">English (Australia)
+                                                            </option>
+                                                            <option value="English (Canada)">English (Canada)</option>
+                                                            <option value="English (India)">English (India)</option>
+                                                            <option value="English (New Zealand)">English (New
+                                                                Zealand)
+                                                            </option>
+                                                            <option value="English (South Africa)">English (South
+                                                                Africa)
+                                                            </option>
+                                                            <option value="English (United Kingdom)">English (United
+                                                                Kingdom)
+                                                            </option>
+                                                            <option value="English (United States)">English (United
+                                                                States)
+                                                            </option>
+                                                            <option value="Esperanto">Esperanto</option>
+                                                            <option value="Estonian">Estonian</option>
+                                                            <option value="Faroese">Faroese</option>
+                                                            <option value="Filipino">Filipino</option>
+                                                            <option value="Finnish">Finnish</option>
+                                                            <option value="French">French</option>
+                                                            <option value="French (Canada)">French (Canada)</option>
+                                                            <option value="French (France)">French (France)</option>
+                                                            <option value="French (Switzerland)">French (Switzerland)
+                                                            </option>
+                                                            <option value="Galician">Galician</option>
+                                                            <option value="Georgian">Georgian</option>
+                                                            <option value="German">German</option>
+                                                            <option value="German (Austria)">German (Austria)</option>
+                                                            <option value="German (Germany)">German (Germany)</option>
+                                                            <option value="German (Liechtenstein)">German
+                                                                (Liechtenstein)
+                                                            </option>
+                                                            <option value="German (Switzerland)">German (Switzerland)
+                                                            </option>
+                                                            <option value="Greek">Greek</option>
+                                                            <option value="Guarani">Guarani</option>
+                                                            <option value="Gujarati">Gujarati</option>
+                                                            <option value="Hausa">Hausa</option>
+                                                            <option value="Hawaiian">Hawaiian</option>
+                                                            <option value="Hebrew">Hebrew</option>
+                                                            <option value="Hindi">Hindi</option>
+                                                            <option value="Hungarian">Hungarian</option>
+                                                            <option value="Icelandic">Icelandic</option>
+                                                            <option value="Indonesian">Indonesian</option>
+                                                            <option value="Interlingua">Interlingua</option>
+                                                            <option value="Irish">Irish</option>
+                                                            <option value="Italian">Italian</option>
+                                                            <option value="Italian (Italy)">Italian (Italy)</option>
+                                                            <option value="Italian (Switzerland)">Italian
+                                                                (Switzerland)
+                                                            </option>
+                                                            <option value="Japanese">Japanese</option>
+                                                            <option value="Kannada">Kannada</option>
+                                                            <option value="Kazakh">Kazakh</option>
+                                                            <option value="Khmer">Khmer</option>
+                                                            <option value="Korean">Korean</option>
+                                                            <option value="Kurdish">Kurdish</option>
+                                                            <option value="Kyrgyz">Kyrgyz</option>
+                                                            <option value="Lao">Lao</option>
+                                                            <option value="Latin">Latin</option>
+                                                            <option value="Latvian">Latvian</option>
+                                                            <option value="Lingala">Lingala</option>
+                                                            <option value="Lithuanian">Lithuanian</option>
+                                                            <option value="Macedonian">Macedonian</option>
+                                                            <option value="Malay">Malay</option>
+                                                            <option value="Malayalam">Malayalam</option>
+                                                            <option value="Maltese">Maltese</option>
+                                                            <option value="Marathi">Marathi</option>
+                                                            <option value="Mongolian">Mongolian</option>
+                                                            <option value="Nepali">Nepali</option>
+                                                            <option value="Norwegian">Norwegian</option>
+                                                            <option value="Norwegian Bokm?l">Norwegian Bokm?l</option>
+                                                            <option value="Norwegian Nynorsk">Norwegian Nynorsk</option>
+                                                            <option value="Occitan">Occitan</option>
+                                                            <option value="Oriya">Oriya</option>
+                                                            <option value="Oromo">OrOromoo</option>
+                                                            <option value="Pashto">Pashto</option>
+                                                            <option value="Persian">Persian</option>
+                                                            <option value="Polish">Polish</option>
+                                                            <option value="Portuguese">Portuguese
+                                                            </option>
+                                                            <option value="Portuguese (Brazil)">Portuguese (Brazil)
+                                                            </option>
+                                                            <option value="Portuguese (Portugal)">Portuguese
+                                                                (Portugal)
+                                                            </option>
+                                                            <option value="Punjabi">Punjabi</option>
+                                                            <option value="Quechua">Quechua</option>
+                                                            <option value="Romanian">Romanian</option>
+                                                            <option value="Romanian (Moldova)">Romanian (Moldova)
+                                                            </option>
+                                                            <option value="Romansh">Romansh</option>
+                                                            <option value="Russian">Russian</option>
+                                                            <option value="Scottish Gaelic">Scottish Gaelic</option>
+                                                            <option value="Serbian">Serbian</option>
+                                                            <option value="Serbo">Serbo</option>
+                                                            <option value="Shona">Shona</option>
+                                                            <option value="Sindhi">Sindhi</option>
+                                                            <option value="Sinhala">Sinhala</option>
+                                                            <option value="Slovak">Slovak</option>
+                                                            <option value="Slovenian">Slovenian</option>
+                                                            <option value="Somali">Somali</option>
+                                                            <option value="Southern Sotho">Southern Sotho</option>
+                                                            <option value="Spanish">Spanish</option>
+                                                            <option value="Spanish (Argentina)">Spanish (Argentina)
+                                                            </option>
+                                                            <option value="Spanish (Latin America)">Spanish (Latin
+                                                                America)
+                                                            </option>
+                                                            <option value="Spanish (Mexico)">Spanish (Mexico)</option>
+                                                            <option value="Spanish (Spain)">Spanish (Spain)</option>
+                                                            <option value="Spanish (United States)">Spanish (United
+                                                                States)
+                                                            </option>
+                                                            <option value="Sundanese">Sundanese</option>
+                                                            <option value="Swahili">Swahili</option>
+                                                            <option value="Swedish">Swedish</option>
+                                                            <option value="Tajik">Tajik</option>
+                                                            <option value="Tamil">Tamil</option>
+                                                            <option value="Tatar">Tatar</option>
+                                                            <option value="Telugu">Telugu</option>
+                                                            <option value="Thai">Thai</option>
+                                                            <option value="Tigrinya">Tigrinya</option>
+                                                            <option value="Tongan">Tongan</option>
+                                                            <option value="Turkish">Turkish</option>
+                                                            <option value="Turkmen">Turkmen</option>
+                                                            <option value="Twi">Twi</option>
+                                                            <option value="Ukrainian">Ukrainian</option>
+                                                            <option value="Urdu">Urdu</option>
+                                                            <option value="Uyghur">Uyghur</option>
+                                                            <option value="Uzbek">Uzbek</option>
+                                                            <option value="Vietnamese">Vietnamese</option>
+                                                            <option value="Walloon">Walloon</option>
+                                                            <option value="Welsh">Welsh</option>
+                                                            <option value="Western Frisian">Western Frisian</option>
+                                                            <option value="Xhosa">Xhosa</option>
+                                                            <option value="Yiddish">Yiddish</option>
+                                                            <option value="Yoruba">Yoruba</option>
+                                                            <option value="Zulu">Zulu</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="row mb-3">
+                                                    <label class="col-md-3 col-form-label" for="editTags"> Теги (пишите
+                                                        через пробел)</label>
+                                                    <div class="col-md-9">
+                                                        <textarea class="form-control" id="editTags" rows="5">{% if current_user.tags != None %}{% for tag in current_user.tags %}{{tag}} {% endfor %}{% endif %}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div> <!-- end col -->
+                                        </div> <!-- end row -->
+                                        <ul class="pager wizard mb-0 list-inline">
+                                            <li class="previous list-inline-item disabled">
+                                                <button type="button" class="btn btn-light"><i
+                                                        class="mdi mdi-arrow-left me-1"></i> Назад
+                                                </button>
+                                            </li>
+                                            <li class="next list-inline-item float-end">
+                                                <button type="button" class="btn btn-info">Далее <i
+                                                        class="mdi mdi-arrow-right ms-1"></i></button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="tab-pane" id="finish" role="tabpanel">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="text-center">
+                                                    <h2 class="mt-0"><i class="mdi mdi-check-all"></i></h2>
+                                                    <h3 class="mt-0">Спасибо!</h3>
+                                                </div>
+                                            </div> <!-- end col -->
+                                        </div> <!-- end row -->
+                                        <ul class="pager wizard mb-0 list-inline mt-1">
+                                            <li class="previous list-inline-item disabled">
+                                                <button type="button" class="btn btn-light"><i
+                                                        class="mdi mdi-arrow-left me-1"></i> Назад
+                                                </button>
+                                            </li>
+                                            <li class="next list-inline-item float-end">
+                                                <button type="button" class="btn btn-info">Сохранить</button>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                </div> <!-- tab-content -->
+                            </div> <!-- end #progressbarwizard-->
+                        </form>
+                        <!-- end comment box -->
+                    </div> <!-- end preview-->
+                </div> <!-- end tab-content-->
+            </div>
+        </div>
+
+
+        <!-- start news feeds -->
+        <div class="card">
+            <div class="card-body pb-1">
+                <div class="d-flex">
+                    <img class="me-2 rounded" src="assets/images/users/avatar-3.jpg" alt="Generic placeholder image"
+                         height="32">
+                    <div class="w-100">
+                        <div class="dropdown float-end text-muted">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Edit</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                        <h5 class="m-0">Jeremy Tomlinson</h5>
+                        <p class="text-muted"><small>about 2 minuts ago <span class="mx-1">⚬</span> <span>Public</span></small>
+                        </p>
+                    </div>
+                </div>
+
+                <hr class="m-0">
+
+                <div class="font-16 text-center text-dark my-3">
+                    <i class="mdi mdi-format-quote-open font-20"></i> Leave one wolf alive and the sheep are never safe.
+                    When people ask you
+                    what happened here, tell them the North remembers. Tell them winter came for
+                    House Frey.
+                </div>
+
+                <hr class="m-0">
+
+                <div class="my-1">
+                    <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted ps-0"><i
+                            class="mdi mdi-heart text-danger"></i> 2k Likes</a>
+                    <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted"><i
+                            class="uil uil-comments-alt"></i> 200 Comments</a>
+                    <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted"><i
+                            class="uil uil-share-alt"></i> Share</a>
+                </div>
+
+                <hr class="m-0">
+
+                <div class="mt-3">
+                    <div class="d-flex">
+                        <img class="me-2 rounded" src="assets/images/users/avatar-9.jpg" alt="Generic placeholder image"
+                             height="32">
+                        <div>
+                            <h5 class="m-0">Sansa Stark </h5>
+                            <p class="text-muted mb-0"><small>2 mins ago</small></p>
+
+                            <p class="my-1">This is awesome! Proud of sis :) Waiting for you to
+                                come back to winterfall</p>
+
+                            <div>
+                                <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted p-0">
+                                    <i class="uil uil-heart me-1"></i> Like
+                                </a>
+                                <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted p-0 ps-2">
+                                    <i class="uil uil-comments-alt me-1"></i> Reply
+                                </a>
+                            </div>
+
+                            <div class="d-flex mt-3">
+                                <img class="me-2 rounded" src="assets/images/users/avatar-8.jpg"
+                                     alt="Generic placeholder image" height="32">
+                                <div>
+                                    <h5 class="m-0">Cersei Lannister </h5>
+                                    <p class="text-muted mb-0"><small>1 min ago</small></p>
+
+                                    <p class="my-1">I swear! She won't be able to reach to winterfall</p>
+                                </div>
+                            </div> <!-- end d-flex-->
+                        </div> <!-- end div -->
+                    </div> <!-- end d-flex-->
+
+                    <hr>
+
+                    <div class="d-flex mb-2">
+                        <img src="../../assets/images/users/avatar-1.jpg" height="32" class="align-self-start rounded me-2"
+                             alt="Arya Stark">
+                        <div class="w-100">
+                            <input type="text" class="form-control border-0 form-control-sm"
+                                   placeholder="Write a comment">
+                        </div> <!-- end w-100 -->
+                    </div> <!-- end d-flex -->
+
+                </div>
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+
+        <div class="card">
+            <div class="card-body pb-1">
+                <div class="d-flex">
+                    <img class="me-2 rounded" src="assets/images/users/avatar-5.jpg" alt="Generic placeholder image"
+                         height="32">
+                    <div class="w-100">
+                        <div class="dropdown float-end text-muted">
+                            <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="mdi mdi-dots-horizontal"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Edit</a>
+                                <!-- item-->
+                                <a href="javascript:void(0);" class="dropdown-item">Delete</a>
+                            </div>
+                        </div>
+                        <h5 class="m-0">Jon Snow</h5>
+                        <p class="text-muted"><small>20 min ago <span class="mx-1">⚬</span> <span>Public</span></small>
+                        </p>
+                    </div> <!-- end w-100-->
+                </div> <!-- end d-flex -->
+
+                <hr class="m-0">
+
+                <div class="my-3">
+                    <p>"Feeling awesome at the wall!"</p>
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <img src="assets/images/small/small-4.jpg" alt="post-img"
+                                 class="rounded me-1 mb-3 mb-sm-0 img-fluid">
+                        </div>
+                        <div class="col">
+                            <img src="assets/images/small/small-2.jpg" alt="post-img"
+                                 class="rounded me-1 img-fluid mb-3">
+                            <img src="assets/images/small/small-3.jpg" alt="post-img" class="rounded me-1 img-fluid">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-1 mb-1">
+                    <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted ps-0"><i
+                            class="mdi mdi-heart text-danger"></i> 1.2k Likes</a>
+                    <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted"><i
+                            class="uil uil-comments-alt"></i> 148 Comments</a>
+                    <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted"><i
+                            class="uil uil-share-alt"></i> Share</a>
+                </div>
+                <hr class="m-0">
+
+                <div class="mt-3">
+                    <div class="d-flex">
+                        <img class="me-2 rounded" src="assets/images/users/avatar-9.jpg" alt="Generic placeholder image"
+                             height="32">
+                        <div class="w-100">
+                            <h5 class="m-0">Sansa Stark </h5>
+                            <p class="text-muted mb-0"><small>2 mins ago</small></p>
+
+                            <p class="my-1">This is awesome! Proud of sis :) Waiting for you to
+                                come back to winterfall</p>
+
+                            <div>
+                                <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted p-0">
+                                    <i class="uil uil-heart me-1"></i> Like
+                                </a>
+                                <a href="javascript: void(0);" class="btn btn-sm btn-link text-muted p-0 ps-2">
+                                    <i class="uil uil-comments-alt me-1"></i> Reply
+                                </a>
+                            </div>
+                        </div> <!-- end w-100 -->
+                    </div> <!-- end d-flex -->
+
+                    <hr>
+
+                    <div class="d-flex mb-2">
+                        <img src="assets/images/users/avatar-1.jpg" height="32" class="align-self-start rounded me-2"
+                             alt="Arya Stark">
+                        <div class="w-100">
+                            <input type="text" class="form-control border-0 form-control-sm"
+                                   placeholder="Write a comment">
+                        </div> <!-- end w-100 -->
+                    </div> <!-- end d-flex -->
+                </div>
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+        <!-- end news feeds -->
+    </div>
+
+    <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-2">
+        <!-- video -->
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="header-title">Featured Video For You</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-horizontal"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Today</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Yesterday</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Last Week</a>
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">Last Month</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <div class="ratio ratio-16x9">
+                        <iframe src="https://www.youtube.com/embed/9_eqq0HlN9g?autohide=0&amp;showinfo=0&amp;controls=0"></iframe>
+                    </div>
+                </div>
+            </div> <!-- end card-body -->
+        </div>
+        <!-- end video -->
+
+        <!-- video -->
+        <div class="card">
+            <div class="card-body pb-0">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="header-title">People you may know</h4>
+                    <div class="dropdown">
+                        <a href="#" class="dropdown-toggle arrow-none card-drop" data-bs-toggle="dropdown"
+                           aria-expanded="false">
+                            <i class="mdi mdi-dots-horizontal"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <!-- item-->
+                            <a href="javascript:void(0);" class="dropdown-item">View All</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="inbox-widget">
+                    <div class="inbox-item">
+                        <div class="inbox-item-img"><img src="assets/images/users/avatar-2.jpg" class="rounded-circle"
+                                                         alt=""></div>
+                        <p class="inbox-item-author">Robb Stark</p>
+                        <p class="inbox-item-text">The first king in the North</p>
+                        <p class="inbox-item-date">
+                            <button type="button" class="btn btn-sm btn-outline-primary px-1 py-0"><i
+                                    class="uil uil-user-plus font-16"></i></button>
+                        </p>
+                    </div>
+                    <div class="inbox-item">
+                        <div class="inbox-item-img"><img src="assets/images/users/avatar-3.jpg" class="rounded-circle"
+                                                         alt=""></div>
+                        <p class="inbox-item-author">Stillnot David </p>
+                        <p class="inbox-item-text">Lady of winterfall</p>
+                        <p class="inbox-item-date">
+                            <button type="button" class="btn btn-sm btn-outline-primary px-1 py-0"><i
+                                    class="uil uil-user-plus font-16"></i></button>
+                        </p>
+                    </div>
+                    <div class="inbox-item">
+                        <div class="inbox-item-img"><img src="assets/images/users/avatar-4.jpg" class="rounded-circle"
+                                                         alt=""></div>
+                        <p class="inbox-item-author">Cersei Lannister</p>
+                        <p class="inbox-item-text">Queen of the Seven Kingdoms</p>
+                        <p class="inbox-item-date">
+                            <button type="button" class="btn btn-sm btn-outline-primary px-1 py-0"><i
+                                    class="uil uil-user-plus font-16"></i></button>
+                        </p>
+                    </div>
+
+                    <div class="inbox-item">
+                        <div class="inbox-item-img"><img src="assets/images/users/avatar-5.jpg" class="rounded-circle"
+                                                         alt=""></div>
+                        <p class="inbox-item-author">Daenerys Targaryen</p>
+                        <p class="inbox-item-text">Hey! there I'm available...</p>
+                        <p class="inbox-item-date">
+                            <button type="button" class="btn btn-sm btn-outline-primary px-1 py-0"><i
+                                    class="uil uil-user-plus font-16"></i></button>
+                        </p>
+                    </div>
+                    <div class="inbox-item">
+                        <div class="inbox-item-img"><img src="assets/images/users/avatar-6.jpg" class="rounded-circle"
+                                                         alt=""></div>
+                        <p class="inbox-item-author">Adhamd Annaway</p>
+                        <p class="inbox-item-text">Queen Daenerys</p>
+                        <p class="inbox-item-date">
+                            <button type="button" class="btn btn-sm btn-outline-primary px-1 py-0"><i
+                                    class="uil uil-user-plus font-16"></i></button>
+                        </p>
+                    </div>
+                </div> <!-- end inbox-widget -->
+
+                <div class="mt-2 mb-3 text-center">
+                    <a href="">View More<i class="uil uil-arrow-right ms-1"></i></a>
+                </div>
+
+            </div> <!-- end card-body -->
+        </div>
+        <!-- end video -->
+    </div> <!-- end col -->
+</div>
+
+<!-- Wizard Form Demo js -->
+<script src="../../assets/js/pages/demo.form-wizard.js"></script>
+{% endblock %}

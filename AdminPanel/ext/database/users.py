@@ -89,10 +89,16 @@ def add_user(phone_number: str, password: str):
         "telegram_auth": False,
         "first_name": None,
         "last_name": None,
+        "sex": "null",
         "birthday": None,
         "role": "registered",
         "reward": "null",
-        "access_token": None
+        "access_token": None,
+        "profession": None,
+        "university": None,
+        "languages": None,
+        "location": None,
+        "tags": None
     })
 
 

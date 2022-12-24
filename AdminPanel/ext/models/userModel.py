@@ -1,7 +1,7 @@
+from flask_login import UserMixin
 from enum import Enum
 from bson import ObjectId
 import json
-from flask_login import UserMixin
 
 
 class Reward(Enum):
@@ -18,6 +18,12 @@ class Role(Enum):
     NULL = 'null'  # ничего
 
 
+class Sex(Enum):
+    MALE = 'male'  # М
+    FEMALE = 'female'  # Ж
+    NULL = 'null'  # ничего
+
+
 class User(UserMixin):
     id: ObjectId
     phone_number: str  # 79854839731
@@ -26,10 +32,16 @@ class User(UserMixin):
     telegram_auth: bool  # false
     first_name: str  # alex
     last_name: str  # shalaev
+    sex: Sex  # пол
     birthday: str  # 27.05.2004
     role: Role  # student/teacher/admin
     reward: Reward  # trip/grant/none
     access_token: str  # поле для хранения временного токена, который можно использовать для подтверждений чего-либо
+    profession: str  # профессия
+    university: str  # учебное заведение
+    languages: list  # языки
+    location: str  # местонахождение
+    tags: list  # теги
 
     def __init__(self, data):
         self.id = data['_id']
@@ -39,13 +51,18 @@ class User(UserMixin):
         self.telegram_auth = data['telegram_auth']
         self.first_name = data['first_name']
         self.last_name = data['last_name']
+        self.sex = Sex(data['sex'])
         self.birthday = data['birthday']
         self.role = Role(data['role'])
         self.reward = Reward(data['reward'])
         self.access_token = data['access_token']
+        self.profession = data['profession']
+        self.university = data['university']
+        self.languages = data['languages']
+        self.location = data['location']
+        self.tags = data['tags']
 
     def to_json(self):
-        # TODO: проверить , что JSON-serializer работает корректно
         return json.dumps({"_id": str(self.id),
                            "phone_number": self.phone_number,
                            "password": self.password,
@@ -53,77 +70,14 @@ class User(UserMixin):
                            "telegram_auth": self.telegram_auth,
                            "first_name": self.first_name,
                            "last_name": self.last_name,
+                           "sex": self.sex.value,
                            "birthday": self.birthday,
-                           "role": self.role,
-                           "reward": self.reward,
-                           "access_token": self.access_token
+                           "role": self.role.value,
+                           "reward": self.reward.value,
+                           "access_token": self.access_token,
+                           "profession": self.profession,
+                           "university": self.university,
+                           "languages": self.languages,
+                           "location": self.location,
+                           "tags": self.tags
                            })
-
-
-"""
-TODO
-
-
-
-class Visit(Document):
-    date: datetime
-    count: int
-    student_id: PydanticObjectId
-
-    class Settings:
-        name = "visits"  # database document name
-
-
-class Event(Document):
-    name: str
-    place: str
-    comment: str
-    errors: str
-    poster: str
-    sent_count: int
-    sent_to_count: int
-    timestamp: datetime
-    published: bool
-    deleted: bool
-
-    class Settings:
-        name = "events"  # database document name
-
-
-class EventReminder(Document):
-    chat_id: str
-    event_id: PydanticObjectId
-
-    class Settings:
-        name = "eventreminder"  # database document name
-
-
-class Option(Document):
-    option: str
-    vote_id: PydanticObjectId
-    count_of_votes: int
-
-    class Settings:
-        name = "options"  # database document name
-
-
-class UserVote(Document):
-    user_id: PydanticObjectId
-    vote_id: PydanticObjectId
-
-    class Settings:
-        name = "usersvotes"  # database document name
-
-
-class Vote(Document):
-    start: datetime
-    end: datetime
-    name: str
-    question: str
-    user: str
-    closed: int
-    published: int
-
-    class Settings:
-        name = "votes"  # database document name
-"""

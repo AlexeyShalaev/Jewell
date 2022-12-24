@@ -437,3 +437,24 @@ def student_mezuzah():
         pass
     # TODO сделать страницу
     return render_template("mezuzah.html")
+
+
+# NET WORKING
+
+
+# Уровень:              networking/feed
+# База данных:          User
+# HTML:                 social-feed
+@student.route('/networking/feed', methods=['POST', 'GET'])
+@login_required
+def student_feed():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+    # TODO сделать страницу
+    return render_template("social-feed.html")

@@ -3,12 +3,12 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from ext.webui.view import view
-from ext.webui.error import error
-from ext.webui.api import api
-from ext.webui.student import student
-from ext.webui.teacher import teacher
-from ext.webui.admin import admin
+from AdminPanel.ext.webui.view import view
+from AdminPanel.ext.webui.error import error
+from AdminPanel.ext.webui.api import api
+from AdminPanel.ext.webui.student import student
+from AdminPanel.ext.webui.teacher import teacher
+from AdminPanel.ext.webui.admin import admin
 from AdminPanel.ext.database.users import *
 
 import logging

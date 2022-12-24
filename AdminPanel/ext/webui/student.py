@@ -1,14 +1,16 @@
 import os
-import random
+from AdminPanel.ext.tools import *
 from AdminPanel.ext.logistics import *
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.database.offers import *
 from AdminPanel.ext.database.courses import *
+from AdminPanel.ext.database.attendances import *
 from AdminPanel.ext.database.flask_sessions import *
 from flask import *
 from flask_toastr import *
 from flask_login import *
 from AdminPanel.ext.crypt import *
+from AdminPanel.ext import trip_date
 import logging
 
 logger = logging.getLogger(__name__)  # logging
@@ -188,8 +190,133 @@ def student_attendance():
     if request.method == "POST":
         # TODO сделать логику запросов
         pass
-    # TODO сделать страницу
-    return render_template("attendance.html")
+    resp = get_attendances_by_user_id(current_user.id)
+    if not resp.success:
+        return render_template("error-500.html")
+    attendance = resp.data
+    visits_count = len(attendance)
+    # base set up
+    now = datetime.now()
+    visits_aim = '∞'
+    percent = 0
+    progress_color = 'bg-dark'
+    frequency = '∞'
+    extra_info = f'Ваша награда: {current_user.reward.value}'
+    visits_dataset = []
+    # TRIP set up
+    if current_user.reward == Reward.TRIP:
+        visits_aim = 30
+        percent = int(visits_count / visits_aim * 100)
+        if percent < 25:
+            progress_color = 'bg-danger'
+        elif percent < 50:
+            progress_color = 'bg-warning'
+        elif percent < 75:
+            progress_color = 'bg-info'
+        else:
+            progress_color = 'bg-success'
+        frequency_data_set = dict()
+        for visit in attendance:
+            key = f'{visit.date.month} {visit.date.year}'
+            if key in frequency_data_set.keys():
+                frequency_data_set[key] += 1 / 4
+            else:
+                frequency_data_set[key] = 1 / 4
+        frequency_array = frequency_data_set.values()
+        if len(frequency_array) == 0:
+            frequency = 0
+        else:
+            frequency = int(sum(frequency_array) / len(frequency_array) * 1000) / 1000
+        for k, v in frequency_data_set.items():
+            m, y = map(int, k.split())
+            visits_dataset.append({
+                'x': f'{get_month(m)} {y}',
+                'y': int(v * 4)
+            })
+        if now < trip_date:
+            days_remaining = (trip_date - now).days
+            weeks_remaining = int(days_remaining / 7)
+            extra_info = f'До поездки осталось {days_remaining} дней. '
+            if visits_count < 25:
+                extra_info += f'Вам еще нужно минимум {25 - visits_count} посещений. '
+                if visits_count + weeks_remaining < 25:
+                    extra_info += f'Если вы будете ходить раз в неделю, то НЕ сможете выполнить план, поэтому ходите на отработки/доп занятия. '
+                else:
+                    extra_info += f'Если вы будете ходить раз в неделю, то сможете с легкостью выполнить план. '
+            else:
+                extra_info += f'Ваша посещаемость в норме. '
+        else:
+            if visits_count < 30:
+                extra_info = f'Вам еще нужно минимум {30 - visits_count} посещений. '
+            else:
+                extra_info = f'Ваша посещаемость в норме. '
+    # GRANT set up
+    elif current_user.reward == Reward.GRANT:
+        visits_count = 0
+        visits_aim = 4
+        frequency_data_set = dict()
+        for visit in attendance:
+            if visit.date.month == now.month:
+                visits_count += 1
+            key = f'{visit.date.month} {visit.date.year}'
+            if key in frequency_data_set.keys():
+                frequency_data_set[key] += 1 / 4
+            else:
+                frequency_data_set[key] = 1 / 4
+        frequency_array = frequency_data_set.values()
+        if len(frequency_array) == 0:
+            frequency = 0
+        else:
+            frequency = int(sum(frequency_array) / len(frequency_array) * 1000) / 1000
+        for k, v in frequency_data_set.items():
+            m, y = map(int, k.split())
+            visits_dataset.append({
+                'x': f'{get_month(m)} {y}',
+                'y': int(v * 4),
+                'goals': [
+                    {
+                        'name': 'Планка',
+                        'value': 8,
+                        'strokeHeight': 5,
+                        'strokeColor': '#775DD0'
+                    }],
+            })
+        percent = int(visits_count / (visits_aim + 4) * 100)
+        if percent < 50:
+            progress_color = 'bg-danger'
+        else:
+            progress_color = 'bg-success'
+        if visits_count < 4:
+            extra_info = f'Вам необходимо посетить еще {visits_aim - visits_count} занятий для получения стипендии в размере: 65$'
+        elif visits_count < 7:
+            extra_info = f'Продолжайте ходить на занятия и увеличьте стипендию до {65 + 15 * (visits_count + 1 - 4)}$. На данный момент ваша стипендия составляет целых {65 + 15 * (visits_count - 4)}$'
+        elif visits_count == 7:
+            extra_info = f'Продолжайте ходить на занятия и увеличьте стипендию до 130$. На данный момент ваша стипендия составляет целых {65 + 15 * (visits_count - 4)}$'
+        elif visits_count == 8:
+            extra_info = f'Вы молодец! Ваша стипендия составляет целых 130$'
+        else:
+            extra_info = f'Мы очень гордимся вами. Ваша посещаемость идеальна :)'
+    # No reward
+    else:
+        return render_template("no-reward.html")
+    return render_template("attendance.html", visits_count=visits_count, visits_aim=visits_aim,
+                           progress_color=progress_color, percent=percent, frequency=frequency,
+                           extra_info=extra_info,
+                           visits_dataset=visits_dataset)
+
+
+# Уровень:              attendance/count
+# База данных:          attendance
+# HTML:                 -
+@student.route('/attendance/count', methods=['POST'])
+def attendance_count():
+    try:
+        cnt = len(get_attendances_by_user_id(current_user.id).data)
+        if cnt > 0:
+            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
 # Уровень:              courses/schedule
@@ -249,16 +376,6 @@ def get_schedule():
     except Exception as ex:
         logger.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
-
-
-# Уровень:              -
-# База данных:          -
-# HTML:                 -
-def get_random_color():
-    random_number = random.randint(0, 16777215)
-    hex_number = str(hex(random_number))
-    hex_number = '#' + hex_number[2:]
-    return hex_number
 
 
 # Уровень:              offers

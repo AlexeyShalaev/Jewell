@@ -464,7 +464,7 @@
                 <li class="side-nav-item">
                     <a href="{{url_for('student.student_attendance')}}" class="side-nav-link">
                         <i class="fa-regular fa-calendar-check"></i>
-                        <span class="badge bg-success float-end">5</span>
+                        <span id="attendances_cnt" class="badge bg-success float-end"></span>
                         <span> Посещаемость </span>
                     </a>
                 </li>
@@ -1094,6 +1094,7 @@
 <script>
     set_avatars("{{url_for('student.get_avatar')}}");
     set_offers_cnt();
+    set_attendances_cnt();
 
     function set_avatars(source) {
         let images = document.getElementsByClassName('avatar-img');
@@ -1110,6 +1111,21 @@
                 url: link,
                 success: function (result) {
                     document.getElementById("offers_cnt").innerText = JSON.parse(result).data;
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    function set_attendances_cnt() {
+        try {
+            const link = "{{url_for('student.attendance_count')}}";
+            $.ajax({
+                type: 'POST',
+                url: link,
+                success: function (result) {
+                    document.getElementById("attendances_cnt").innerText = JSON.parse(result).data;
                 }
             });
         } catch (err) {

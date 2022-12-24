@@ -29,13 +29,16 @@ def get_attendance_by_id(id) -> MongoDBResult:
         return MongoDBResult(False, None)
 
 
-# получение посещаемости по User ID
-def get_attendance_by_user_id(user_id) -> MongoDBResult:
-    attendance = db.attendances.find_one({'user_id': ObjectId(user_id)})
-    if attendance:
-        return MongoDBResult(True, Attendance(attendance))
+# получение посещаемостей по User ID
+def get_attendances_by_user_id(user_id) -> MongoDBResult:
+    res = db.attendances.find({'user_id': ObjectId(user_id)})
+    if res:
+        attendances = []
+        for i in list(res):
+            attendances.append(Attendance(i))
+        return MongoDBResult(True, attendances)
     else:
-        return MongoDBResult(False, None)
+        return MongoDBResult(False, [])
 
 
 # добавление посещаемости

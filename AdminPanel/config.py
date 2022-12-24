@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+from datetime import datetime
 from environs import Env
 
 
@@ -25,10 +25,16 @@ class TgBot:
 
 
 @dataclass
+class Yahad:
+    trip: datetime
+
+
+@dataclass
 class Config:  # class config
     db: DbConfig
     flask: FlaskConfig
     tg_bot: TgBot
+    yahad: Yahad
 
 
 def load_config(path: str = ".env"):
@@ -50,5 +56,6 @@ def load_config(path: str = ".env"):
         ),
         tg_bot=TgBot(
             token=env.str("BOT_TOKEN")
-        )
+        ),
+        yahad=Yahad(trip=datetime.strptime(env.str("YAHAD_TRIP"), "%d.%m.%Y"))
     )

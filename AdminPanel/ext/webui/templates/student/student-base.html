@@ -1135,6 +1135,11 @@
             console.log(err);
         }
     }
+
+    function call_down(id, milliseconds=1000) {
+        document.getElementById(id).disabled = true;
+        setTimeout(() => document.getElementById(id).disabled = false, milliseconds);
+    }
 </script>
 
 <!-- Sweet Alert 2 -->

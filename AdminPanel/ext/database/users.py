@@ -120,6 +120,17 @@ def update_registered_user(id, first_name, last_name, birthday):
     }})
 
 
+def update_social_data(id, sex, location, profession, university, languages, tags):
+    db.users.update_one({'_id': ObjectId(id)}, {"$set": {
+        "sex": sex,
+        "location": location,
+        "profession": profession,
+        "university": university,
+        "languages": languages,
+        "tags": tags,
+    }})
+
+
 # удаление пользователя по ID
 def delete_user(id):
     db.users.delete_one({

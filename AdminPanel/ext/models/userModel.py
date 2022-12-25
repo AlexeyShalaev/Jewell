@@ -81,3 +81,8 @@ class User(UserMixin):
                            "location": self.location,
                            "tags": self.tags
                            })
+
+    def to_document(self):
+        return f'{self.phone_number} {self.first_name} {self.last_name} {self.sex.value} {self.birthday} ' \
+               f'{self.reward.value} {self.profession} {self.university} {self.location} {" ".join(self.languages)} ' \
+               f'{" ".join(self.tags)}'

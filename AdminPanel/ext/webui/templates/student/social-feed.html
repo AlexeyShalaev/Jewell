@@ -47,24 +47,22 @@ Feed
 
                     {% if current_user.location != None %}
                     <a class="list-group-item list-group-item-action border-0"><i
-                            class="fa-solid fa-location-dot me-1"></i>{{current_user.location}}</a>
+                            class="fa-solid fa-location-dot me-1"></i>{% if current_user.location | length > 0 %}{{current_user.location}}{% else %}Локация{% endif %}</a>
                     {% endif %}
 
                     {% if current_user.languages != None %}
                     <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-language me-1"></i>
-                        {% for language in current_user.languages %}
-                        {{language}}
-                        {% endfor %}
+                        {% if current_user.languages | length > 0 %}{% for language in current_user.languages %}{{language}} {% endfor %}{% else %}Языки{% endif %}
                     </a>
                     {% endif %}
 
                     {% if current_user.profession != None %}
-                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-user-tie me-1"></i>{{current_user.profession}}</a>
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-user-tie me-1"></i>{% if current_user.profession | length > 0 %}{{current_user.profession}}{% else %}Профессия{% endif %}</a>
                     {% endif %}
 
                     {% if current_user.university != None %}
                     <a class="list-group-item list-group-item-action border-0"><i
-                            class="fa-solid fa-graduation-cap me-1"></i>{{current_user.university}}</a>
+                            class="fa-solid fa-graduation-cap me-1"></i>{% if current_user.university | length > 0 %}{{current_user.university}}{% else %}Университет{% endif %}</a>
                     {% endif %}
                 </div>
             </div>
@@ -113,7 +111,7 @@ Feed
                     <li class="nav-item" role="presentation">
                         <a href="#profile-edit" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
                            aria-selected="false" tabindex="-1" role="tab">
-                            <i class="mdi mdi-image font-18 d-md-none d-block"></i>
+                            <i class="mdi mdi-account-settings font-18 d-md-none d-block"></i>
                             <span class="d-none d-md-block">Настройки профиля</span>
                         </a>
                     </li>
@@ -182,15 +180,13 @@ Feed
                                                     <label class="col-md-3 col-form-label" for="editSex">Пол</label>
                                                     <div class="col-md-9">
                                                         <select id="editSex" class="form-select mb-3">
-                                                            <option value="{{current_user.sex.value}}" selected>
-                                                                {% if current_user.sex.value == 'male' %}
-                                                                Мужчина
-                                                                {% elif current_user.sex.value == 'female' %}
-                                                                Женщина
-                                                                {% endif %}
-                                                            </option>
-                                                            <option value="male">Мужчина</option>
-                                                            <option value="female">Женщина</option>
+                                                             {% if current_user.sex.value == 'male' %}
+                                                                <option value="male" selected>Мужчина</option>
+                                                                <option value="female">Женщина</option>
+                                                            {% elif current_user.sex.value == 'female' %}
+                                                                <option value="female" selected>Женщина</option>
+                                                                <option value="male">Мужчина</option>
+                                                            {% endif %}
                                                         </select>
                                                     </div>
                                                 </div>
@@ -461,7 +457,7 @@ Feed
                                                 </button>
                                             </li>
                                             <li class="next list-inline-item float-end">
-                                                <button type="button" class="btn btn-info">Сохранить</button>
+                                                <button id="btn_save" type="button" onclick="edit_profile();" class="btn btn-info">Сохранить</button>
                                             </li>
                                         </ul>
                                     </div>
@@ -776,4 +772,45 @@ Feed
 
 <!-- Wizard Form Demo js -->
 <script src="../../assets/js/pages/demo.form-wizard.js"></script>
+<script>
+    function edit_profile(){
+        var sex = document.getElementById("editSex").value;
+        var location = document.getElementById("editLocation").value;
+        var profession = document.getElementById("editProfession").value;
+        var university = document.getElementById("editUniversity").value;
+        var languages = "";
+        var tags = document.getElementById("editTags").value;
+        for (var option of document.getElementById('editLanguages').options)
+        {
+            if (option.selected) {
+                languages+=option.value+";"
+            }
+        }
+         try {
+            $.ajax({
+                type: 'POST',
+                url: 'profile/settings',
+                data: {
+                    "sex": sex,
+                    "location": location,
+                    "profession": profession,
+                    "university": university,
+                    "languages":  languages,
+                    "tags": tags
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success) {
+                        window.location.reload();
+                    } else {
+                        $.NotificationApp.send("Профиль", "Не удалось изменить данные", "top-right", "#FF5B5B", "error");
+                    }
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+        call_down("btn_save", 2000);
+    }
+</script>
 {% endblock %}

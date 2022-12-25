@@ -456,5 +456,24 @@ def student_feed():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    # TODO сделать страницу
     return render_template("social-feed.html")
+
+
+# Уровень:              networking/profile/settings
+# База данных:          User
+# HTML:                 -
+@student.route('networking/profile/settings', methods=['POST'])
+def student_networking_profile_settings():
+    try:
+        sex = request.form["sex"]
+        location = request.form["location"]
+        profession = request.form["profession"]
+        university = request.form["university"]
+        languages = request.form["languages"].split(';')
+        languages.remove('')
+        tags = request.form["tags"].split()
+        update_social_data(current_user.id, sex, location, profession, university, languages, tags)
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+        return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

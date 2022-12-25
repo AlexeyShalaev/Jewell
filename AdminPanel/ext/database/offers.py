@@ -35,7 +35,7 @@ def get_offers() -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
-# получение записей о всех оферах по роли
+# получение записей о всех оферах по автору
 def get_offers_by_author(author) -> MongoDBResult:
     res = db.offers.find({'author': ObjectId(author)})
     if res:

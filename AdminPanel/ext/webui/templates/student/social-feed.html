@@ -105,7 +105,7 @@ Feed
                         <a href="#newpost" data-bs-toggle="tab" aria-expanded="false" class="nav-link active px-3 py-2"
                            aria-selected="true" role="tab">
                             <i class="mdi mdi-pencil-box-multiple font-18 d-md-none d-block"></i>
-                            <span class="d-none d-md-block">Новый пост</span>
+                            <span class="d-none d-md-block">Новая запись</span>
                         </a>
                     </li>
                     <li class="nav-item" role="presentation">
@@ -121,11 +121,11 @@ Feed
                     <div class="tab-pane show active p-3" id="newpost" role="tabpanel">
                         <!-- comment box -->
                         <div class="border rounded">
-                            <form action="#" class="comment-area-box">
-                                <textarea rows="4" class="form-control border-0 resize-none"
-                                          placeholder="Напишите что-то...."></textarea>
+                            <form class="comment-area-box" action="{{url_for('student.student_feed')}}" method="post">
+                                <textarea name="record_text" rows="4" class="form-control border-0 resize-none"
+                                          placeholder="Напишите что-то...." required minlength="5"></textarea>
                                 <div class="p-2 bg-light d-flex justify-content-between align-items-center">
-                                    <button type="submit" class="btn btn-sm btn-success"><i
+                                    <button type="submit" name="btn_student_feed" value="record" class="btn btn-sm btn-success"><i
                                             class="uil uil-message me-1"></i>Опубликовать
                                     </button>
                                 </div>
@@ -137,7 +137,7 @@ Feed
                 <div class="tab-content">
                     <div class="tab-pane show p-3" id="profile-edit" role="tabpanel">
                         <!-- comment box -->
-                        <form>
+                        <form action="{{url_for('student.student_feed')}}" method="post">
                             <div id="progressbarwizard">
 
                                 <ul class="nav nav-pills nav-justified form-wizard-header mb-3" role="tablist">
@@ -179,13 +179,13 @@ Feed
                                                 <div class="row mb-3">
                                                     <label class="col-md-3 col-form-label" for="editSex">Пол</label>
                                                     <div class="col-md-9">
-                                                        <select id="editSex" class="form-select mb-3">
-                                                             {% if current_user.sex.value == 'male' %}
-                                                                <option value="male" selected>Мужчина</option>
-                                                                <option value="female">Женщина</option>
-                                                            {% elif current_user.sex.value == 'female' %}
+                                                        <select id="editSex" name="editSex" class="form-select mb-3">
+                                                            {% if current_user.sex.value == 'female' %}
                                                                 <option value="female" selected>Женщина</option>
                                                                 <option value="male">Мужчина</option>
+                                                            {% else %}
+                                                                <option value="male" selected>Мужчина</option>
+                                                                <option value="female">Женщина</option>
                                                             {% endif %}
                                                         </select>
                                                     </div>
@@ -236,7 +236,7 @@ Feed
                                                            for="editLanguages">Языки</label>
                                                     <div class="col-md-9">
                                                         <!-- Multiple Select -->
-                                                        <select id="editLanguages"
+                                                        <select id="editLanguages" name="editLanguages"
                                                                 class="select2 form-control select2-multiple"
                                                                 data-toggle="select2" multiple="multiple"
                                                                 data-placeholder="Выбрать ...">
@@ -245,6 +245,9 @@ Feed
                                                             <option selected value="{{language}}">{{language}}</option>
                                                             {% endfor %}
                                                             {% endif %}
+                                                            <option value="Russian">Русский</option>
+                                                            <option value="English">English</option>
+                                                             <option value="Hebrew">Иврит</option>
                                                             <option value="Afrikaans">Afrikaans</option>
                                                             <option value="Albanian">Albanian</option>
                                                             <option value="Amharic">Amharic</option>
@@ -274,7 +277,6 @@ Feed
                                                             <option value="Czech">Czech</option>
                                                             <option value="Danish">Danish</option>
                                                             <option value="Dutch">Dutch</option>
-                                                            <option value="English">English</option>
                                                             <option value="English (Australia)">English (Australia)
                                                             </option>
                                                             <option value="English (Canada)">English (Canada)</option>
@@ -316,7 +318,6 @@ Feed
                                                             <option value="Gujarati">Gujarati</option>
                                                             <option value="Hausa">Hausa</option>
                                                             <option value="Hawaiian">Hawaiian</option>
-                                                            <option value="Hebrew">Hebrew</option>
                                                             <option value="Hindi">Hindi</option>
                                                             <option value="Hungarian">Hungarian</option>
                                                             <option value="Icelandic">Icelandic</option>
@@ -369,7 +370,6 @@ Feed
                                                             <option value="Romanian (Moldova)">Romanian (Moldova)
                                                             </option>
                                                             <option value="Romansh">Romansh</option>
-                                                            <option value="Russian">Russian</option>
                                                             <option value="Scottish Gaelic">Scottish Gaelic</option>
                                                             <option value="Serbian">Serbian</option>
                                                             <option value="Serbo">Serbo</option>
@@ -423,7 +423,7 @@ Feed
                                                     <label class="col-md-3 col-form-label" for="editTags"> Теги (пишите
                                                         через пробел)</label>
                                                     <div class="col-md-9">
-                                                        <textarea class="form-control" id="editTags" rows="5">{% if current_user.tags != None %}{% for tag in current_user.tags %}{{tag}} {% endfor %}{% endif %}</textarea>
+                                                        <textarea class="form-control" name="editTags" id="editTags" rows="5">{% if current_user.tags != None %}{% for tag in current_user.tags %}{{tag}} {% endfor %}{% endif %}</textarea>
                                                     </div>
                                                 </div>
                                             </div> <!-- end col -->
@@ -457,7 +457,7 @@ Feed
                                                 </button>
                                             </li>
                                             <li class="next list-inline-item float-end">
-                                                <button id="btn_save" type="button" onclick="edit_profile();" class="btn btn-info">Сохранить</button>
+                                                <button  type="submit" name="btn_student_feed" value="profile" class="btn btn-info">Сохранить</button>
                                             </li>
                                         </ul>
                                     </div>
@@ -754,7 +754,7 @@ Feed
                         <p class="inbox-item-author">Adhamd Annaway</p>
                         <p class="inbox-item-text">Queen Daenerys</p>
                         <p class="inbox-item-date">
-                            <button type="button" class="btn btn-sm btn-outline-primary px-1 py-0"><i
+                            <button class="btn btn-sm btn-outline-primary px-1 py-0"><i
                                     class="uil uil-user-plus font-16"></i></button>
                         </p>
                     </div>
@@ -769,48 +769,4 @@ Feed
         <!-- end video -->
     </div> <!-- end col -->
 </div>
-
-<!-- Wizard Form Demo js -->
-<script src="../../assets/js/pages/demo.form-wizard.js"></script>
-<script>
-    function edit_profile(){
-        var sex = document.getElementById("editSex").value;
-        var location = document.getElementById("editLocation").value;
-        var profession = document.getElementById("editProfession").value;
-        var university = document.getElementById("editUniversity").value;
-        var languages = "";
-        var tags = document.getElementById("editTags").value;
-        for (var option of document.getElementById('editLanguages').options)
-        {
-            if (option.selected) {
-                languages+=option.value+";"
-            }
-        }
-         try {
-            $.ajax({
-                type: 'POST',
-                url: 'profile/settings',
-                data: {
-                    "sex": sex,
-                    "location": location,
-                    "profession": profession,
-                    "university": university,
-                    "languages":  languages,
-                    "tags": tags
-                },
-                success: function (result) {
-                    const res = JSON.parse(result);
-                    if (res.success) {
-                        window.location.reload();
-                    } else {
-                        $.NotificationApp.send("Профиль", "Не удалось изменить данные", "top-right", "#FF5B5B", "error");
-                    }
-                }
-            });
-        } catch (err) {
-            console.log(err);
-        }
-        call_down("btn_save", 2000);
-    }
-</script>
 {% endblock %}

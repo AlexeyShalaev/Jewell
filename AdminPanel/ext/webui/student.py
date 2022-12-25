@@ -3,6 +3,7 @@ from AdminPanel.ext.tools import *
 from AdminPanel.ext.logistics import *
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.database.offers import *
+from AdminPanel.ext.database.records import *
 from AdminPanel.ext.database.courses import *
 from AdminPanel.ext.database.attendances import *
 from AdminPanel.ext.database.flask_sessions import *
@@ -456,24 +457,23 @@ def student_feed():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
+    if request.method == "POST":
+        try:
+            if request.form['btn_student_feed'] == 'record':
+                record_text = request.form.get("record_text")
+                add_record(current_user.id, record_text, datetime.now())
+                flash('Вы добавили запись.', 'success')
+            elif request.form['btn_student_feed'] == 'profile':
+                sex = request.form.get("editSex")
+                location = request.form.get("editLocation")
+                profession = request.form.get("editProfession")
+                university = request.form.get("editUniversity")
+                languages = request.form.getlist('editLanguages')
+                tags = request.form.get("editTags").split()
+                update_social_data(current_user.id, sex, location, profession, university, languages, tags)
+                flash('Вы успешно обновили данные', 'success')
+            return redirect(url_for('student.student_feed'))
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
     return render_template("social-feed.html")
-
-
-# Уровень:              networking/profile/settings
-# База данных:          User
-# HTML:                 -
-@student.route('networking/profile/settings', methods=['POST'])
-def student_networking_profile_settings():
-    try:
-        sex = request.form["sex"]
-        location = request.form["location"]
-        profession = request.form["profession"]
-        university = request.form["university"]
-        languages = request.form["languages"].split(';')
-        languages.remove('')
-        tags = request.form["tags"].split()
-        update_social_data(current_user.id, sex, location, profession, university, languages, tags)
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-    except Exception as ex:
-        logger.error(ex)
-        return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

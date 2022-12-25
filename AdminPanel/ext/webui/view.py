@@ -199,6 +199,10 @@ def registered():
         return redirect(url_for("view.landing"))
     if request.method == "POST":
         try:
+            # auto redirect
+            status, url = auto_redirect(ignore_role=Role.REGISTERED)
+            if status:
+                return redirect(url)
             input_first_name = request.form.get("first_name")
             input_last_name = request.form.get("last_name")
             input_birthday = request.form.get("birthday")

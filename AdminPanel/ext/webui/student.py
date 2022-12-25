@@ -461,6 +461,7 @@ def student_feed():
         try:
             if request.form['btn_student_feed'] == 'record':
                 record_text = request.form.get("record_text")
+
                 add_record(current_user.id, record_text, datetime.now())
                 flash('Вы добавили запись.', 'success')
             elif request.form['btn_student_feed'] == 'profile':

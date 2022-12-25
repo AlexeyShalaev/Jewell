@@ -12,6 +12,7 @@ from flask_toastr import *
 from flask_login import *
 from AdminPanel.ext.crypt import *
 from AdminPanel.ext import trip_date
+from AdminPanel.ext.text_filter import TextFilter
 import logging
 
 logger = logging.getLogger(__name__)  # logging
@@ -58,17 +59,17 @@ def student_account():
         types = ['jpeg', 'jpg', 'png']
         if img_type in types:
             try:
-                phone_number = current_user.phone_number
+                user_id = str(current_user.id)
                 filename = ''
                 directory = 'storage/avatars/'
                 files = os.listdir(directory)
                 for file in files:
-                    if phone_number == file.split('.')[0]:
+                    if user_id == file.split('.')[0]:
                         filename = file
                         break
                 if filename != '':
                     os.remove(directory + filename)
-                avatar.save(directory + phone_number + '.' + img_type)
+                avatar.save(directory + user_id + '.' + img_type)
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')
@@ -76,24 +77,6 @@ def student_account():
         else:
             flash('Такое расширение файла не подходит', category='warning')
     return render_template("account.html")
-
-
-# Уровень:              account/avatar
-# База данных:          storage/avatars
-# HTML:                 -
-@student.route('account/avatar', methods=['POST', 'GET'])
-def get_avatar():
-    filename = 'undraw_avatar.jpg'
-    directory = 'storage/avatars/'
-    try:
-        files = os.listdir(directory)
-        for file in files:
-            if current_user.phone_number == file.split('.')[0]:
-                filename = file
-                break
-    except Exception as ex:
-        logger.error(ex)
-    return send_file(directory + filename, as_attachment=True)
 
 
 # Уровень:              account/password
@@ -461,9 +444,13 @@ def student_feed():
         try:
             if request.form['btn_student_feed'] == 'record':
                 record_text = request.form.get("record_text")
-
-                add_record(current_user.id, record_text, datetime.now())
-                flash('Вы добавили запись.', 'success')
+                # проверка на нецензурную лексику
+                bad_words = TextFilter(record_text).find_bad_words()
+                if len(bad_words) > 0:
+                    flash(f'В вашем тексте были найдены недопустимые слова: {" ".join(bad_words)}')
+                else:
+                    add_record(current_user.id, record_text, datetime.now())
+                    flash('Вы добавили запись.', 'success')
             elif request.form['btn_student_feed'] == 'profile':
                 sex = request.form.get("editSex")
                 location = request.form.get("editLocation")
@@ -471,10 +458,29 @@ def student_feed():
                 university = request.form.get("editUniversity")
                 languages = request.form.getlist('editLanguages')
                 tags = request.form.get("editTags").split()
-                update_social_data(current_user.id, sex, location, profession, university, languages, tags)
-                flash('Вы успешно обновили данные', 'success')
+                # проверка на нецензурную лексику
+                bad_words = TextFilter(f'{location} {profession} {university} {tags}').find_bad_words()
+                if len(bad_words) > 0:
+                    flash(f'В ваших данных были найдены недопустимые слова: {" ".join(bad_words)}')
+                else:
+                    update_social_data(current_user.id, sex, location, profession, university, languages, tags)
+                    flash('Вы успешно обновили данные', 'success')
             return redirect(url_for('student.student_feed'))
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
-    return render_template("social-feed.html")
+    records = []
+    resp = get_records()
+    if resp.success:
+        recs = sorted(resp.data, key=lambda rec: rec.time, reverse=True)
+        for rec in recs:
+            r = get_user_by_id(rec.author)
+            if r.success:
+                author = r.data
+                records.append({
+                    'user_id': f'{author.id}',
+                    'author': f'{author.first_name} {author.last_name}',
+                    'text': rec.text,
+                    'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                })
+    return render_template("social-feed.html", records=records)

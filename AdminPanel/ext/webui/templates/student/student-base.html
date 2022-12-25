@@ -1095,7 +1095,7 @@
 {% block js %}{% endblock %}
 
 <script>
-    set_avatars("{{url_for('student.get_avatar')}}");
+    set_avatars("{{url_for('api.get_avatar', user_id=current_user.id)}}");
     set_offers_cnt();
     set_attendances_cnt();
 

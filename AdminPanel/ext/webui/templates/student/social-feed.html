@@ -114,6 +114,13 @@ Feed
                         </a>
                     </li>
                     <li class="nav-item" role="presentation">
+                        <a href="#user-records" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
+                           aria-selected="false" tabindex="-1" role="tab">
+                            <i class="mdi mdi-post font-18 d-md-none d-block"></i>
+                            <span class="d-none d-md-block">Мои записи</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" role="presentation">
                         <a href="#profile-edit" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
                            aria-selected="false" tabindex="-1" role="tab">
                             <i class="mdi mdi-account-settings font-18 d-md-none d-block"></i>
@@ -130,12 +137,49 @@ Feed
                                 <textarea name="record_text" rows="4" class="form-control border-0 resize-none"
                                           placeholder="Напишите что-то...." required minlength="5"></textarea>
                                 <div class="p-2 bg-light d-flex justify-content-between align-items-center">
-                                    <button type="submit" name="btn_student_feed" value="record"
+                                    <button type="submit" name="btn_student_feed" value="add_record"
                                             class="btn btn-sm btn-success"><i
                                             class="uil uil-message me-1"></i>Опубликовать
                                     </button>
                                 </div>
                             </form>
+                        </div> <!-- end .border-->
+                        <!-- end comment box -->
+                    </div> <!-- end preview-->
+                </div> <!-- end tab-content-->
+                <div class="tab-content">
+                    <div class="tab-pane show p-3" id="user-records" role="tabpanel">
+                        <!-- comment box -->
+                        <div class="border rounded">
+                            <div class="accordion" id="CardaccordionRecords">
+                                {% for record in records %}
+                                     {% if record['user_id'] | string() == current_user.id |string() %}
+                                        <div class="card mb-0">
+                                            <div class="card-header">
+                                                <h5 class="m-0">
+                                                    <a class="custom-accordion-title d-block"
+                                                       data-bs-toggle="collapse" href="#{{record['record_id']}}"
+                                                       aria-expanded="false" aria-controls="{{record['record_id']}}">
+                                                        {{record['time']}}
+                                                    </a>
+                                                </h5>
+                                            </div>
+                                            <div id="{{record['record_id']}}" class="collapse" data-bs-parent="#CardaccordionRecords">
+                                                <div class="card-body">
+                                                    <form class="comment-area-box" action="/student/networking/feed" method="post">
+                                                        <input type="hidden" name="record_id" value="{{record['record_id']}}">
+                                                        <textarea name="record_text" rows="4" class="bg-body form-control border-0 resize-none" placeholder="Напишите что-то...." required="" minlength="5">{{record['text']}}</textarea>
+                                                        <div class="p-2 bg-light d-flex justify-content-between align-items-center">
+                                                            <button type="submit" name="btn_student_feed" value="edit_record" class="btn btn-sm btn-info"><i class="uil uil-comment-alt-edit me-1"></i>Редактировать</button>
+                                                            <button type="submit" name="btn_student_feed" value="delete_record" class="btn btn-sm btn-danger"><i class="uil uil-trash-alt me-1"></i>Удалить</button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif  %}
+                                {% endfor %}
+                            </div>
                         </div> <!-- end .border-->
                         <!-- end comment box -->
                     </div> <!-- end preview-->
@@ -507,7 +551,10 @@ Feed
             <!-- end news feeds -->
         </div>
 
-
+        <div class="text-center mb-3" id="load_more">
+            <a onclick="fetchRecords()" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1 font-16"></i>
+                Загрузить еще </a>
+        </div>
     </div>
 
     <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-2">
@@ -626,120 +673,42 @@ Feed
 
 <script>
 
-    // Если отправили запрос, но ещё не получили ответ,
-    // не нужно отправлять ещё один запрос:
-    let isLoading = false;
-
-    // Если контент закончился, вообще больше не нужно
-    // отправлять никаких запросов:
-    let shouldLoad = true;
-
     let records = {{records | safe}};
 
     let counter = 5;
-
-    $(document).ready(function () {
-        if (records.length > 5) {
-            window.addEventListener('scroll', throttle(checkPosition, 250));
-            window.addEventListener('resize', throttle(checkPosition, 250));
-        }
-    });
-
-    async function checkPosition() {
-        // Нам потребуется знать высоту документа и высоту экрана:
-        const height = document.body.offsetHeight
-        const screenHeight = window.innerHeight
-
-        // Они могут отличаться: если на странице много контента,
-        // высота документа будет больше высоты экрана (отсюда и скролл).
-
-        // Записываем, сколько пикселей пользователь уже проскроллил:
-        const scrolled = window.scrollY
-
-        // Обозначим порог, по приближении к которому
-        // будем вызывать какое-то действие.
-        // В нашем случае — четверть экрана до конца страницы:
-        const threshold = height - screenHeight / 4
-
-        // Отслеживаем, где находится низ экрана относительно страницы:
-        const position = scrolled + screenHeight
-
-        if (position >= threshold) {
-            await fetchRecords()
-        }
-    }
 
     function appendRecord(index) {
         let recs = document.getElementById("records");
         const rec_html = "<div class=\"card\">" +
             "                <div class=\"card-body pb-1\">" +
             "                    <div class=\"d-flex\">" +
-            "                        <img class=\"me-2 rounded\" src=\"/api/avatar/"+records[index]['user_id']+"\"" +
+            "                        <img class=\"me-2 rounded\" src=\"/api/avatar/" + records[index]['user_id'] + "\"" +
             "                             alt=\"avatar\"" +
             "                             height=\"32\">" +
             "                        <div class=\"w-100\">" +
-            "                            <h5 class=\"m-0\">"+records[index]['author']+"</h5>" +
-            "                            <p class=\"text-muted\"><small>"+records[index]['time']+"</small></p>" +
+            "                            <h5 class=\"m-0\">" + records[index]['author'] + "</h5>" +
+            "                            <p class=\"text-muted\"><small>" + records[index]['time'] + "</small></p>" +
             "                        </div> <!-- end w-100-->" +
             "                    </div> <!-- end d-flex -->" +
             "                    <hr class=\"m-0\">" +
             "                    <div class=\"my-3\">" +
-            "                        <p>"+records[index]['text']+"</p>" +
+            "                        <p>" + records[index]['text'] + "</p>" +
             "                    </div>" +
             "                </div> <!-- end card-body -->" +
             "            </div>"
-        recs.innerHTML+=rec_html;
+        recs.innerHTML += rec_html;
     }
 
-    async function fetchRecords() {
-        // Если мы уже отправили запрос, или новый контент закончился,
-        // то новый запрос отправлять не надо:
-        if (isLoading || !shouldLoad) return;
-
-        // Предотвращаем новые запросы, пока не закончится этот:
-        isLoading = true;
-
+    function fetchRecords() {
         let i = 0;
         while (i < 5 && counter + i < records.length) {
             appendRecord(counter + i);
             i++;
         }
         counter += i;
-
-        // Если мы увидели, что контент закончился,
-        // отмечаем, что больше запрашивать ничего не надо:
-        if (counter >= records.length) shouldLoad = false
-
-        // Когда запрос выполнен и обработан,
-        // снимаем флаг isLoading:
-        isLoading = false
-    }
-
-    // Функция throttle будет принимать 2 аргумента:
-    // - callee, функция, которую надо вызывать;
-    // - timeout, интервал в мс, с которым следует пропускать вызовы.
-    function throttle(callee, timeout) {
-        // Таймер будет определять,
-        // надо ли нам пропускать текущий вызов.
-        let timer = null
-
-        // Как результат возвращаем другую функцию.
-        // Это нужно, чтобы мы могли не менять другие части кода,
-        // чуть позже мы увидим, как это помогает.
-        return function perform(...args) {
-            // Если таймер есть, то функция уже была вызвана,
-            // и значит новый вызов следует пропустить.
-            if (timer) return
-
-            // Если таймера нет, значит мы можем вызвать функцию:
-            timer = setTimeout(() => {
-                // Аргументы передаём неизменными в функцию-аргумент:
-                callee(...args)
-
-                // По окончании очищаем таймер:
-                clearTimeout(timer)
-                timer = null
-            }, timeout)
+        if (counter >= records.length) {
+            document.getElementById("load_more").remove();
+            return;
         }
     }
 

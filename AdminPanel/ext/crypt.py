@@ -29,3 +29,31 @@ def create_token(n_bytes: int = 16) -> (bool, str):
     except Exception as ex:
         logger.error(ex)
         return False, str(ex)
+
+
+def encrypt_id_with_no_digits(code: str) -> (bool, str):
+    try:
+        result = ''
+        for symbol in code:
+            if symbol.isdigit():
+                result += chr(65 + int(symbol))
+            else:
+                result += symbol
+        return True, result
+    except Exception as ex:
+        logger.error(ex)
+        return False, str(ex)
+
+
+def decrypt_id_with_no_digits(code: str) -> (bool, str):
+    try:
+        result = ''
+        for symbol in code:
+            if symbol.isupper():
+                result += str(ord(symbol) - 65)
+            else:
+                result += symbol
+        return True, result
+    except Exception as ex:
+        logger.error(ex)
+        return False, str(ex)

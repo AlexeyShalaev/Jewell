@@ -442,7 +442,7 @@ def student_feed():
         return redirect(url_for("view.landing"))
     if request.method == "POST":
         try:
-            if request.form['btn_student_feed'] == 'record':
+            if request.form['btn_student_feed'] == 'add_record':
                 record_text = request.form.get("record_text")
                 # проверка на нецензурную лексику
                 bad_words = TextFilter(record_text).find_bad_words()
@@ -451,6 +451,28 @@ def student_feed():
                 else:
                     add_record(current_user.id, record_text, datetime.now())
                     flash('Вы добавили запись.', 'success')
+            elif request.form['btn_student_feed'] == 'edit_record':
+                record_text = request.form.get("record_text")
+                record_id = request.form.get("record_id")
+                rec_status, rec_id = decrypt_id_with_no_digits(record_id)
+                if not rec_status:
+                    flash('Не удалось обработать данные.', 'error')
+                else:
+                    # проверка на нецензурную лексику
+                    bad_words = TextFilter(record_text).find_bad_words()
+                    if len(bad_words) > 0:
+                        flash(f'В вашем тексте были найдены недопустимые слова: {" ".join(bad_words)}')
+                    else:
+                        update_record(rec_id, 'text', record_text)
+                        flash('Вы добавили запись.', 'success')
+            elif request.form['btn_student_feed'] == 'delete_record':
+                record_id = request.form.get("record_id")
+                rec_status, rec_id = decrypt_id_with_no_digits(record_id)
+                if not rec_status:
+                    flash('Не удалось обработать данные.', 'error')
+                else:
+                    delete_record(rec_id)
+                    flash('Вы удалили запись.', 'success')
             elif request.form['btn_student_feed'] == 'profile':
                 sex = request.form.get("editSex")
                 location = request.form.get("editLocation")
@@ -477,10 +499,13 @@ def student_feed():
             r = get_user_by_id(rec.author)
             if r.success:
                 author = r.data
-                records.append({
-                    'user_id': f'{author.id}',
-                    'author': f'{author.first_name} {author.last_name}',
-                    'text': rec.text,
-                    'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
-                })
+                record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
+                if record_status:
+                    records.append({
+                        'record_id': f'{record_id}',
+                        'user_id': f'{author.id}',
+                        'author': f'{author.first_name} {author.last_name}',
+                        'text': rec.text,
+                        'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                    })
     return render_template("social-feed.html", records=records)

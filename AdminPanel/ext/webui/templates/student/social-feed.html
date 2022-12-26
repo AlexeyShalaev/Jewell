@@ -74,7 +74,6 @@ Feed
         </div>
         <!-- end profile info -->
 
-
         <!-- tags -->
         <div class="card ribbon-box">
             <div class="card-body">
@@ -99,6 +98,93 @@ Feed
 
             </div> <!-- end card-body-->
         </div> <!-- end card-->
+
+         <div class="card">
+            <div class="card-body pb-0">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span
+                        class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
+                        {{friends_requests_to | length}}
+                    </span>
+                    <h4 class="header-title">Запросы к вам в друзья</h4>
+                    <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
+                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
+                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
+                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
+                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
+                </div>
+
+                <div class="inbox-widget">
+                    <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
+                        {% for req in friends_requests_to %}
+                         <form action="" method="post">
+                             <div class="inbox-item">
+                                 <input type="hidden" name="friend_request_id" value="{{req.id}}">
+                                 <a href="{{url_for('student.student_profile', user_id=req.sender_id)}}">
+                                <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.sender_id)}}"
+                                                                 class="rounded-circle"
+                                                                 alt=""></div>
+                                <p class="inbox-item-author">{{req.last_name}}</p>
+                                 <p class="inbox-item-text">{{req.first_name}}</p>
+                                 </a>
+                                <p class="inbox-item-date">
+                                    <button name="btn_student_feed" value="accept_friend" type="submit" class="btn btn-sm btn-outline-success px-1 py-0 me-2"><i
+                                            class="uil uil-user-plus font-16"></i></button>
+                                    <button name="btn_student_feed" value="reject_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                            class="uil uil-user-minus font-16"></i></button>
+                                </p>
+                            </div>
+                      </form>
+                        {% endfor %}
+                    </div>
+                </div> <!-- end inbox-widget -->
+
+
+            </div> <!-- end card-body -->
+        </div>
+
+        <div class="card">
+            <div class="card-body pb-0">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span
+                        class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
+                        {{friends_requests_from | length}}
+                    </span>
+                    <h4 class="header-title">Ваши запросы в друзья</h4>
+                    <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
+                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
+                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
+                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
+                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
+                </div>
+
+                <div class="inbox-widget">
+                    <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
+                        {% for req in friends_requests_from %}
+                         <form action="" method="post">
+                             <div class="inbox-item">
+                                 <input type="hidden" name="friend_request_id" value="{{req.id}}">
+                                 <a href="{{url_for('student.student_profile', user_id=req.receiver_id)}}">
+                                <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.receiver_id)}}"
+                                                                 class="rounded-circle"
+                                                                 alt=""></div>
+                                <p class="inbox-item-author">{{req.last_name}}</p>
+                                 <p class="inbox-item-text">{{req.first_name}}</p>
+                                 </a>
+                                <p class="inbox-item-date">
+                                    <button name="btn_student_feed" value="revoke_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                            class="uil uil-minus font-16"></i></button>
+                                </p>
+                            </div>
+                      </form>
+                        {% endfor %}
+                    </div>
+                </div> <!-- end inbox-widget -->
+
+
+            </div> <!-- end card-body -->
+        </div>
+
     </div> <!-- end col -->
 
     <div class="col-xxl-6 col-lg-12 order-lg-2 order-xxl-1">
@@ -573,31 +659,26 @@ Feed
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span
                         class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
-                        {{friends_requests | length}}
+                        {{friends | length}}
                     </span>
-                    <h4 class="header-title">Запросы в друзья</h4>
-                    <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
-                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
-                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
-                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
-                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
+                    <h4 class="header-title">Связи</h4>
                 </div>
 
                 <div class="inbox-widget">
                     <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
-                        {% for req in friends_requests %}
+                        {% for req in friends %}
                          <form action="" method="post">
                              <div class="inbox-item">
                                  <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.sender_id)}}"
-                                                                 class="rounded-circle"
-                                                                 alt=""></div>
-                                <p class="inbox-item-author">{{req.last_name}}</p>
-                                 <p class="inbox-item-text">{{req.first_name}}</p>
+                                  <a href="{{url_for('student.student_profile', user_id=req.friend.id)}}">
+                                    <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.friend.id)}}"
+                                                                     class="rounded-circle"
+                                                                     alt=""></div>
+                                    <p class="inbox-item-author">{{req.friend.last_name}}</p>
+                                     <p class="inbox-item-text">{{req.friend.first_name}}</p>
+                                  </a>
                                 <p class="inbox-item-date">
-                                    <button name="btn_student_feed" value="accept" type="submit" class="btn btn-sm btn-outline-success px-1 py-0 me-2"><i
-                                            class="uil uil-user-plus font-16"></i></button>
-                                    <button name="btn_student_feed" value="reject" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                    <button name="btn_student_feed" value="delete_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
                                             class="uil uil-user-minus font-16"></i></button>
                                 </p>
                             </div>

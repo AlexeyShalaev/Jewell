@@ -493,7 +493,7 @@ def student_feed():
                 else:
                     update_social_data(current_user.id, sex, location, profession, university, languages, tags)
                     flash('Вы успешно обновили данные', 'success')
-            elif request.form['btn_student_feed'] == 'accept':
+            elif request.form['btn_student_feed'] == 'accept_friend':
                 req_id = request.form.get("friend_request_id")
                 s, v = decrypt_id_with_no_digits(str(req_id))
                 if not s:
@@ -501,7 +501,7 @@ def student_feed():
                 else:
                     update_relationship(v, 'status', RelationStatus.ACCEPTED.value)
                     flash('Вы успешно приняли заявку.', 'success')
-            elif request.form['btn_student_feed'] == 'reject':
+            elif request.form['btn_student_feed'] == 'reject_friend':
                 req_id = request.form.get("friend_request_id")
                 s, v = decrypt_id_with_no_digits(str(req_id))
                 if not s:
@@ -509,6 +509,22 @@ def student_feed():
                 else:
                     delete_relationship(v)
                     flash('Вы успешно отклонили заявку.', 'success')
+            elif request.form['btn_student_feed'] == 'delete_friend':
+                req_id = request.form.get("friend_request_id")
+                s, v = decrypt_id_with_no_digits(str(req_id))
+                if not s:
+                    flash('Не удалось обработать данные.', category='error')
+                else:
+                    delete_relationship(v)
+                    flash('Вы успешно удалили связь.', 'success')
+            elif request.form['btn_student_feed'] == 'revoke_friend':
+                req_id = request.form.get("friend_request_id")
+                s, v = decrypt_id_with_no_digits(str(req_id))
+                if not s:
+                    flash('Не удалось обработать данные.', category='error')
+                else:
+                    delete_relationship(v)
+                    flash('Вы успешно отозвали запрос.', 'success')
             return redirect(url_for('student.student_feed'))
         except Exception as ex:
             logger.error(ex)
@@ -531,23 +547,50 @@ def student_feed():
                         'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
                     })
 
-    friends_requests = []
-    resp = get_relationships_by_receiver(current_user.id)
+    friends = []
+    friends_requests_to = []
+    friends_requests_from = []
+    resp = get_relationships()
     if resp.success:
         for req in resp.data:
             if req.status == RelationStatus.SUBMITTED:
-                r = get_user_by_id(req.sender)
+                if str(req.receiver) == str(current_user.id):
+                    r = get_user_by_id(req.sender)
+                    if r.success:
+                        sender = r.data
+                        s, v = encrypt_id_with_no_digits(str(req.id))
+                        friends_requests_to.append({
+                            'id': v,
+                            'sender_id': sender.id,
+                            'first_name': sender.first_name,
+                            'last_name': sender.last_name,
+                        })
+                elif str(req.sender) == str(current_user.id):
+                    r = get_user_by_id(req.receiver)
+                    if r.success:
+                        receiver = r.data
+                        s, v = encrypt_id_with_no_digits(str(req.id))
+                        friends_requests_from.append({
+                            'id': v,
+                            'receiver_id': receiver.id,
+                            'first_name': receiver.first_name,
+                            'last_name': receiver.last_name,
+                        })
+            elif req.status == RelationStatus.ACCEPTED:
+                r = MongoDBResult(False, None)
+                if str(req.receiver) == str(current_user.id):
+                    r = get_user_by_id(req.sender)
+                elif str(req.sender) == str(current_user.id):
+                    r = get_user_by_id(req.receiver)
                 if r.success:
-                    sender = r.data
+                    friend = r.data
                     s, v = encrypt_id_with_no_digits(str(req.id))
-                    friends_requests.append({
+                    friends.append({
                         'id': v,
-                        'sender_id': sender.id,
-                        'first_name': sender.first_name,
-                        'last_name': sender.last_name,
+                        'friend': friend
                     })
-
-    return render_template("social-feed.html", records=records, friends_requests=friends_requests)
+    return render_template("social-feed.html", records=records, friends_requests_to=friends_requests_to,
+                           friends_requests_from=friends_requests_from, friends=friends)
 
 
 # Уровень:              networking/profile

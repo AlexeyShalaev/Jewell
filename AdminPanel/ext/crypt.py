@@ -42,7 +42,7 @@ def encrypt_id_with_no_digits(code: str) -> (bool, str):
         return True, result
     except Exception as ex:
         logger.error(ex)
-        return False, str(ex)
+        return False, ''
 
 
 def decrypt_id_with_no_digits(code: str) -> (bool, str):

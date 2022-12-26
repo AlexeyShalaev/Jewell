@@ -6,6 +6,7 @@ from AdminPanel.ext.database.offers import *
 from AdminPanel.ext.database.records import *
 from AdminPanel.ext.database.courses import *
 from AdminPanel.ext.database.attendances import *
+from AdminPanel.ext.database.relationships import *
 from AdminPanel.ext.database.flask_sessions import *
 from flask import *
 from flask_toastr import *
@@ -492,6 +493,22 @@ def student_feed():
                 else:
                     update_social_data(current_user.id, sex, location, profession, university, languages, tags)
                     flash('Вы успешно обновили данные', 'success')
+            elif request.form['btn_student_feed'] == 'accept':
+                req_id = request.form.get("friend_request_id")
+                s, v = decrypt_id_with_no_digits(str(req_id))
+                if not s:
+                    flash('Не удалось обработать данные.', category='error')
+                else:
+                    update_relationship(v, 'status', RelationStatus.ACCEPTED.value)
+                    flash('Вы успешно приняли заявку.', 'success')
+            elif request.form['btn_student_feed'] == 'reject':
+                req_id = request.form.get("friend_request_id")
+                s, v = decrypt_id_with_no_digits(str(req_id))
+                if not s:
+                    flash('Не удалось обработать данные.', category='error')
+                else:
+                    delete_relationship(v)
+                    flash('Вы успешно отклонили заявку.', 'success')
             return redirect(url_for('student.student_feed'))
         except Exception as ex:
             logger.error(ex)
@@ -513,7 +530,24 @@ def student_feed():
                         'text': rec.text,
                         'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
                     })
-    return render_template("social-feed.html", records=records)
+
+    friends_requests = []
+    resp = get_relationships_by_receiver(current_user.id)
+    if resp.success:
+        for req in resp.data:
+            if req.status == RelationStatus.SUBMITTED:
+                r = get_user_by_id(req.sender)
+                if r.success:
+                    sender = r.data
+                    s, v = encrypt_id_with_no_digits(str(req.id))
+                    friends_requests.append({
+                        'id': v,
+                        'sender_id': sender.id,
+                        'first_name': sender.first_name,
+                        'last_name': sender.last_name,
+                    })
+
+    return render_template("social-feed.html", records=records, friends_requests=friends_requests)
 
 
 # Уровень:              networking/profile
@@ -550,4 +584,70 @@ def student_profile(user_id):
                 'text': rec.text,
                 'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
             })
-    return render_template("profile.html", records=records, user=user)
+
+    btn_action = 'add'
+    btn_color = 'success'
+    btn_icon = 'check'
+    btn_text = 'Добавить в друзья'
+    relation_id = None
+    resp = get_relationships()
+    if resp.success:
+        rels = resp.data
+        for rel in rels:
+            if str(rel.sender) == str(current_user.id) and str(rel.receiver) == str(user_id):
+                relation_id = rel.id
+                if rel.status == RelationStatus.SUBMITTED:
+                    btn_action = 'delete'
+                    btn_color = 'warning'
+                    btn_icon = 'window-close'
+                    btn_text = 'Отменить запрос'
+                    break
+                elif rel.status == RelationStatus.ACCEPTED:
+                    btn_action = 'delete'
+                    btn_color = 'danger'
+                    btn_icon = 'window-close'
+                    btn_text = 'Удалить из друзей'
+                    break
+                else:
+                    btn_action = ''
+                    btn_color = 'dark'
+                    btn_icon = 'progress-question'
+                    btn_text = 'Ошибка'
+                    break
+            elif str(rel.receiver) == str(current_user.id) and str(rel.sender) == str(user_id):
+                relation_id = rel.id
+                if rel.status == RelationStatus.SUBMITTED:
+                    btn_action = 'back'
+                    btn_color = 'info'
+                    btn_icon = 'backburger'
+                    btn_text = 'Перейти к себе'
+                    break
+                elif rel.status == RelationStatus.ACCEPTED:
+                    btn_action = 'delete'
+                    btn_color = 'danger'
+                    btn_icon = 'window-close'
+                    btn_text = 'Удалить из друзей'
+                    break
+                else:
+                    btn_action = ''
+                    btn_color = 'dark'
+                    btn_icon = 'progress-question'
+                    btn_text = 'Ошибка'
+                    break
+
+    if request.method == "POST":
+        try:
+            if btn_action == 'add':
+                add_relationship(current_user.id, user_id)
+                return redirect(url_for('student.student_profile', user_id=user_id))
+            elif btn_action == 'delete':
+                delete_relationship(relation_id)
+                return redirect(url_for('student.student_profile', user_id=user_id))
+            else:
+                return redirect(url_for('student.student_feed'))
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("profile.html", records=records, user=user, btn_action=btn_action, btn_color=btn_color,
+                           btn_icon=btn_icon, btn_text=btn_text)

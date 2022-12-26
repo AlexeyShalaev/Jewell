@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)  # logging
 api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates', static_folder='assets')
 
 
-# Уровень:              account/avatar/user_id
+# Уровень:              avatar/user_id
 # База данных:          storage/avatars
 # HTML:                 -
 @api.route('/avatar/<user_id>', methods=['POST', 'GET'])

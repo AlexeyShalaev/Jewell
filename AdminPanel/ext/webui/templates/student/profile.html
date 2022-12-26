@@ -33,11 +33,12 @@ Profile
                 <h4 class="mb-0 mt-2">{{user.first_name}} {{user.last_name}}</h4>
                 <p class="text-muted font-14">{{user.birthday}}</p>
 
-                <button type="button" class="btn btn-success btn-sm mb-2">Добавить в друзья</button>
-
                 <!-- Contact -->
                 <div class="btn-group">
-                    <button type="button" class="btn btn-danger btn-sm mb-2" data-bs-toggle="dropdown"
+                    <form action="" method="POST">
+                         <button type="submit" class="btn btn-{{btn_color}} btn-sm"><i class="me-1 mdi mdi-{{btn_icon}}"></i>{{btn_text}}</button>
+                    </form>
+                    <button type="button" class="ms-2 btn btn-dark btn-sm mb-2" data-bs-toggle="dropdown"
                             aria-haspopup="true" aria-expanded="false">Написать</button>
                     <div class="dropdown-menu p-1" style="max-width: 200px;">
                         {% if user.telegram_username %}
@@ -193,7 +194,6 @@ Profile
             return;
         }
     }
-
 
 </script>
 

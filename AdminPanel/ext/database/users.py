@@ -86,6 +86,7 @@ def add_user(phone_number: str, password: str):
         "phone_number": phone_number,
         "password": password,
         "telegram_id": None,
+        "telegram_username": None,
         "telegram_auth": False,
         "first_name": None,
         "last_name": None,

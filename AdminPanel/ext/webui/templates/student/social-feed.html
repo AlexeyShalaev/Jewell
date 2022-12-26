@@ -529,7 +529,7 @@ Feed
             {% for record in records[:5] %}
             <div class="card">
                 <div class="card-body pb-1">
-                    <div class="d-flex">
+                    <a href="{{url_for('student.student_profile', user_id=record['user_id'])}}" class="d-flex">
                         <img class="me-2 rounded" src="{{url_for('api.get_avatar', user_id=record['user_id'])}}"
                              alt="avatar"
                              height="32">
@@ -537,7 +537,7 @@ Feed
                             <h5 class="m-0">{{record['author']}}</h5>
                             <p class="text-muted"><small>{{record['time']}}</small></p>
                         </div> <!-- end w-100-->
-                    </div> <!-- end d-flex -->
+                    </a> <!-- end d-flex -->
 
                     <hr class="m-0">
 

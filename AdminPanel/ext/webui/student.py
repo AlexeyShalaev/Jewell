@@ -59,17 +59,22 @@ def student_account():
         types = ['jpeg', 'jpg', 'png']
         if img_type in types:
             try:
-                user_id = str(current_user.id)
-                filename = ''
-                directory = 'storage/avatars/'
-                files = os.listdir(directory)
-                for file in files:
-                    if user_id == file.split('.')[0]:
-                        filename = file
-                        break
-                if filename != '':
-                    os.remove(directory + filename)
-                avatar.save(directory + user_id + '.' + img_type)
+                resp_status, data = encrypt_id_with_no_digits(str(current_user.id))
+                if not resp_status:
+                    flash('Не удалось обработать данные.', category='error')
+                    return redirect(url_for('student.student_account'))
+                else:
+                    user_id = data
+                    filename = ''
+                    directory = 'storage/avatars/'
+                    files = os.listdir(directory)
+                    for file in files:
+                        if user_id == file.split('.')[0]:
+                            filename = file
+                            break
+                    if filename != '':
+                        os.remove(directory + filename)
+                    avatar.save(directory + user_id + '.' + img_type)
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')
@@ -509,3 +514,40 @@ def student_feed():
                         'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
                     })
     return render_template("social-feed.html", records=records)
+
+
+# Уровень:              networking/profile
+# База данных:          User
+# HTML:                 profile
+@student.route('/networking/profile/<user_id>', methods=['POST', 'GET'])
+@login_required
+def student_profile(user_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if str(current_user.id) == str(user_id):
+        return redirect(url_for('student.student_feed'))
+
+    resp = get_user_by_id(user_id)
+    if not resp.success:
+        flash('Не удалось найти пользователя.', category='error')
+        return redirect(url_for('student.student_feed'))
+    user = resp.data
+
+    records = []
+    resp = get_records_by_author(user_id)
+    if resp.success:
+        recs = sorted(resp.data, key=lambda rec: rec.time, reverse=True)
+        for rec in recs:
+            records.append({
+                'author': f'{user.first_name} {user.last_name}',
+                'text': rec.text,
+                'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+            })
+    return render_template("profile.html", records=records, user=user)

@@ -26,9 +26,10 @@ class Sex(Enum):
 
 class User(UserMixin):
     id: ObjectId
-    phone_number: str  # 79854839731
+    phone_number: str  # 89854839731
     password: str  # qwerty1234
     telegram_id: int  # 703757403 - telegram chat id
+    telegram_username: str  # Alexey1537 - telegram user name
     telegram_auth: bool  # false
     first_name: str  # alex
     last_name: str  # shalaev
@@ -48,6 +49,7 @@ class User(UserMixin):
         self.phone_number = data['phone_number']
         self.password = data['password']
         self.telegram_id = data['telegram_id']
+        self.telegram_username = data['telegram_username']
         self.telegram_auth = data['telegram_auth']
         self.first_name = data['first_name']
         self.last_name = data['last_name']
@@ -67,6 +69,7 @@ class User(UserMixin):
                            "phone_number": self.phone_number,
                            "password": self.password,
                            "telegram_id": self.telegram_id,
+                           "telegram_username": self.telegram_username,
                            "telegram_auth": self.telegram_auth,
                            "first_name": self.first_name,
                            "last_name": self.last_name,
@@ -83,6 +86,6 @@ class User(UserMixin):
                            })
 
     def to_document(self):
-        return f'{self.phone_number} {self.first_name} {self.last_name} {self.sex.value} {self.birthday} ' \
+        return f'{self.telegram_username} {self.first_name} {self.last_name} {self.sex.value} {self.birthday} ' \
                f'{self.reward.value} {self.profession} {self.university} {self.location} {" ".join(self.languages)} ' \
                f'{" ".join(self.tags)}'

@@ -1,7 +1,7 @@
 {% extends 'student-base.html' %}
 
 {% block title %}
-Profile
+Account
 {% endblock %}
 
 {% block css %}
@@ -80,8 +80,14 @@ Profile
                                         <span class="ms-1 badge bg-danger rounded-pill">Не привязан</span>
                                         {% endif %}
                                     </h4>
-                                    <a href="https://t.me/JewellClub_bot"><p class="font-13 text-white-50">
+                                    {% if current_user.telegram_username %}
+                                    <a href="https://t.me/{{current_user.telegram_username}}"><p class="font-13 text-white-50">
+                                        @{{current_user.telegram_username}}</p></a>
+                                    {% else %}
+                                   <a href="https://t.me/JewellClub_bot"><p class="font-13 text-white-50">
                                         @JewellClub_bot</p></a>
+                                    {% endif %}
+
 
 
                                     <ul class="mb-0 list-inline text-light">

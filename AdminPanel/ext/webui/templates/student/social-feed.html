@@ -150,7 +150,7 @@ Feed
                         class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
                         {{friends_requests_from | length}}
                     </span>
-                    <h4 class="header-title">Ваши запросы в друзья</h4>
+                    <h4 class="header-title">Запросы в друзья от вас</h4>
                     <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
                     'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
                      ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
@@ -238,9 +238,8 @@ Feed
                         <!-- comment box -->
                         <div class="border rounded">
                             <div class="accordion" id="CardaccordionRecords">
-                                {% for record in records %}
-                                {% if record['user_id'] | string() == current_user.id |string() %}
-                                <div class="card mb-0">
+                                {% for record in user_records %}
+                                    <div class="card mb-0">
                                     <div class="card-header">
                                         <h5 class="m-0">
                                             <a class="custom-accordion-title d-block"
@@ -273,7 +272,6 @@ Feed
                                         </div>
                                     </div>
                                 </div>
-                                {% endif %}
                                 {% endfor %}
                             </div>
                         </div> <!-- end .border-->
@@ -620,7 +618,26 @@ Feed
             </div>
         </div>
 
+        <div class="app-search mb-3">
+            <form method="post">
+                <div class="input-group">
+                    <input type="search" class="form-control bg-dark bg-gradient text-light" placeholder="Искать..." name="input_query" value="">
+                    <span class="mdi mdi-magnify search-icon text-light"></span>
+                    <button name="btn_student_feed" value="search_records" class="input-group-text btn btn-primary" type="submit">Искать</button>
+                </div>
+            </form>
+        </div>
+
         <div id="records">
+
+            {% if records | length > 0 %}
+
+            {% if query != None and query | length > 0 %}
+                <div class="alert alert-success" role="alert">
+                    По запросу <strong>{{query}}</strong> найдено записей <strong>{{records | length}}</strong>.
+                </div>
+            {% endif %}
+
             <!-- start news feeds -->
             {% for record in records[:5] %}
             <div class="card">
@@ -645,12 +662,22 @@ Feed
             </div>
             {% endfor %}
             <!-- end news feeds -->
+
+             <div class="text-center mb-3" id="load_more">
+                <a onclick="fetchRecords()" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1 font-16"></i>
+                    Загрузить еще </a>
+            </div>
+
+            {% else %}
+                {% if query != None and query | length > 0 %}
+                    <div class="alert alert-primary" role="alert">
+                        По запросу <strong>{{query}}</strong> ничего не найдено.
+                    </div>
+                {% endif %}
+            {% endif %}
+
         </div>
 
-        <div class="text-center mb-3" id="load_more">
-            <a onclick="fetchRecords()" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1 font-16"></i>
-                Загрузить еще </a>
-        </div>
     </div>
 
     <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-2">
@@ -699,6 +726,8 @@ Feed
     let records = {{records | safe}};
 
     let counter = 5;
+
+    if (counter >= records.length) document.getElementById("load_more").remove();
 
     function appendRecord(index) {
         let recs = document.getElementById("records");

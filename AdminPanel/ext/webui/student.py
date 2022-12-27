@@ -14,6 +14,7 @@ from flask_login import *
 from AdminPanel.ext.crypt import *
 from AdminPanel.ext import trip_date
 from AdminPanel.ext.text_filter import TextFilter
+from AdminPanel.ext.search_engine import search_documents
 import logging
 
 logger = logging.getLogger(__name__)  # logging
@@ -446,6 +447,7 @@ def student_feed():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
+
     if request.method == "POST":
         try:
             if request.form['btn_student_feed'] == 'add_record':
@@ -470,7 +472,7 @@ def student_feed():
                         flash(f'В вашем тексте были найдены недопустимые слова: {" ".join(bad_words)}')
                     else:
                         update_record(rec_id, 'text', record_text)
-                        flash('Вы добавили запись.', 'success')
+                        flash('Вы обновили запись.', 'success')
             elif request.form['btn_student_feed'] == 'delete_record':
                 record_id = request.form.get("record_id")
                 rec_status, rec_id = decrypt_id_with_no_digits(record_id)
@@ -525,72 +527,51 @@ def student_feed():
                 else:
                     delete_relationship(v)
                     flash('Вы успешно отозвали запрос.', 'success')
-            return redirect(url_for('student.student_feed'))
+            elif request.form['btn_student_feed'] == 'search_records':
+                user_records = []
+                recs = sorted(get_records_by_author(current_user.id).data, key=lambda rec: rec.time, reverse=True)
+                for rec in recs:
+                    record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
+                    if record_status:
+                        user_records.append({
+                            'record_id': f'{record_id}',
+                            'text': rec.text,
+                            'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                        })
+                fr, frt, frf = set_relations(current_user)
+                resp = get_records()
+                query = request.form.get("input_query")
+                if len(query) == 0:
+                    records = set_records(resp)
+                else:
+                    recs = resp.data
+                    docs = [rec.to_document() for rec in recs]
+                    result = search_documents(documents=docs, query=query, max_result_document_count=-1)
+                    found_records = list(filter(lambda record: str(record.id) in result, recs))
+                    found_records.sort(key=lambda rec: result.index(str(rec.id)))
+                    records = set_records(resp=MongoDBResult(True, found_records), sort=False)
+                return render_template("social-feed.html", user_records=user_records,
+                                       records=records,
+                                       friends_requests_to=frt,
+                                       friends_requests_from=frf, friends=fr, query=query)
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
-    records = []
-    resp = get_records()
-    if resp.success:
-        recs = sorted(resp.data, key=lambda rec: rec.time, reverse=True)
-        for rec in recs:
-            r = get_user_by_id(rec.author)
-            if r.success:
-                author = r.data
-                record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
-                if record_status:
-                    records.append({
-                        'record_id': f'{record_id}',
-                        'user_id': f'{author.id}',
-                        'author': f'{author.first_name} {author.last_name}',
-                        'text': rec.text,
-                        'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
-                    })
 
-    friends = []
-    friends_requests_to = []
-    friends_requests_from = []
-    resp = get_relationships()
-    if resp.success:
-        for req in resp.data:
-            if req.status == RelationStatus.SUBMITTED:
-                if str(req.receiver) == str(current_user.id):
-                    r = get_user_by_id(req.sender)
-                    if r.success:
-                        sender = r.data
-                        s, v = encrypt_id_with_no_digits(str(req.id))
-                        friends_requests_to.append({
-                            'id': v,
-                            'sender_id': sender.id,
-                            'first_name': sender.first_name,
-                            'last_name': sender.last_name,
-                        })
-                elif str(req.sender) == str(current_user.id):
-                    r = get_user_by_id(req.receiver)
-                    if r.success:
-                        receiver = r.data
-                        s, v = encrypt_id_with_no_digits(str(req.id))
-                        friends_requests_from.append({
-                            'id': v,
-                            'receiver_id': receiver.id,
-                            'first_name': receiver.first_name,
-                            'last_name': receiver.last_name,
-                        })
-            elif req.status == RelationStatus.ACCEPTED:
-                r = MongoDBResult(False, None)
-                if str(req.receiver) == str(current_user.id):
-                    r = get_user_by_id(req.sender)
-                elif str(req.sender) == str(current_user.id):
-                    r = get_user_by_id(req.receiver)
-                if r.success:
-                    friend = r.data
-                    s, v = encrypt_id_with_no_digits(str(req.id))
-                    friends.append({
-                        'id': v,
-                        'friend': friend
-                    })
-    return render_template("social-feed.html", records=records, friends_requests_to=friends_requests_to,
-                           friends_requests_from=friends_requests_from, friends=friends)
+    user_records = []
+    recs = sorted(get_records_by_author(current_user.id).data, key=lambda rec: rec.time, reverse=True)
+    for rec in recs:
+        record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
+        if record_status:
+            user_records.append({
+                'record_id': f'{record_id}',
+                'text': rec.text,
+                'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+            })
+    fr, frt, frf = set_relations(current_user)
+    return render_template("social-feed.html", user_records=user_records,
+                           records=set_records(resp=get_records()), friends_requests_to=frt,
+                           friends_requests_from=frf, friends=fr)
 
 
 # Уровень:              networking/profile

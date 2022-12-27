@@ -86,6 +86,8 @@ class User(UserMixin):
                            })
 
     def to_document(self):
-        return f'{self.telegram_username} {self.first_name} {self.last_name} {self.sex.value} {self.birthday} ' \
-               f'{self.reward.value} {self.profession} {self.university} {self.location} {" ".join(self.languages)} ' \
-               f'{" ".join(self.tags)}'
+        return {
+            'id': str(self.id),
+            'data': f'{self.telegram_username} {self.first_name} {self.last_name} {self.sex.value} {self.birthday}'
+                    f' {self.reward.value} {self.profession} {self.university} {self.location}'
+                    f' {" ".join(self.languages)} {" ".join(self.tags)}'}

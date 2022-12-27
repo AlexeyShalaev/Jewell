@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from bson import ObjectId
 from datetime import datetime
 import json
+from AdminPanel.ext.database.users import get_user_by_id
 
 
 @dataclass
@@ -25,7 +26,13 @@ class Record:
                            })
 
     def to_document(self):
-        return f'{self.text} {self.time}'
+        resp = get_user_by_id(self.author)
+        if resp.success:
+            return {'id': str(self.id),
+                    'data': f'{self.text} {self.time} {resp.data.first_name} {resp.data.last_name}'}
+        else:
+            return {'id': str(self.id),
+                    'data': f'{self.text} {self.time}'}
 
     def get_time_date(self):
         return self.time.strftime("%d.%m.%Y")

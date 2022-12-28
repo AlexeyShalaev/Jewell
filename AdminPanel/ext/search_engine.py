@@ -66,14 +66,15 @@ class SearchEngine:
         query = self.__parse_query(raw_query)
         matched_words = list()
         for word in query.plus_words:
-            if word in self._word_to_document_freqs.keys():
-                if document_id in self._word_to_document_freqs[word].keys():
-                    matched_words.append(word)
+            for key in self._word_to_document_freqs.keys():
+                if word in key:
+                    if document_id in self._word_to_document_freqs[key].keys():
+                        matched_words.append(word)
+                    break
         for word in query.minus_words:
             if word in self._word_to_document_freqs.keys():
                 if document_id in self._word_to_document_freqs[word].keys():
                     matched_words.clear()
-                    break
         return matched_words
 
         # private methods
@@ -103,7 +104,12 @@ class SearchEngine:
         return query
 
     def __compute_word_inverse_document_freq(self, word: str) -> float:
-        return math.log(self.get_document_count() / len(self._word_to_document_freqs[word]))
+        if word in self._word_to_document_freqs.keys():
+            return math.log(self.get_document_count() / len(self._word_to_document_freqs[word]))
+        else:
+            for key in self._word_to_document_freqs.keys():
+                if word in key:
+                    return math.log(self.get_document_count() / len(self._word_to_document_freqs[key]))
 
     def __find_all_documents(self, query: Query) -> list:
         document_to_relevance = dict()
@@ -115,6 +121,16 @@ class SearchEngine:
                         document_to_relevance[document_id] += term_freq * inverse_document_freq
                     else:
                         document_to_relevance[document_id] = term_freq * inverse_document_freq
+            else:
+                for key in self._word_to_document_freqs.keys():
+                    if word in key:
+                        inverse_document_freq = self.__compute_word_inverse_document_freq(word)
+                        for document_id, term_freq in self._word_to_document_freqs[key].items():
+                            if document_id in document_to_relevance.keys():
+                                document_to_relevance[document_id] += term_freq * inverse_document_freq * 0.8
+                            else:
+                                document_to_relevance[document_id] = term_freq * inverse_document_freq * 0.8
+                        break
 
         for word in query.minus_words:
             if word in self._word_to_document_freqs.keys():

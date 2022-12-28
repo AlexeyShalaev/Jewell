@@ -96,8 +96,8 @@ class User(UserMixin):
                     f' {" ".join(self.languages)} {" ".join(self.tags)}'}
 
     def to_net(self):
-        return {"id": str(self.id), "name": f'<a href=\"{self.get_page()}\">{self.first_name} {self.last_name}</a>',
-                "telegram": f'<a href=\"https://t.me/{self.telegram_username}\">@{self.telegram_username}</a>' if self.telegram_username else "-",
+        return {"id": str(self.id), "name": f'<a href=\"{self.get_page()}\" target="_blank">{self.first_name} {self.last_name}</a>',
+                "telegram": f'<a href=\"https://t.me/{self.telegram_username}\" target="_blank">@{self.telegram_username}</a>' if self.telegram_username else "-",
                 }
 
     def get_page(self):

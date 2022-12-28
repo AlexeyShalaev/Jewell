@@ -69,7 +69,7 @@ class JewellNet {
     whoIsThis() {
         let link = location.href.toString();
         link = link.substring(0, link.indexOf("relations"));
-        location.href = link + "profile/" + this.contextMenuVertex;
+        window.open(link + "profile/" + this.contextMenuVertex);
     }
 
     setStartVertex(v = this.contextMenuVertex) {
@@ -187,7 +187,10 @@ function setJewellNet(div_id) {
 function search_nodes() {
     const query = document.getElementById("input_query").value;
     $('#search_table').DataTable().destroy();
-    document.getElementById("search_table").innerHTML = "<thead><tr><th>Фамилия и Имя</th><th>Telegram</th></tr></thead>";
+    document.getElementById("card-table-net").innerHTML = "<div class=\"card-body\"><table id=\"search_table\" class=\"table table-striped dt-responsive nowrap w-100\"><thead><tr><th>Фамилия и Имя</th><th>Telegram</th></tr></thead></table></div>";
+    let alert = document.getElementById("results_alert");
+    alert.className = "w-auto alert";
+    alert.innerHTML = "";
     $.ajax({
         type: 'POST',
         url: '/api/networking/search',
@@ -197,11 +200,11 @@ function search_nodes() {
             },
         success: function (result) {
             const res = JSON.parse(result);
-            let alert = document.getElementById("results_alert");
             if (res.success === true) {
                 if (res.users.length === 0) {
                     alert.className = "w-auto ms-3 alert alert-primary";
                     alert.innerHTML = "По запросу <strong>" + query + "</strong> ничего не найдено.";
+                    document.getElementById("card-table-net").innerHTML = "";
                 } else {
                     if (query.length > 0) {
                         alert.className = "w-auto alert alert-success";

@@ -16,7 +16,7 @@ api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates',
 # HTML:                 -
 @api.route('/avatar/<user_id>', methods=['POST', 'GET'])
 def get_avatar(user_id):
-    filename = 'undraw_avatar.jpg'
+    filename = 'undraw_avatar.png'
     directory = 'storage/avatars/'
     resp_status, data = encrypt_id_with_no_digits(str(user_id))
     if resp_status:

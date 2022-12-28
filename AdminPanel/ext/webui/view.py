@@ -6,6 +6,7 @@ from AdminPanel.ext.models.userModel import *
 from AdminPanel.ext.models.recover_pw import *
 from AdminPanel.ext.telegram_bot.message import *
 from AdminPanel.ext.crypt import *
+from AdminPanel.ext.tools import normal_phone_number
 from flask import *
 from flask_toastr import *
 from flask_login import *
@@ -227,7 +228,7 @@ def registered_token():
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'icon': 'info', 'title': 'Telegram',
                                    'text': 'Отправьте данный токен нашему телеграмм боту и он привяжет ваш аккаунт.',
-                                   'footer': f'<a href="https://t.me/yahad_alex_bot">{token}</a>'}), 200, {
+                                   'footer': f'<a href="https://t.me/yahad_alex_bot" target="_blank">{token}</a>'}), 200, {
                            'ContentType': 'application/json'}
             else:
                 return json.dumps({'icon': 'warning', 'title': 'Telegram',
@@ -258,13 +259,3 @@ def sessions_logout(id):
     except Exception as ex:
         logger.error(str(ex))
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
-
-
-# Miscellaneous routines
-
-def normal_phone_number(phone_number: str) -> str:
-    # функция возвращает номер телефона в формате 8XXXXXXXXXX
-    phone_number = phone_number.replace('+7', '8', 1)
-    if phone_number.startswith('7'):
-        phone_number = phone_number.replace('7', '8', 1)
-    return phone_number

@@ -3,6 +3,16 @@ from AdminPanel.ext.database.records import *
 from AdminPanel.ext.database.relationships import *
 from AdminPanel.ext.crypt import *
 import queue
+import re
+
+
+def normal_phone_number(phone_number: str) -> str:
+    # функция возвращает номер телефона в формате 8XXXXXXXXXX
+    phone_number = re.sub(r'[ ()-]', '', phone_number)
+    phone_number = phone_number.replace('+7', '8', 1)
+    if phone_number.startswith('7'):
+        phone_number = phone_number.replace('7', '8', 1)
+    return phone_number
 
 
 def get_random_color():

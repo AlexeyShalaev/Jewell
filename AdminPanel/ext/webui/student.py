@@ -83,7 +83,7 @@ def student_account():
             return redirect(url_for('student.student_account'))
         else:
             flash('Такое расширение файла не подходит', category='warning')
-    return render_template("account.html")
+    return render_template("account.html", friends=get_friends(str(current_user.id)))
 
 
 # Уровень:              account/password
@@ -434,7 +434,7 @@ def student_mezuzah():
 
 
 # Уровень:              networking/feed
-# База данных:          User
+# База данных:          User, Relations
 # HTML:                 social-feed
 @student.route('/networking/feed', methods=['POST', 'GET'])
 @login_required
@@ -675,3 +675,28 @@ def student_profile(user_id):
 
     return render_template("profile.html", records=records, user=user, btn_action=btn_action, btn_color=btn_color,
                            btn_icon=btn_icon, btn_text=btn_text)
+
+
+# Уровень:              networking/relations
+# База данных:          User, Relations
+# HTML:                 social-relations
+@student.route('/networking/relations', methods=['POST', 'GET'])
+@login_required
+def student_networking_relations():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("social-relations.html")

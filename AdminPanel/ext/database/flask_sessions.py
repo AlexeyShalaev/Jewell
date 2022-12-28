@@ -44,13 +44,18 @@ def get_flask_session_by_id(id) -> MongoDBResult:
 
 # добавление сессии
 def add_flask_session(id, user_id, user_agent, fresh, ip):
-    db.flask_sessions.insert_one({
-        '_id': id,
-        "user_id": ObjectId(user_id),
-        "user_agent": str(user_agent),
-        "fresh": fresh,
-        "ip": ip
-    })
+    try:
+        if get_flask_session_by_id(id).success:
+            delete_flask_session(id)
+        db.flask_sessions.insert_one({
+            '_id': id,
+            "user_id": ObjectId(user_id),
+            "user_agent": str(user_agent),
+            "fresh": fresh,
+            "ip": ip
+        })
+    except Exception as ex:
+        print(ex)
 
 
 # добавление сессий
@@ -60,16 +65,22 @@ def add_flask_sessions(flask_sessions):
 
 # удаление сессии по ID
 def delete_flask_session(id):
-    db.flask_sessions.delete_one({
-        '_id': id
-    })
+    try:
+        db.flask_sessions.delete_one({
+            '_id': id
+        })
+    except Exception as ex:
+        print(ex)
 
 
 # удаление сессий по user_id
 def delete_flask_sessions(user_id):
-    db.flask_sessions.delete_many({
-        'user_id': ObjectId(user_id)
-    })
+    try:
+        db.flask_sessions.delete_many({
+            'user_id': ObjectId(user_id)
+        })
+    except Exception as ex:
+        print(ex)
 
 
 # очистка Документа

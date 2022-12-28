@@ -1,0 +1,108 @@
+{% extends 'student-base.html' %}
+
+{% block title %}
+Relations
+{% endblock %}
+
+{% block css %}
+<!-- Datatables css -->
+
+<link href="../../assets/vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet" type="text/css"/>
+<link href="../../assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet"
+      type="text/css"/>
+<link href="../../assets/vendor/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet"
+      type="text/css"/>
+<style>
+
+    #context-menu {
+        background-color: #ffffff;
+        color: #1f194c;
+        width: 10em;
+        padding: 0.8em 0.6em;
+        font-size: 1.3rem;
+        position: fixed;
+        visibility: hidden;
+    }
+
+    .item {
+        padding: 0.3em 1.2em;
+    }
+
+    .item:hover {
+        background-color: rgba(44, 141, 247, 0.2);
+        cursor: pointer;
+    }
+</style>
+{% endblock %}
+
+
+{% block body %}
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{url_for('student.student_home')}}">Студент</a></li>
+                    <li class="breadcrumb-item">Net Working</li>
+                    <li class="breadcrumb-item active">Связи</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Связи</h4>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-12">
+        <div class="app-search mb-3">
+            <form method="post">
+                <div class="input-group">
+                    <input type="search" class="form-control bg-dark bg-gradient text-light" placeholder="Искать..."
+                           id="input_query" value="">
+                    <span class="mdi mdi-magnify search-icon text-light"></span>
+                    <button onclick="search_nodes();" class="input-group-text btn btn-primary"
+                            type="button">Искать
+                    </button>
+                </div>
+            </form>
+        </div>
+         <div id="results_alert" class="w-auto alert" role="alert"></div>
+        <div class="card">
+            <div class="card-body">
+                <table id="search_table" class="table table-striped dt-responsive nowrap w-100">
+                    <thead>
+                    <tr>
+                        <th>Фамилия и Имя</th>
+                        <th>Telegram</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div> <!-- end card body-->
+        </div> <!-- end card -->
+        <div id="JewellNetworking" class="center border border-2 border-dark" style="height: 500px;"></div>
+    </div> <!-- end col -->
+
+</div>
+
+
+<div id="context-menu">
+    <div class="item" onclick="jewellNet.whoIsThis()">Кто это?</div>
+    <div class="item" onclick="jewellNet.setStartVertex()">Маршрут отсюда</div>
+    <div class="item" onclick="jewellNet.setFinishVertex()">Маршрут сюда</div>
+</div>
+
+<script>
+    var jewellNet;
+    $(document).ready(function () {
+        setJewellNet("JewellNetworking");
+    });
+</script>
+
+<!-- JNET js -->
+<script type="text/javascript" src="../../assets/js/networking/vis-network.min.js"></script>
+<script type="text/javascript" src="../../assets/js/networking/jewell-net.js"></script>
+<script type="text/javascript" src="../../assets/js/networking/context-menu.js"></script>
+{% endblock %}

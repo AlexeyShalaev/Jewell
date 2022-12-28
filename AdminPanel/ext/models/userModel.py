@@ -1,3 +1,6 @@
+import dataclasses
+
+from flask import url_for
 from flask_login import UserMixin
 from enum import Enum
 from bson import ObjectId
@@ -91,3 +94,13 @@ class User(UserMixin):
             'data': f'{self.telegram_username} {self.first_name} {self.last_name} {self.sex.value} {self.birthday}'
                     f' {self.reward.value} {self.profession} {self.university} {self.location}'
                     f' {" ".join(self.languages)} {" ".join(self.tags)}'}
+
+    def to_net(self):
+        return {"id": str(self.id), "name": f'<a href=\"{self.get_page()}\">{self.first_name} {self.last_name}</a>',
+                "telegram": f'<a href=\"https://t.me/{self.telegram_username}\">@{self.telegram_username}</a>' if self.telegram_username else "-",
+                }
+
+    def get_page(self):
+        if self.role == Role.STUDENT:
+            return url_for('student.student_profile', user_id=str(self.id))
+        return ""

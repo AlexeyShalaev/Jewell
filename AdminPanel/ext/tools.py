@@ -2,6 +2,7 @@ import random
 from AdminPanel.ext.database.records import *
 from AdminPanel.ext.database.relationships import *
 from AdminPanel.ext.crypt import *
+import queue
 
 
 def get_random_color():
@@ -42,7 +43,7 @@ def set_records(resp: MongoDBResult, sort=True) -> list:
     records = []
     if resp.success:
         if sort:
-            recs = sorted(resp.data, key=lambda rec: rec.time, reverse=True)
+            recs = sorted(resp.data, key=lambda record: record.time, reverse=True)
         else:
             recs = resp.data
         for rec in recs:
@@ -105,3 +106,51 @@ def set_relations(current_user):
                         'friend': friend
                     })
     return friends, friends_requests_to, friends_requests_from
+
+
+def get_friends(sui: str) -> list:
+    friends = []
+    resp = get_relationships()
+    if resp.success:
+        for req in resp.data:
+            if req.status == RelationStatus.ACCEPTED:
+                if str(req.receiver) == sui:
+                    friends.append(str(req.sender))
+                elif str(req.sender) == sui:
+                    friends.append(str(req.receiver))
+    return friends
+
+
+def bfs(s, t, users):
+    try:
+        dist = dict()
+        p = dict()
+        adj = dict()
+        for user in users:
+            sui = str(user.id)
+            dist[sui] = len(users)
+            p[sui] = -1
+            adj[sui] = get_friends(sui)
+
+        dist[s] = 0
+        q = queue.Queue()
+        q.put(s)
+        while not q.empty():
+            v = q.get()
+            for u in adj[v]:
+                if dist[u] > dist[v] + 1:
+                    p[u] = v
+                    dist[u] = dist[v] + 1
+                    q.put(u)
+        if dist[t] == len(users):
+            return []
+        path = []
+        while t != -1:
+            path.append(t)
+            t = p[t]
+
+        path.reverse()
+        return path
+    except Exception as ex:
+        logger.error(ex)
+        return []

@@ -31,6 +31,18 @@ def get_records_by_author(author) -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
+# получение записей по типу
+def get_records_by_type(type: RecordType) -> MongoDBResult:
+    res = db.records.find({'type': type.value})
+    if res:
+        records = []
+        for i in list(res):
+            records.append(Record(i))
+        return MongoDBResult(True, records)
+    else:
+        return MongoDBResult(False, [])
+
+
 # получение записи по ID
 def get_record_by_id(id) -> MongoDBResult:
     record = db.records.find_one({'_id': ObjectId(id)})
@@ -43,9 +55,10 @@ def get_record_by_id(id) -> MongoDBResult:
 
 
 # добавление записи
-def add_record(author, text, time):
+def add_record(author, text, time, type=RecordType.POST):
     db.records.insert_one({
         "author": ObjectId(author),
+        "type": type.value,
         "text": text,
         "time": time,
     })

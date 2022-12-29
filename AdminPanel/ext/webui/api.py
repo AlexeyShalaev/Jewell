@@ -2,12 +2,13 @@ import os
 
 from flask import *
 from AdminPanel.ext.database.courses import get_courses, Time
+from AdminPanel.ext.database.records import get_records_by_type, RecordType
 from AdminPanel.ext.database.relationships import get_relationships_by_sender, RelationStatus
 from AdminPanel.ext.database.users import get_users, get_user_by_id
 from AdminPanel.ext.database.offers import get_offers
 from AdminPanel.ext.database.attendances import get_attendances_by_user_id
 from AdminPanel.ext.search_engine import search_documents
-from AdminPanel.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends
+from AdminPanel.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, set_records
 import logging
 
 logger = logging.getLogger(__name__)  # logging
@@ -179,3 +180,17 @@ def attendance_count(user_id):
     except Exception as ex:
         logger.error(ex)
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              api/notifications
+# База данных:          Records
+# HTML:                 -
+@api.route('/notifications', methods=['POST'])
+def get_notifications():
+    try:
+        return json.dumps(
+            {'success': True, 'notifications': set_records(get_records_by_type(RecordType.POST))}), 200, {
+                   'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

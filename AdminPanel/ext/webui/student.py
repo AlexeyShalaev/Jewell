@@ -1,21 +1,14 @@
 import os
-from AdminPanel.ext.tools import *
-from AdminPanel.ext.logistics import *
-from AdminPanel.ext.database.users import *
-from AdminPanel.ext.database.offers import *
-from AdminPanel.ext.database.records import *
-from AdminPanel.ext.database.courses import *
-from AdminPanel.ext.database.attendances import *
-from AdminPanel.ext.database.relationships import *
-from AdminPanel.ext.database.flask_sessions import *
 from flask import *
-from flask_toastr import *
 from flask_login import *
-from AdminPanel.ext.crypt import *
+from flask_toastr import *
 from AdminPanel.ext import trip_date
-from AdminPanel.ext.text_filter import TextFilter
-from AdminPanel.ext.search_engine import search_documents
-import logging
+from AdminPanel.ext.crypt import *
+from AdminPanel.ext.database.records import get_records_by_type, RecordType
+from AdminPanel.ext.database.attendances import *
+from AdminPanel.ext.database.offers import *
+from AdminPanel.ext.logistics import *
+from AdminPanel.ext.tools import *
 
 logger = logging.getLogger(__name__)  # logging
 student = Blueprint('student', __name__, url_prefix='/student', template_folder='templates/student',
@@ -37,8 +30,7 @@ def student_home():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    # TODO сделать домашнюю страницу
-    return render_template("home.html")
+    return render_template("home.html", shabbat=shabbat(), news=set_records(get_records_by_type(RecordType.NEWS)))
 
 
 # Уровень:              account
@@ -178,9 +170,6 @@ def student_attendance():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    if request.method == "POST":
-        # TODO сделать логику запросов
-        pass
     resp = get_attendances_by_user_id(current_user.id)
     if not resp.success:
         return render_template("error-500.html")

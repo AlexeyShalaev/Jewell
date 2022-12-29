@@ -24,7 +24,6 @@ class Offer:
         self.reward = data['reward']
 
     def to_json(self):
-        # TODO: проверить , что JSON-serializer работает корректно
         return json.dumps({"_id": str(self.id),
                            "author": str(self.author),
                            "name": self.name,

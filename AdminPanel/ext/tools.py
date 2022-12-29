@@ -2,6 +2,8 @@ import random
 from AdminPanel.ext.database.users import get_user_by_id, MongoDBResult
 from AdminPanel.ext.database.relationships import get_relationships, RelationStatus
 from AdminPanel.ext.crypt import encrypt_id_with_no_digits
+import requests
+from datetime import datetime
 import queue
 import re
 
@@ -22,31 +24,33 @@ def get_random_color():
     return hex_number
 
 
-def get_month(m: int) -> str:
+def get_month(m: int, short: bool = True) -> str:
     if m == 1:
-        return "Янв"
+        return "Янв" if short else "января"
     elif m == 2:
-        return "Фев"
+        return "Фев" if short else "февраля"
     elif m == 3:
-        return "Март"
+        return "Март" if short else "марта"
     elif m == 4:
-        return "Апр"
+        return "Апр" if short else "апреля"
     elif m == 5:
-        return "Май"
+        return "Май" if short else "мая"
     elif m == 6:
-        return "Июнь"
+        return "Июнь" if short else "июня"
     elif m == 7:
-        return "Июль"
+        return "Июль" if short else "июля"
     elif m == 8:
-        return "Авг"
+        return "Авг" if short else "августа"
     elif m == 9:
-        return "Сент"
+        return "Сент" if short else "сентября"
     elif m == 10:
-        return "Окт"
+        return "Окт" if short else "октября"
     elif m == 11:
-        return "Нояб"
+        return "Нояб" if short else "ноября"
     elif m == 12:
-        return "Дек"
+        return "Дек" if short else "декабря"
+    else:
+        return str(m)
 
 
 def set_records(resp: MongoDBResult, sort=True) -> list:
@@ -163,3 +167,32 @@ def bfs(s, t, users):
         return path
     except Exception:
         return []
+
+
+def shabbat(geo_name_id: int = 524901) -> dict:
+    # https://www.hebcal.com/home/197/shabbat-times-rest-api
+    url = f'https://www.hebcal.com/shabbat?cfg=json&geonameid={geo_name_id}'
+    res = {"candle": "", "havdalah": ""}
+    try:
+        request = requests.get(url)
+        if request.ok:
+            for i in request.json()['items']:
+                try:
+                    title = i['title']
+                    date = i['date']
+                    if "T" in date:
+                        if "+" in date:
+                            date = datetime.strptime(date[:date.index('+')], '%Y-%m-%dT%H:%M:%S')
+                        else:
+                            date = datetime.strptime(date, '%Y-%m-%dT%H:%M:%S')
+                    else:
+                        date = datetime.strptime(date, '%Y-%m-%d')
+                    if title.startswith('Candle'):
+                        res['candle'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{date.minute}'
+                    elif title.startswith('Havdalah'):
+                        res['havdalah'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{date.minute}'
+                except Exception:
+                    pass
+    except Exception:
+        pass
+    return res

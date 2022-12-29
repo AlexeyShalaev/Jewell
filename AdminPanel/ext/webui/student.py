@@ -118,7 +118,7 @@ def change_password():
         crypt_status, crypted_pass = crypt_pass(new_password)
         if not crypt_status:
             return json.dumps({'icon': 'warning', 'title': 'Смена пароля',
-                               'text': 'Не удалось зарегистрировать вас, возможно вы вводите недопустимый пароль.',
+                               'text': 'Не удалось сменить пароль, возможно вы вводите недопустимые символы.',
                                }), 200, {
                        'ContentType': 'application/json'}
         update_user(current_user.id, 'password', crypted_pass)
@@ -289,25 +289,11 @@ def student_attendance():
             extra_info = f'Мы очень гордимся вами. Ваша посещаемость идеальна :)'
     # No reward
     else:
-        return render_template("no-reward.html")
-    return render_template("attendance.html", visits_count=visits_count, visits_aim=visits_aim,
+        return render_template("courses/no-reward.html")
+    return render_template("courses/attendance.html", visits_count=visits_count, visits_aim=visits_aim,
                            progress_color=progress_color, percent=percent, frequency=frequency,
                            extra_info=extra_info,
                            visits_dataset=visits_dataset)
-
-
-# Уровень:              attendance/count
-# База данных:          attendance
-# HTML:                 -
-@student.route('/attendance/count', methods=['POST'])
-def attendance_count():
-    try:
-        cnt = len(get_attendances_by_user_id(current_user.id).data)
-        if cnt > 0:
-            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
-    except Exception as ex:
-        logger.error(ex)
-    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
 # Уровень:              courses/schedule
@@ -324,49 +310,7 @@ def student_schedule():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    return render_template("schedule.html")
-
-
-# Уровень:              courses/schedule/timetable
-# База данных:          Courses
-# HTML:                 -
-@student.route('/courses/schedule/timetable', methods=['POST'])
-def get_schedule():
-    try:
-        resp = get_courses()
-        times = set()
-        courses_names = set()
-        if resp.success:
-            courses = resp.data
-            filtered_courses = []
-            for course in courses:
-                courses_names.add(course.name)
-                teachers = []
-                try:
-                    for teacher in course.teachers:
-                        r = get_user_by_id(teacher)
-                        if r.success:
-                            teachers.append(f'{r.data.first_name} {r.data.last_name}')
-                except Exception:
-                    pass
-                filtered_courses.append({
-                    "name": course.name,
-                    "timetable": course.timetable,
-                    "teachers": teachers
-                })
-                for k, v in course.timetable.items():
-                    times.add(v.to_string())
-            times = [Time.from_string(time) for time in times]
-            times.sort()
-            colors = dict()
-            for name in courses_names:
-                colors[name] = get_random_color()
-            return json.dumps(
-                {'success': True, 'times': times, 'courses': filtered_courses, 'colors': colors}), 200, {
-                       'ContentType': 'application/json'}
-    except Exception as ex:
-        logger.error(ex)
-    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+    return render_template("courses/schedule.html")
 
 
 # Уровень:              offers
@@ -387,26 +331,12 @@ def student_offers():
         pass
     offers = get_offers()
     if len(offers.data) == 0:
-        return render_template("no-offers.html")
+        return render_template("/navigator/no-offers.html")
     if request.method == "POST":
         # TODO сделать логику запросов
         pass
     # TODO сделать страницу
-    return render_template("offers.html", offers=offers.data)
-
-
-# Уровень:              offers/count
-# База данных:          Offers
-# HTML:                 -
-@student.route('/offers/count', methods=['POST'])
-def offers_count():
-    try:
-        cnt = len(get_offers().data)
-        if cnt > 0:
-            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
-    except Exception as ex:
-        logger.error(ex)
-    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
+    return render_template("/navigator/offers.html", offers=offers.data)
 
 
 # Уровень:              mezuzah
@@ -427,276 +357,4 @@ def student_mezuzah():
         # TODO сделать логику запросов
         pass
     # TODO сделать страницу
-    return render_template("mezuzah.html")
-
-
-# NET WORKING
-
-
-# Уровень:              networking/feed
-# База данных:          User, Relations
-# HTML:                 social-feed
-@student.route('/networking/feed', methods=['POST', 'GET'])
-@login_required
-def student_feed():
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.STUDENT)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-
-    if request.method == "POST":
-        try:
-            if request.form['btn_student_feed'] == 'add_record':
-                record_text = request.form.get("record_text")
-                # проверка на нецензурную лексику
-                bad_words = TextFilter(record_text).find_bad_words()
-                if len(bad_words) > 0:
-                    flash(f'В вашем тексте были найдены недопустимые слова: {" ".join(bad_words)}')
-                else:
-                    add_record(current_user.id, record_text, datetime.now())
-                    flash('Вы добавили запись.', 'success')
-            elif request.form['btn_student_feed'] == 'edit_record':
-                record_text = request.form.get("record_text")
-                record_id = request.form.get("record_id")
-                rec_status, rec_id = decrypt_id_with_no_digits(record_id)
-                if not rec_status:
-                    flash('Не удалось обработать данные.', 'error')
-                else:
-                    # проверка на нецензурную лексику
-                    bad_words = TextFilter(record_text).find_bad_words()
-                    if len(bad_words) > 0:
-                        flash(f'В вашем тексте были найдены недопустимые слова: {" ".join(bad_words)}')
-                    else:
-                        update_record(rec_id, 'text', record_text)
-                        flash('Вы обновили запись.', 'success')
-            elif request.form['btn_student_feed'] == 'delete_record':
-                record_id = request.form.get("record_id")
-                rec_status, rec_id = decrypt_id_with_no_digits(record_id)
-                if not rec_status:
-                    flash('Не удалось обработать данные.', 'error')
-                else:
-                    delete_record(rec_id)
-                    flash('Вы удалили запись.', 'success')
-            elif request.form['btn_student_feed'] == 'profile':
-                sex = request.form.get("editSex")
-                location = request.form.get("editLocation")
-                profession = request.form.get("editProfession")
-                university = request.form.get("editUniversity")
-                languages = request.form.getlist('editLanguages')
-                tags = request.form.get("editTags").split()
-                # проверка на нецензурную лексику
-                bad_words = TextFilter(f'{location} {profession} {university} {tags}').find_bad_words()
-                if len(bad_words) > 0:
-                    flash(f'В ваших данных были найдены недопустимые слова: {" ".join(bad_words)}')
-                else:
-                    update_social_data(current_user.id, sex, location, profession, university, languages, tags)
-                    flash('Вы успешно обновили данные', 'success')
-            elif request.form['btn_student_feed'] == 'accept_friend':
-                req_id = request.form.get("friend_request_id")
-                s, v = decrypt_id_with_no_digits(str(req_id))
-                if not s:
-                    flash('Не удалось обработать данные.', category='error')
-                else:
-                    update_relationship(v, 'status', RelationStatus.ACCEPTED.value)
-                    flash('Вы успешно приняли заявку.', 'success')
-            elif request.form['btn_student_feed'] == 'reject_friend':
-                req_id = request.form.get("friend_request_id")
-                s, v = decrypt_id_with_no_digits(str(req_id))
-                if not s:
-                    flash('Не удалось обработать данные.', category='error')
-                else:
-                    delete_relationship(v)
-                    flash('Вы успешно отклонили заявку.', 'success')
-            elif request.form['btn_student_feed'] == 'delete_friend':
-                req_id = request.form.get("friend_request_id")
-                s, v = decrypt_id_with_no_digits(str(req_id))
-                if not s:
-                    flash('Не удалось обработать данные.', category='error')
-                else:
-                    delete_relationship(v)
-                    flash('Вы успешно удалили связь.', 'success')
-            elif request.form['btn_student_feed'] == 'revoke_friend':
-                req_id = request.form.get("friend_request_id")
-                s, v = decrypt_id_with_no_digits(str(req_id))
-                if not s:
-                    flash('Не удалось обработать данные.', category='error')
-                else:
-                    delete_relationship(v)
-                    flash('Вы успешно отозвали запрос.', 'success')
-            elif request.form['btn_student_feed'] == 'search_records':
-                user_records = []
-                recs = sorted(get_records_by_author(current_user.id).data, key=lambda rec: rec.time, reverse=True)
-                for rec in recs:
-                    record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
-                    if record_status:
-                        user_records.append({
-                            'record_id': f'{record_id}',
-                            'text': rec.text,
-                            'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
-                        })
-                fr, frt, frf = set_relations(current_user)
-                resp = get_records()
-                query = request.form.get("input_query")
-                if len(query) == 0:
-                    records = set_records(resp)
-                else:
-                    recs = resp.data
-                    docs = [rec.to_document() for rec in recs]
-                    result = search_documents(documents=docs, query=query, max_result_document_count=-1)
-                    found_records = list(filter(lambda record: str(record.id) in result, recs))
-                    found_records.sort(key=lambda rec: result.index(str(rec.id)))
-                    records = set_records(resp=MongoDBResult(True, found_records), sort=False)
-                return render_template("social-feed.html", user_records=user_records,
-                                       records=records,
-                                       friends_requests_to=frt,
-                                       friends_requests_from=frf, friends=fr, query=query)
-        except Exception as ex:
-            logger.error(ex)
-            flash('Произошла какая-то ошибка', 'error')
-
-    user_records = []
-    recs = sorted(get_records_by_author(current_user.id).data, key=lambda rec: rec.time, reverse=True)
-    for rec in recs:
-        record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
-        if record_status:
-            user_records.append({
-                'record_id': f'{record_id}',
-                'text': rec.text,
-                'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
-            })
-    fr, frt, frf = set_relations(current_user)
-    return render_template("social-feed.html", user_records=user_records,
-                           records=set_records(resp=get_records()), friends_requests_to=frt,
-                           friends_requests_from=frf, friends=fr)
-
-
-# Уровень:              networking/profile
-# База данных:          User
-# HTML:                 profile
-@student.route('/networking/profile/<user_id>', methods=['POST', 'GET'])
-@login_required
-def student_profile(user_id):
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.STUDENT)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-
-    if str(current_user.id) == str(user_id):
-        return redirect(url_for('student.student_feed'))
-
-    resp = get_user_by_id(user_id)
-    if not resp.success:
-        flash('Не удалось найти пользователя.', category='error')
-        return redirect(url_for('student.student_feed'))
-    user = resp.data
-
-    records = []
-    resp = get_records_by_author(user_id)
-    if resp.success:
-        recs = sorted(resp.data, key=lambda rec: rec.time, reverse=True)
-        for rec in recs:
-            records.append({
-                'author': f'{user.first_name} {user.last_name}',
-                'text': rec.text,
-                'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
-            })
-
-    btn_action = 'add'
-    btn_color = 'success'
-    btn_icon = 'check'
-    btn_text = 'Добавить в друзья'
-    relation_id = None
-    resp = get_relationships()
-    if resp.success:
-        rels = resp.data
-        for rel in rels:
-            if str(rel.sender) == str(current_user.id) and str(rel.receiver) == str(user_id):
-                relation_id = rel.id
-                if rel.status == RelationStatus.SUBMITTED:
-                    btn_action = 'delete'
-                    btn_color = 'warning'
-                    btn_icon = 'window-close'
-                    btn_text = 'Отменить запрос'
-                    break
-                elif rel.status == RelationStatus.ACCEPTED:
-                    btn_action = 'delete'
-                    btn_color = 'danger'
-                    btn_icon = 'window-close'
-                    btn_text = 'Удалить из друзей'
-                    break
-                else:
-                    btn_action = ''
-                    btn_color = 'dark'
-                    btn_icon = 'progress-question'
-                    btn_text = 'Ошибка'
-                    break
-            elif str(rel.receiver) == str(current_user.id) and str(rel.sender) == str(user_id):
-                relation_id = rel.id
-                if rel.status == RelationStatus.SUBMITTED:
-                    btn_action = 'back'
-                    btn_color = 'info'
-                    btn_icon = 'backburger'
-                    btn_text = 'Перейти к себе'
-                    break
-                elif rel.status == RelationStatus.ACCEPTED:
-                    btn_action = 'delete'
-                    btn_color = 'danger'
-                    btn_icon = 'window-close'
-                    btn_text = 'Удалить из друзей'
-                    break
-                else:
-                    btn_action = ''
-                    btn_color = 'dark'
-                    btn_icon = 'progress-question'
-                    btn_text = 'Ошибка'
-                    break
-
-    if request.method == "POST":
-        try:
-            if btn_action == 'add':
-                add_relationship(current_user.id, user_id)
-                return redirect(url_for('student.student_profile', user_id=user_id))
-            elif btn_action == 'delete':
-                delete_relationship(relation_id)
-                return redirect(url_for('student.student_profile', user_id=user_id))
-            else:
-                return redirect(url_for('student.student_feed'))
-        except Exception as ex:
-            logger.error(ex)
-            flash('Произошла какая-то ошибка', 'error')
-
-    return render_template("profile.html", records=records, user=user, btn_action=btn_action, btn_color=btn_color,
-                           btn_icon=btn_icon, btn_text=btn_text)
-
-
-# Уровень:              networking/relations
-# База данных:          User, Relations
-# HTML:                 social-relations
-@student.route('/networking/relations', methods=['POST', 'GET'])
-@login_required
-def student_networking_relations():
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.STUDENT)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-
-    if request.method == "POST":
-        try:
-            pass
-        except Exception as ex:
-            logger.error(ex)
-            flash('Произошла какая-то ошибка', 'error')
-
-    return render_template("social-relations.html")
+    return render_template("/navigator/mezuzah.html")

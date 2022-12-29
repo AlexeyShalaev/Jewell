@@ -1,10 +1,13 @@
-from flask import Blueprint, send_file, url_for, request
-from AdminPanel.ext.crypt import *
-from AdminPanel.ext.database.users import *
-from AdminPanel.ext.database.relationships import *
-from AdminPanel.ext.tools import bfs
-from AdminPanel.ext.search_engine import search_documents
 import os
+
+from flask import *
+from AdminPanel.ext.database.courses import get_courses, Time
+from AdminPanel.ext.database.relationships import get_relationships_by_sender, RelationStatus
+from AdminPanel.ext.database.users import get_users, get_user_by_id
+from AdminPanel.ext.database.offers import get_offers
+from AdminPanel.ext.database.attendances import get_attendances_by_user_id
+from AdminPanel.ext.search_engine import search_documents
+from AdminPanel.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends
 import logging
 
 logger = logging.getLogger(__name__)  # logging
@@ -51,13 +54,13 @@ def networking_dataset():
             for user in users:
                 r = get_relationships_by_sender(user.id)
                 if r.success:
-                    relations = r.data
-                    nodes.append({"id": str(user.id), "shape": "circularImage",
-                                  "image": url_for('api.get_avatar', user_id=user.id)})
-                    for relation in relations:
-                        if relation.status == RelationStatus.ACCEPTED:
-                            if not {"from": str(relation.receiver), "to": str(relation.sender)} in edges:
-                                edges.append({"from": str(relation.sender), "to": str(relation.receiver)})
+                    friends = get_friends(str(user.id))
+                    if len(friends) > 0:
+                        nodes.append({"id": str(user.id), "shape": "circularImage",
+                                      "image": url_for('api.get_avatar', user_id=user.id)})
+                        for friend in friends:
+                            if not {"from": str(friend), "to": str(user.id)} in edges:
+                                edges.append({"from": str(user.id), "to": str(friend)})
             return json.dumps({'success': True, 'nodes': nodes, 'edges': edges}), 200, {
                 'ContentType': 'application/json'}
     except Exception as ex:
@@ -99,7 +102,80 @@ def networking_search():
             result = search_documents(documents=docs, query=query, max_result_document_count=-1)
             users = list(filter(lambda user: str(user.id) in result, users))
             users.sort(key=lambda user: result.index(str(user.id)))
-        return json.dumps({'success': True, 'users': [user.to_net() for user in users]}), 200, {'ContentType': 'application/json'}
+        return json.dumps({'success': True, 'users': [user.to_net() for user in users]}), 200, {
+            'ContentType': 'application/json'}
     except Exception as ex:
         logger.error(ex)
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              api/schedule/timetable
+# База данных:          Courses
+# HTML:                 -
+@api.route('/courses/schedule/timetable', methods=['POST'])
+def get_schedule():
+    try:
+        resp = get_courses()
+        times = set()
+        courses_names = set()
+        if resp.success:
+            courses = resp.data
+            filtered_courses = []
+            for course in courses:
+                courses_names.add(course.name)
+                teachers = []
+                try:
+                    for teacher in course.teachers:
+                        r = get_user_by_id(teacher)
+                        if r.success:
+                            teachers.append(
+                                f'<a href="{url_for("networking.profile", user_id=r.data.id)}" target="_blank">{r.data.first_name} {r.data.last_name}</a>')
+                except Exception:
+                    pass
+                filtered_courses.append({
+                    "name": course.name,
+                    "timetable": course.timetable,
+                    "teachers": teachers
+                })
+                for k, v in course.timetable.items():
+                    times.add(v.to_string())
+            times = [Time.from_string(time) for time in times]
+            times.sort()
+            colors = dict()
+            for name in courses_names:
+                colors[name] = get_random_color()
+            return json.dumps(
+                {'success': True, 'times': times, 'courses': filtered_courses,
+                 'colors': colors}), 200, {
+                       'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              offers/count
+# База данных:          Offers
+# HTML:                 -
+@api.route('/offers/count', methods=['POST'])
+def offers_count():
+    try:
+        cnt = len(get_offers().data)
+        if cnt > 0:
+            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/count
+# База данных:          attendance
+# HTML:                 -
+@api.route('/attendance/count/<user_id>', methods=['POST'])
+def attendance_count(user_id):
+    try:
+        cnt = len(get_attendances_by_user_id(user_id).data)
+        if cnt > 0:
+            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}

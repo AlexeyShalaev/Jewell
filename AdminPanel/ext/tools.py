@@ -1,7 +1,7 @@
 import random
-from AdminPanel.ext.database.records import *
-from AdminPanel.ext.database.relationships import *
-from AdminPanel.ext.crypt import *
+from AdminPanel.ext.database.users import get_user_by_id, MongoDBResult
+from AdminPanel.ext.database.relationships import get_relationships, RelationStatus
+from AdminPanel.ext.crypt import encrypt_id_with_no_digits
 import queue
 import re
 
@@ -161,6 +161,5 @@ def bfs(s, t, users):
 
         path.reverse()
         return path
-    except Exception as ex:
-        logger.error(ex)
+    except Exception:
         return []

@@ -1,6 +1,5 @@
-from . import db, MongoDBResult
 from AdminPanel.ext.models.attendance import *
-from datetime import datetime
+from . import db, MongoDBResult
 
 """
 Это собственно-написанная ORM - для NoSql базы данных MongoDB, для взаимодействия с моделью Attendance

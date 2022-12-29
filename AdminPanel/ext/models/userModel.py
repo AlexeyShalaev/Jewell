@@ -102,5 +102,5 @@ class User(UserMixin):
 
     def get_page(self):
         if self.role == Role.STUDENT:
-            return url_for('student.student_profile', user_id=str(self.id))
+            return url_for('networking.profile', user_id=str(self.id))
         return ""

@@ -6,6 +6,7 @@ from flask_toastr import *
 from AdminPanel.ext.webui.view import view
 from AdminPanel.ext.webui.error import error
 from AdminPanel.ext.webui.api import api
+from AdminPanel.ext.webui.networking import networking
 from AdminPanel.ext.webui.student import student
 from AdminPanel.ext.webui.teacher import teacher
 from AdminPanel.ext.webui.admin import admin
@@ -22,6 +23,7 @@ app = Flask(config.flask.app_name)
 app.register_blueprint(view)
 app.register_blueprint(error)
 app.register_blueprint(api)
+app.register_blueprint(networking)
 app.register_blueprint(student)
 app.register_blueprint(teacher)
 app.register_blueprint(admin)

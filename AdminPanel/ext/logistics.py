@@ -1,7 +1,7 @@
 from AdminPanel.ext.database.users import *
 from AdminPanel.ext.database.flask_sessions import *
-from flask import *
-from flask_login import *
+from flask import session
+from flask_login import current_user
 
 
 def auto_redirect(ignore_role=Role.NULL):
@@ -17,6 +17,19 @@ def auto_redirect(ignore_role=Role.NULL):
         elif current_user.role == Role.ADMIN:
             return True, "/admin/home"
     return False, None
+
+
+def auto_render():
+    if current_user.is_authenticated:
+        if current_user.role == Role.REGISTERED:
+            return False, "error-500.html"
+        elif current_user.role == Role.STUDENT:
+            return True, "/student"
+        elif current_user.role == Role.TEACHER:
+            return True, "/teacher"
+        elif current_user.role == Role.ADMIN:
+            return True, "/admin"
+    return False, "error-500.html"
 
 
 def check_session():

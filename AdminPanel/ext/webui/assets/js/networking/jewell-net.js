@@ -137,7 +137,7 @@ class JewellNet {
                 },
             success: function (result) {
                 const res = JSON.parse(result);
-                if (res.success === true) {
+                if (res.success === true && res.way.length>0) {
                     jewellNet.show_way(res.way);
                 } else {
                     $.NotificationApp.send("Связи", "Не удалось вычислить путь.", "top-right", "#FF5B5B", "error");

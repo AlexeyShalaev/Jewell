@@ -5,7 +5,7 @@ Schedule
 {% endblock %}
 
 {% block css %}
-<link rel="stylesheet" href="../../assets/schedule/css/style.css">
+<link rel="stylesheet" href="../../../assets/schedule/css/style.css">
 {% endblock %}
 
 {% block body %}
@@ -57,7 +57,7 @@ Schedule
 
     function set_schedule() {
         try {
-            const link = "{{url_for('student.get_schedule')}}";
+            const link = "{{url_for('api.get_schedule')}}";
             $.ajax({
                 type: 'POST',
                 url: link,

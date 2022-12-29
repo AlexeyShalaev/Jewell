@@ -475,14 +475,14 @@
                 <li class="side-nav-title side-nav-item">Net Working</li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('student.student_feed')}}" class="side-nav-link">
+                    <a href="{{url_for('networking.feed')}}" class="side-nav-link">
                         <i class="fa-solid fa-users-rectangle"></i>
                         <span> Лента </span>
                     </a>
                 </li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('student.student_networking_relations')}}" class="side-nav-link">
+                    <a href="{{url_for('networking.networking_relations')}}" class="side-nav-link">
                         <i><img src="../../assets/icons/sprites/network-icon-16.jpg"
                                 style="height: 20px;width: 20px;"></img></i>
                         <span> Связи </span>
@@ -1108,7 +1108,7 @@
 
     function set_offers_cnt() {
         try {
-            const link = "{{url_for('student.offers_count')}}";
+            const link = "{{url_for('api.offers_count')}}";
             $.ajax({
                 type: 'POST',
                 url: link,
@@ -1123,7 +1123,7 @@
 
     function set_attendances_cnt() {
         try {
-            const link = "{{url_for('student.attendance_count')}}";
+            const link = "{{url_for('api.attendance_count', user_id=current_user.id)}}";
             $.ajax({
                 type: 'POST',
                 url: link,

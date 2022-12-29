@@ -120,7 +120,7 @@ Feed
                          <form action="" method="post">
                              <div class="inbox-item">
                                  <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                 <a href="{{url_for('student.student_profile', user_id=req.sender_id)}}">
+                                 <a href="{{url_for('networking.profile', user_id=req.sender_id)}}">
                                 <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.sender_id)}}"
                                                                  class="rounded-circle"
                                                                  alt=""></div>
@@ -128,9 +128,9 @@ Feed
                                  <p class="inbox-item-text">{{req.first_name}}</p>
                                  </a>
                                 <p class="inbox-item-date">
-                                    <button name="btn_student_feed" value="accept_friend" type="submit" class="btn btn-sm btn-outline-success px-1 py-0 me-2"><i
+                                    <button name="btn_feed" value="accept_friend" type="submit" class="btn btn-sm btn-outline-success px-1 py-0 me-2"><i
                                             class="uil uil-user-plus font-16"></i></button>
-                                    <button name="btn_student_feed" value="reject_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                    <button name="btn_feed" value="reject_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
                                             class="uil uil-user-minus font-16"></i></button>
                                 </p>
                             </div>
@@ -164,7 +164,7 @@ Feed
                          <form action="" method="post">
                              <div class="inbox-item">
                                  <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                 <a href="{{url_for('student.student_profile', user_id=req.receiver_id)}}">
+                                 <a href="{{url_for('networking.profile', user_id=req.receiver_id)}}">
                                 <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.receiver_id)}}"
                                                                  class="rounded-circle"
                                                                  alt=""></div>
@@ -172,7 +172,7 @@ Feed
                                  <p class="inbox-item-text">{{req.first_name}}</p>
                                  </a>
                                 <p class="inbox-item-date">
-                                    <button name="btn_student_feed" value="revoke_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                    <button name="btn_feed" value="revoke_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
                                             class="uil uil-minus font-16"></i></button>
                                 </p>
                             </div>
@@ -223,7 +223,7 @@ Feed
                                 <textarea name="record_text" rows="4" class="form-control border-0 resize-none"
                                           placeholder="Напишите что-то...." required minlength="5"></textarea>
                                 <div class="p-2 bg-light d-flex justify-content-between align-items-center">
-                                    <button type="submit" name="btn_student_feed" value="add_record"
+                                    <button type="submit" name="btn_feed" value="add_record"
                                             class="btn btn-sm btn-success"><i
                                             class="uil uil-message me-1"></i>Опубликовать
                                     </button>
@@ -259,11 +259,11 @@ Feed
                                                           class="bg-body form-control border-0 resize-none"
                                                           placeholder="Напишите что-то...." required="" minlength="5">{{record['text']}}</textarea>
                                                 <div class="p-2 bg-light d-flex justify-content-between align-items-center">
-                                                    <button type="submit" name="btn_student_feed" value="edit_record"
+                                                    <button type="submit" name="btn_feed" value="edit_record"
                                                             class="btn btn-sm btn-info"><i
                                                             class="uil uil-comment-alt-edit me-1"></i>Редактировать
                                                     </button>
-                                                    <button type="submit" name="btn_student_feed" value="delete_record"
+                                                    <button type="submit" name="btn_feed" value="delete_record"
                                                             class="btn btn-sm btn-danger"><i
                                                             class="uil uil-trash-alt me-1"></i>Удалить
                                                     </button>
@@ -602,7 +602,7 @@ Feed
                                                 </button>
                                             </li>
                                             <li class="next list-inline-item float-end">
-                                                <button type="submit" name="btn_student_feed" value="profile"
+                                                <button type="submit" name="btn_feed" value="profile"
                                                         class="btn btn-info">Сохранить
                                                 </button>
                                             </li>
@@ -623,7 +623,7 @@ Feed
                 <div class="input-group">
                     <input type="search" class="form-control bg-dark bg-gradient text-light" placeholder="Искать..." name="input_query" value="">
                     <span class="mdi mdi-magnify search-icon text-light"></span>
-                    <button name="btn_student_feed" value="search_records" class="input-group-text btn btn-primary" type="submit">Искать</button>
+                    <button name="btn_feed" value="search_records" class="input-group-text btn btn-primary" type="submit">Искать</button>
                 </div>
             </form>
         </div>
@@ -642,7 +642,7 @@ Feed
             {% for record in records[:5] %}
             <div class="card">
                 <div class="card-body pb-1">
-                    <a href="{{url_for('student.student_profile', user_id=record['user_id'])}}" class="d-flex">
+                    <a href="{{url_for('networking.profile', user_id=record['user_id'])}}" class="d-flex">
                         <img class="me-2 rounded" src="{{url_for('api.get_avatar', user_id=record['user_id'])}}"
                              alt="avatar"
                              height="32">
@@ -697,7 +697,7 @@ Feed
                          <form action="" method="post">
                              <div class="inbox-item">
                                  <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                  <a href="{{url_for('student.student_profile', user_id=req.friend.id)}}">
+                                  <a href="{{url_for('networking.profile', user_id=req.friend.id)}}">
                                     <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.friend.id)}}"
                                                                      class="rounded-circle"
                                                                      alt=""></div>
@@ -705,7 +705,7 @@ Feed
                                      <p class="inbox-item-text">{{req.friend.first_name}}</p>
                                   </a>
                                 <p class="inbox-item-date">
-                                    <button name="btn_student_feed" value="delete_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                    <button name="btn_feed" value="delete_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
                                             class="uil uil-user-minus font-16"></i></button>
                                 </p>
                             </div>

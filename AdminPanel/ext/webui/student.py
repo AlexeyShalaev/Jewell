@@ -5,6 +5,7 @@ from flask_toastr import *
 from AdminPanel.ext import trip_date
 from AdminPanel.ext.crypt import *
 from AdminPanel.ext.database.records import get_records_by_type, RecordType
+from AdminPanel.ext.database.maps import get_map_by_name
 from AdminPanel.ext.database.attendances import *
 from AdminPanel.ext.database.offers import *
 from AdminPanel.ext.logistics import *
@@ -30,7 +31,15 @@ def student_home():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    return render_template("home.html", shabbat=shabbat(), news=set_records(get_records_by_type(RecordType.NEWS)))
+    trip_map = {"values": {}, "colors": {}}
+    resp = get_map_by_name(name='trips')
+    if resp.success:
+        countries = resp.data.countries
+        for i in range(len(countries)):
+            trip_map["values"][countries[i]] = i + 1
+            trip_map["colors"][str(i+1)] = get_random_color()
+    return render_template("home.html", shabbat=shabbat(), news=set_records(get_records_by_type(RecordType.NEWS)),
+                           map=trip_map)
 
 
 # Уровень:              account

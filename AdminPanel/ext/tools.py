@@ -1,11 +1,11 @@
-import random
 from AdminPanel.ext.database.users import get_user_by_id, MongoDBResult
 from AdminPanel.ext.database.relationships import get_relationships, RelationStatus
-from AdminPanel.ext.crypt import encrypt_id_with_no_digits
+from AdminPanel.ext.crypt import encrypt_id_with_no_digits, logger
 import requests
 from datetime import datetime
 import queue
 import re
+import random
 
 
 def normal_phone_number(phone_number: str) -> str:
@@ -193,6 +193,6 @@ def shabbat(geo_name_id: int = 524901) -> dict:
                         res['havdalah'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{date.minute}'
                 except Exception:
                     pass
-    except Exception:
-        pass
+    except Exception as ex:
+        logger.error(ex)
     return res

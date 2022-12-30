@@ -77,7 +77,7 @@
 
             <ul class="list-unstyled topbar-menu float-end mb-0">
 
-                <li class="dropdown notification-list">
+                <li class="dropdown notification-list" onclick="set_notifications()">
                     <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="false" aria-expanded="false">
                         <i class="ri-notification-3-line noti-icon"></i>
@@ -92,13 +92,14 @@
                             </div>
                         </div>
 
-                        <div id="notifications" class="px-3" data-simplebar data-simplebar-primary style="max-height: 300px;">
+                        <div id="notifications" class="px-3 overflow-auto" data-simplebar data-simplebar-primary
+                             style="max-height: 300px;">
 
                         </div>
                     </div>
                 </li>
 
-                <li class="dropdown notification-list d-none d-sm-inline-block">
+                <li class="dropdown notification-list">
                     <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="false" aria-expanded="false">
                         <i class="ri-apps-2-line noti-icon"></i>
@@ -108,19 +109,19 @@
                         <div class="p-2">
                             <div class="row g-0">
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://jewellclub.ru/">
+                                    <a class="dropdown-icon-item" href="https://jewellclub.ru/" target="_blank">
                                         <img src="../../assets/images/brands/jewell-club.png" alt="jewell-club">
                                         <span>Jewell Club</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://yahad.ru/">
+                                    <a class="dropdown-icon-item" href="https://yahad.ru/" target="_blank">
                                         <img src="../../assets/images/brands/yahad-logo.png" alt="yahad-logo">
                                         <span>Яхад</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://vk.com/jewellclub">
+                                    <a class="dropdown-icon-item" href="https://vk.com/jewellclub" target="_blank">
                                         <img src="../../assets/images/brands/icon-vk.svg" alt="vk">
                                         <span>Группа ВК</span>
                                     </a>
@@ -129,19 +130,19 @@
 
                             <div class="row g-0">
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://t.me/yahad_jewell">
+                                    <a class="dropdown-icon-item" href="https://t.me/yahad_jewell" target="_blank">
                                         <img src="../../assets/images/brands/yahad-jewell.jpg" alt="yahad-jewell">
                                         <span>Яхад Jewell</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://t.me/+zaW_-KwesrU4Mjgy">
+                                    <a class="dropdown-icon-item" href="https://t.me/+zaW_-KwesrU4Mjgy" target="_blank">
                                         <img src="../../assets/images/brands/yahad-jewell-dark.jpg" alt="7">
                                         <span>на 7ом</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://t.me/JewellClub_bot">
+                                    <a class="dropdown-icon-item" href="https://t.me/JewellClub_bot" target="_blank">
                                         <img src="../../assets/images/brands/telegram.png" alt="telegram">
                                         <span>Telegram Bot</span>
                                     </a>
@@ -152,13 +153,13 @@
                     </div>
                 </li>
 
-                <li class="notification-list d-none d-sm-inline-block">
+                <li class="notification-list">
                     <a class="nav-link" data-bs-toggle="offcanvas" href="#theme-settings-offcanvas">
                         <i class="ri-settings-3-line noti-icon"></i>
                     </a>
                 </li>
 
-                <li class="notification-list d-none d-sm-inline-block">
+                <li class="notification-list">
                     <a class="nav-link" href="" id="light-dark-mode">
                         <i class="ri-moon-line noti-icon"></i>
                     </a>
@@ -200,7 +201,6 @@
                             <i class="fa-solid fa-question me-1"></i>
                             <span>Помощь</span>
                         </a>
-
 
                         <!-- item-->
                         <a href="{{url_for('view.logout')}}" class="dropdown-item notify-item">
@@ -313,7 +313,7 @@
                     <div class="collapse" id="sidebarLinks" style="">
                         <ul class="side-nav-second-level">
                             <li>
-                                <a href="https://jewellclub.ru/new-season/">Новый сезон Яхад <span
+                                <a href="https://jewellclub.ru/new-season/" target="_blank">Новый сезон Яхад <span
                                         class="badge rounded-pill bg-light text-dark font-10 float-end">New</span></a>
                             </li>
                             <li>
@@ -326,7 +326,7 @@
                                 </a>
                             </li>
                             <li>
-                                <a href="https://bit.ly/3dX5iMT">Правила программы</a>
+                                <a href="https://bit.ly/3dX5iMT" target="_blank">Правила программы</a>
                             </li>
 
                         </ul>
@@ -911,7 +911,7 @@
     set_avatars("{{url_for('api.get_avatar', user_id=current_user.id)}}");
     set_offers_cnt();
     set_attendances_cnt();
-    set_notifications();
+    //set_notifications();
 
 
     function set_avatars(source) {
@@ -973,9 +973,13 @@
                             var h5 = document.createElement("h5");
                             var small = document.createElement("small");
                             small.setAttribute('class', 'noti-item-subtitle text-muted');
-                            small.innerText = n.text;
+                            let str = "";
+                            for (let char of n.text) {
+                                if (char !== '\r' && char !== '\n') str += char;
+                            }
+                            small.innerText = str;
                             h5.setAttribute('class', 'noti-item-title fw-semibold font-14');
-                            h5.innerHTML = "Datacorp <small class=\"fw-normal text-muted ms-1\">" + n.time + "</small>";
+                            h5.innerHTML = n.author + " <small class=\"fw-normal text-muted ms-1\">" + n.time + "</small>";
                             d12.appendChild(h5);
                             d12.appendChild(small);
                             img.setAttribute('class', 'rounded');
@@ -1009,7 +1013,7 @@
 
     function show_info_about_notification(index) {
         const note = notifications[index];
-        let note_html = `<strong>${note.time}</strong><br><div class="mt-3">${note.text}</div>`;
+        let note_html = `<strong>${note.time}</strong><br><div class="mt-3" style="white-space:pre">${note.text}</div>`;
         Swal.fire({
             title: `<a href="/networking/profile/${note.user_id}">${note.author}</a>`,
             icon: 'info',

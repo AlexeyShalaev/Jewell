@@ -210,6 +210,7 @@ def registered():
             update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
                                    birthday=input_birthday)
             flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
+            return redirect(url_for('view.registered'))
         except Exception as ex:
             logger.error(ex)
     return render_template("custom/authentication/registered.html",

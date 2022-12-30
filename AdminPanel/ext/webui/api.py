@@ -189,7 +189,7 @@ def attendance_count(user_id):
 def get_notifications():
     try:
         return json.dumps(
-            {'success': True, 'notifications': set_records(get_records_by_type(RecordType.POST))}), 200, {
+            {'success': True, 'notifications': set_records(get_records_by_type(RecordType.NOTIFICATION))}), 200, {
                    'ContentType': 'application/json'}
     except Exception as ex:
         logger.error(ex)

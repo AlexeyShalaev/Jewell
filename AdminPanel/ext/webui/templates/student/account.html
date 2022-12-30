@@ -34,7 +34,7 @@ Account
                 <div class="row">
                     <div class="col-sm-8">
                         <div class="row align-items-center">
-                            <div class="col-auto me-3">
+                            <div class="col-lg-3">
                                 <form id="avatar_form" action="" method="POST" enctype="multipart/form-data">
                                     <div class="avatar-wrapper">
                                         <img class="profile-pic avatar-img"
@@ -47,7 +47,7 @@ Account
                                     </div>
                                 </form>
                             </div>
-                            <div class="col me-3">
+                            <div class="col-lg-3 ">
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">{{current_user.last_name}}
                                         {{current_user.first_name}}</h4>
@@ -71,7 +71,7 @@ Account
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col me-3">
+                            <div class="col-lg-3">
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">Telegram
                                         {% if current_user.telegram_id %}
@@ -100,7 +100,7 @@ Account
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col">
+                            <div class="col-lg-3">
                                 <div>
                                     <h4 id="auth_status" class="mt-1 mb-1 text-white">Авторизация
                                         {% if current_user.telegram_auth %}

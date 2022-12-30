@@ -15,7 +15,7 @@ Student
 </div>
 
 <div class="row">
-    <div class="col-xl-3 col-lg-4">
+    <div class="col-xl-4 col-lg-4">
         <div class="card cta-box overflow-hidden">
             <div class="card-body">
                 <div class="d-flex align-items-center">
@@ -49,7 +49,7 @@ Student
             <div class="card-body">
                 <div class="d-flex align-items-center">
                     <div>
-                        <a href="https://jewellclub.ru/shabbat/kabbalat-shabbat/"><h3
+                        <a href="https://jewellclub.ru/shabbat/kabbalat-shabbat/" target="_blank"><h3
                                 class="m-0 fw-normal cta-box-title">КАББАЛАТ ШАББАТ</h3></a>
                     </div>
                     <img class="ms-3" src="../../assets/images/brands/yahad-logo.png" width="92"
@@ -60,7 +60,7 @@ Student
         </div>
     </div> <!-- end col -->
 
-    <div class="col-xl-9 col-lg-8">
+    <div class="col-xl-8 col-lg-8">
         <div class="card">
             <div class="card-header">
                 <h4 class="header-title">Новости</h4>
@@ -107,18 +107,13 @@ Student
 
 <script>
     $(document).ready(function () {
-        var gdpData = {
-            "AF": 100,
-            "AL": 100,
-            "MA": 100,
-        };
         $("#world-map").vectorMap({
             map: "world_mill_en",
             series: {
                 regions: [{
-                    scale: {'1': 'yellow', '2': 'red', '3': 'blue', '4': 'green'},
+                    scale: {{map['colors'] | safe}},
                     attribute: 'fill',
-                    values: {"MA": 1, "AE": 2, "IT": 3, "US": 4},
+                    values: {{map['values'] | safe}},
                 }]
             },
             normalizeFunction: "polynomial",
@@ -128,6 +123,7 @@ Student
             backgroundColor: "transparent"
         })
     });
+
 </script>
 
 {% endblock %}

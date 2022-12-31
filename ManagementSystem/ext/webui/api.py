@@ -168,6 +168,21 @@ def offers_count():
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
+# Уровень:              offers/count
+# База данных:          Offers
+# HTML:                 -
+@api.route('/records/count', methods=['POST'])
+def records_count():
+    try:
+        news = len(get_records_by_type(RecordType.NEWS).data)
+        notifications = len(get_records_by_type(RecordType.NOTIFICATION).data)
+        return json.dumps({'success': True, 'news': news, 'notifications': notifications}), 200, {
+            'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+        return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
 # Уровень:              attendance/count
 # База данных:          attendance
 # HTML:                 -

@@ -20,6 +20,7 @@ class Record:
     type: RecordType  # тип записи
     text: str  # текст записи
     time: datetime  # время публикации
+    lifetime: int  # время действия <=0 -> бессрочно. >0 число секунд
 
     def __init__(self, data):
         self.id = data['_id']
@@ -27,6 +28,7 @@ class Record:
         self.type = RecordType(data['type'])
         self.text = data['text']
         self.time = data['time']
+        self.lifetime = data['lifetime']
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),
@@ -34,6 +36,7 @@ class Record:
                            "type": self.type.value,
                            "text": self.text,
                            "time": self.time.strftime("%d.%m.%Y %H:%M"),
+                           "lifetime": self.lifetime,
                            })
 
     def to_document(self):

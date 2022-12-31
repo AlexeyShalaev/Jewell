@@ -81,7 +81,7 @@
                     <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="false" aria-expanded="false">
                         <i class="ri-notification-3-line noti-icon"></i>
-                        <span class="noti-icon-badge"></span>
+                        <span id="notifications_cnt" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
                     </a>
                     <div id="pre_notes" class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg py-0">
                         <div class="p-2 border-top-0 border-start-0 border-end-0 border-dashed border">
@@ -263,6 +263,7 @@
                 <li class="side-nav-item">
                     <a href="{{url_for('student.student_home')}}" class="side-nav-link">
                         <i class="uil-home-alt"></i>
+                        <span id="news_cnt" class="badge bg-success float-end"></span>
                         <span> Главная </span>
                     </a>
                 </li>
@@ -279,7 +280,7 @@
                 <li class="side-nav-item">
                     <a href="{{url_for('student.student_attendance')}}" class="side-nav-link">
                         <i class="fa-regular fa-calendar-check"></i>
-                        <span id="attendances_cnt" class="badge bg-success float-end"></span>
+                        <span id="attendances_cnt" class="badge bg-primary float-end"></span>
                         <span> Посещаемость </span>
                     </a>
                 </li>
@@ -297,6 +298,7 @@
                     <a href="{{url_for('networking.networking_relations')}}" class="side-nav-link">
                         <i><img src="../../assets/icons/sprites/network-icon-16.jpg"
                                 style="height: 20px;width: 20px;"></img></i>
+                        <span class="badge bg-danger float-end">New</span>
                         <span> Связи </span>
                     </a>
                 </li>
@@ -911,7 +913,7 @@
     set_avatars("{{url_for('api.get_avatar', user_id=current_user.id)}}");
     set_offers_cnt();
     set_attendances_cnt();
-    //set_notifications();
+    set_records_cnt();
 
 
     function set_avatars(source) {
@@ -951,8 +953,28 @@
         }
     }
 
+    function set_records_cnt() {
+        try {
+            const link = "{{url_for('api.records_count')}}";
+            $.ajax({
+                type: 'POST',
+                url: link,
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if(res.success){
+                        if (res.news > 0) document.getElementById("news_cnt").innerText = res.news;
+                        if (res.notifications > 0) document.getElementById("notifications_cnt").innerText = res.notifications;
+                    }
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     function set_notifications() {
         let html_notifications = document.getElementById("notifications");
+        html_notifications.innerHTML = "";
         try {
             const link = "{{url_for('api.get_notifications')}}";
             $.ajax({

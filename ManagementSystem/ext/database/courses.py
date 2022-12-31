@@ -86,7 +86,7 @@ def get_courses_by_teacher(teacher) -> MongoDBResult:
                 filtered_courses.append(course)
         return MongoDBResult(True, filtered_courses)
     else:
-        return MongoDBResult(False, None)
+        return MongoDBResult(False, [])
 
 
 # поиск курсов по дню недели
@@ -100,7 +100,7 @@ def get_courses_by_day(day: str) -> MongoDBResult:
                 filtered_courses.append(course)
         return MongoDBResult(True, filtered_courses)
     else:
-        return MongoDBResult(False, None)
+        return MongoDBResult(False, [])
 
 
 # поиск курсов по времени HH:MM
@@ -116,4 +116,4 @@ def get_courses_by_time(time: str) -> MongoDBResult:
                     break
         return MongoDBResult(True, filtered_courses)
     else:
-        return MongoDBResult(False, None)
+        return MongoDBResult(False, [])

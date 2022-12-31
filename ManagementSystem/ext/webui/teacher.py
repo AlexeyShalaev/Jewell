@@ -2,12 +2,10 @@ import os
 from flask import *
 from flask_login import *
 from flask_toastr import *
-from ManagementSystem.ext import trip_date
-from ManagementSystem.ext.crypt import *
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.database.maps import get_map_by_name
-from ManagementSystem.ext.database.attendances import *
 from ManagementSystem.ext.database.offers import *
+from ManagementSystem.ext.database.courses import get_courses_by_teacher
 from ManagementSystem.ext.logistics import *
 from ManagementSystem.ext.tools import *
 
@@ -40,6 +38,24 @@ def teacher_home():
     return render_template("teacher/home.html", shabbat=shabbat(),
                            news=set_records(get_records_by_type(RecordType.NEWS)),
                            map=trip_map)
+
+
+# Уровень:              courses/schedule
+# База данных:          User
+# HTML:                 schedule
+@teacher.route('/news', methods=['POST', 'GET'])
+@login_required
+def teacher_news():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.TEACHER)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    return render_template("teacher/news.html")
 
 
 # Уровень:              account
@@ -84,7 +100,8 @@ def teacher_account():
             return redirect(url_for('teacher.teacher_account'))
         else:
             flash('Такое расширение файла не подходит', category='warning')
-    return render_template("teacher/account.html", friends=get_friends(str(current_user.id)))
+    return render_template("teacher/account.html", friends=get_friends(str(current_user.id)),
+                           courses=get_courses_by_teacher(current_user.id).data)
 
 
 # Уровень:              courses/schedule
@@ -101,7 +118,7 @@ def teacher_schedule():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    return render_template("teacher/courses/schedule.html")
+    return render_template("teacher/courses/schedule.html", courses=get_courses_by_teacher(current_user.id).data)
 
 
 # Уровень:              offers

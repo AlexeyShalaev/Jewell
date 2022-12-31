@@ -150,13 +150,14 @@ def feed():
     user_records = []
     recs = sorted(get_records_by_author(current_user.id).data, key=lambda rec: rec.time, reverse=True)
     for rec in recs:
-        record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
-        if record_status:
-            user_records.append({
-                'record_id': f'{record_id}',
-                'text': rec.text,
-                'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
-            })
+        if rec.type == RecordType.POST:
+            record_status, record_id = encrypt_id_with_no_digits(str(rec.id))
+            if record_status:
+                user_records.append({
+                    'record_id': f'{record_id}',
+                    'text': rec.text,
+                    'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                })
     fr, frt, frf = set_relations(current_user)
 
     render_status, render_html = auto_render()

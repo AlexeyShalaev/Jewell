@@ -59,14 +59,8 @@ Account
                                             <p class="mb-0 font-13 text-white-50">Число связей</p>
                                         </li>
                                         <li class="list-inline-item me-3">
-                                            {% if current_user.reward.value == 'trip' %}
-                                            <h5 class="mb-1 text-white">Поездка</h5>
-                                            {% elif current_user.reward.value == 'grant' %}
-                                            <h5 class="mb-1 text-white">Стипендия</h5>
-                                            {% else %}
-                                            <h5 class="mb-1 text-white">-</h5>
-                                            {% endif %}
-                                            <p class="mb-0 font-13 text-white-50">Награда</p>
+                                            <h5 class="mb-1 text-white">{{courses | length}}</h5>
+                                            <p class="mb-0 font-13 text-white-50">Число курсов</p>
                                         </li>
                                     </ul>
                                 </div>

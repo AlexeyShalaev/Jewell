@@ -1,5 +1,5 @@
-from AdminPanel.ext.database.attendances import *
-from AdminPanel.ext.database.users import *
+from ManagementSystem.ext.database.attendances import *
+from ManagementSystem.ext.database.users import *
 import random
 
 

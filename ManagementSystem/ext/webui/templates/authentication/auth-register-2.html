@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="detached" data-topbar-color="dark" data-sidenav-color="light"
+      data-sidenav-user="true">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Register | Jewell Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.ico">
+
+    <!-- Theme Config Js -->
+    <script src="../../assets/js/hyper-config.js"></script>
+
+    <!-- Icons css -->
+    <link href="../../assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- App css -->
+    <link href="../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
+</head>
+
+<body class="authentication-bg pb-0">
+{{ toastr.include_toastr_js() }}
+<div class="auth-fluid">
+    <!--Auth fluid left content -->
+    <div class="auth-fluid-form-box">
+        <div class="align-items-center d-flex h-100">
+            <div class="card-body">
+
+                <!-- Logo -->
+                <div class="auth-brand text-center text-lg-start">
+                    <a class="logo-dark" href="{{url_for('view.landing')}}">
+                        <span><img src="../../assets/images/logo-dark.png" alt="logo"></span>
+                    </a>
+                </div>
+
+                <!-- title-->
+                <h4 class="mt-3">Регистрация</h4>
+                <p class="text-muted mb-4">Нет аккаунта? Создайте, это займет у вас мгновение.</p>
+
+                <!-- form -->
+                <form action="{{ url_for('view.register', version=2)}}" method="post">
+
+                    <div class="mb-3">
+                        <label for="phonenumber" class="form-label">Номер телефона</label>
+                        <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
+                               pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                               placeholder="Введите номер">
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Пароль</label>
+                        <input class="form-control" type="password" required id="password" name="password" minlength="4"
+                               placeholder="Введите пароль">
+                    </div>
+                    <div class="mb-0 d-grid text-center">
+                        <button class="btn btn-primary" type="submit"><i class="mdi mdi-account-circle"></i>
+                            Зарегистрироваться
+                        </button>
+                    </div>
+                </form>
+                <!-- end form-->
+
+                <!-- Footer-->
+                <footer class="footer footer-alt">
+                    <p class="text-muted">Уже есть аккаунт? <a href="{{url_for('view.login')}}"
+                                                               class="text-muted ms-1"><b>Войти</b></a></p>
+                </footer>
+
+            </div> <!-- end .card-body -->
+        </div> <!-- end .align-items-center.d-flex.h-100-->
+    </div>
+    <!-- end auth-fluid-form-box-->
+
+    <!-- Auth fluid right content -->
+    <div class="auth-fluid-right text-center" style="background-image: url('../../assets/images/auth/login2.jpg');">
+        <div class="auth-user-testimonial">
+            <h2 class="mb-3">Shalom!</h2>
+        </div> <!-- end auth-user-testimonial-->
+    </div>
+    <!-- end Auth fluid right content -->
+</div>
+<!-- end auth-fluid-->
+<!-- Vendor js -->
+<script src="../../assets/js/vendor.min.js"></script>
+
+<!-- App js -->
+<script src="../../assets/js/app.min.js"></script>
+
+</body>
+
+</html>

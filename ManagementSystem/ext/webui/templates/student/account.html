@@ -1,0 +1,381 @@
+{% extends 'student-base.html' %}
+
+{% block title %}
+Account
+{% endblock %}
+
+{% block css %}
+<!-- Avatar-upload css -->
+<link href="../../assets/css/avatar-upload.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
+{% block body %}
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{url_for('student.student_home')}}">Студент</a></li>
+                    <li class="breadcrumb-item active">Аккаунт</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Профиль</h4>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-sm-12">
+        <!-- Profile -->
+        <div class="card bg-primary" onmouseleave="tg_token('hide');">
+            <div class="card-body profile-user-box">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <div class="row align-items-center">
+                            <div class="col-lg-3">
+                                <form id="avatar_form" action="" method="POST" enctype="multipart/form-data">
+                                    <div class="avatar-wrapper">
+                                        <img class="profile-pic avatar-img"
+                                             src=""/>
+                                        <div class="upload-button">
+                                            <i class="fa fa-arrow-circle-up" aria-hidden="true"></i>
+                                        </div>
+                                        <input class="file-upload" type="file" name="avatar" id="fileid"
+                                               accept="image/jpeg,image/png"/>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="col-lg-3 ">
+                                <div>
+                                    <h4 class="mt-1 mb-1 text-white">{{current_user.last_name}}
+                                        {{current_user.first_name}}</h4>
+                                    <p class="font-13 text-white-50"> Студент</p>
+
+                                    <ul class="mb-0 list-inline text-light">
+                                        <li class="list-inline-item me-3">
+                                            <h5 class="mb-1 text-white">{{friends | length}}</h5>
+                                            <p class="mb-0 font-13 text-white-50">Число связей</p>
+                                        </li>
+                                        <li class="list-inline-item me-3">
+                                            {% if current_user.reward.value == 'trip' %}
+                                            <h5 class="mb-1 text-white">Поездка</h5>
+                                            {% elif current_user.reward.value == 'grant' %}
+                                            <h5 class="mb-1 text-white">Стипендия</h5>
+                                            {% else %}
+                                            <h5 class="mb-1 text-white">-</h5>
+                                            {% endif %}
+                                            <p class="mb-0 font-13 text-white-50">Награда</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div>
+                                    <h4 class="mt-1 mb-1 text-white">Telegram
+                                        {% if current_user.telegram_id %}
+                                        <span class="ms-1 badge bg-success rounded-pill">Привязан</span>
+                                        {% else %}
+                                        <span class="ms-1 badge bg-danger rounded-pill">Не привязан</span>
+                                        {% endif %}
+                                    </h4>
+                                    {% if current_user.telegram_username %}
+                                    <a href="https://t.me/{{current_user.telegram_username}}"><p class="font-13 text-white-50">
+                                        @{{current_user.telegram_username}}</p></a>
+                                    {% else %}
+                                   <a href="https://t.me/JewellClub_bot"><p class="font-13 text-white-50">
+                                        @JewellClub_bot</p></a>
+                                    {% endif %}
+
+
+
+                                    <ul class="mb-0 list-inline text-light">
+                                        <li class="list-inline-item me-3">
+                                            <h5 id="tg-token" class="mb-1 card-title placeholder-glow"
+                                                onmouseenter="tg_token('show');"><span class="placeholder w-100"></span>
+                                            </h5>
+                                            <p class="mb-0 font-13 text-white-50">Токен подтверждения</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div>
+                                    <h4 id="auth_status" class="mt-1 mb-1 text-white">Авторизация
+                                        {% if current_user.telegram_auth %}
+                                        <div class="spinner-grow text-success spinner-grow-sm" role="status"></div>
+                                        {% else %}
+                                        <div class="spinner-grow text-danger spinner-grow-sm" role="status"></div>
+                                        {% endif %}
+                                    </h4>
+                                    <p class="font-13 text-white-50">Вход через телеграмм бота</p>
+
+
+                                    <ul class="mb-0 list-inline text-light">
+                                        <li class="list-inline-item me-3">
+                                            <!-- Success Switch-->
+                                            <input onclick="change_tg_auth()" type="checkbox" id="telegram_auth"
+                                                   data-switch="success"/>
+                                            <label for="telegram_auth" data-on-label="On" data-off-label="Off"></label>
+                                            <p class="mb-0 font-13 text-white-50">____________________</p>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end col-->
+
+                </div> <!-- end row -->
+
+            </div> <!-- end card-body/ profile-user-box-->
+        </div><!--end profile/ card -->
+    </div> <!-- end col-->
+</div>
+<!-- end row -->
+
+
+<div class="row">
+    <div class="col-xl-4">
+        <!-- Personal-Information -->
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title mt-0 mb-3">Данные</h4>
+
+                <hr>
+
+                <div class="text-start">
+                    <p class="text-muted"><strong>Фамилия:</strong> <span class="ms-2">{{current_user.last_name}}</span>
+                    </p>
+
+                    <p class="text-muted"><strong>Имя:</strong> <span class="ms-2">{{current_user.first_name}}</span>
+                    </p>
+
+                    <p class="text-muted"><strong>День рождения:</strong> <span
+                            class="ms-2">{{current_user.birthday}}</span></p>
+                </div>
+            </div>
+        </div>
+        <!-- Personal-Information -->
+
+        <!-- Toll free number box-->
+        <div class="card text-white bg-info overflow-hidden">
+            <div class="card-body">
+                <div class="toll-free-box text-center">
+                    <h4 id="profile_phone"></h4>
+                </div>
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+        <!-- End Toll free number box-->
+
+    </div> <!-- end col-->
+
+    <div class="col-xl-8">
+
+        <!-- Password -->
+        <div class="card">
+            <div class="card-body">
+
+                <h4 class="header-title mb-3"> Безопасность</h4>
+
+                <form>
+                    <div class="tab-content b-0 mb-0">
+                        <div class="tab-pane active show" role="tabpanel">
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="row mb-3">
+                                        <div class="input-group input-group-merge">
+                                            <label class="col-md-3 col-form-label text-muted" for="oldPassword">Введите
+                                                старый
+                                                пароль</label>
+                                            <input type="password" class="form-control" id="oldPassword"
+                                                   name="oldPassword"
+                                                   value="">
+                                            <div class="input-group-text" data-password="false">
+                                                <span class="password-eye"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="input-group input-group-merge">
+                                            <label class="col-md-3 col-form-label text-muted" for="newPassword">Введите
+                                                новый
+                                                пароль</label>
+                                            <input type="password" class="form-control" id="newPassword"
+                                                   name="newPassword"
+                                                   value="">
+                                            <div class="input-group-text" data-password="false">
+                                                <span class="password-eye"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-3">
+                                        <div class="input-group input-group-merge">
+                                            <label class="col-md-3 col-form-label text-muted" for="repeatPassword">Повторите
+                                                новый
+                                                пароль</label>
+                                            <input type="password" class="form-control" id="repeatPassword"
+                                                   name="repeatPassword"
+                                                   value="">
+                                            <div class="input-group-text" data-password="false">
+                                                <span class="password-eye"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div> <!-- end col -->
+                            </div> <!-- end row -->
+
+                            <ul class="list-inline wizard mb-0">
+                                <li class="next list-inline-item float-end">
+                                    <a onclick="change_password();" class="btn btn-info">Обновить<i
+                                            class="mdi mdi-arrow-right ms-1"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div> <!-- tab-content -->
+                </form>
+            </div>
+        </div>
+        <!-- Password -->
+
+
+    </div>
+    <!-- end col -->
+
+</div>
+<!-- end row -->
+
+<script>
+    $(document).ready(function () {
+        let tg_auth = document.getElementById("telegram_auth");
+        tg_auth.checked = "{{current_user.telegram_auth}}" === "True";
+
+
+        beauty_phone("{{current_user.phone_number}}");
+
+        var readURL = function (input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('.profile-pic').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+            document.getElementById("avatar_form").submit();
+        }
+
+        $(".file-upload").on('change', function () {
+            readURL(this);
+        });
+
+        $(".upload-button").on('click', function () {
+            $(".file-upload").click();
+        });
+    });
+
+    function beauty_phone(phone_number) {
+        let phone = document.getElementById("profile_phone");
+        let beauty_phone_number = `+7 (${phone_number.substring(1, 4)}) ${phone_number.substring(4, 7)}-${phone_number.substring(7, 9)}-${phone_number.substring(9, 11)}`
+
+        phone.innerHTML = "<i class=\"mdi mdi-phone\"></i> Телефон : " + beauty_phone_number;
+    }
+
+    function change_password() {
+        try {
+            $.ajax({
+                type: 'POST',
+                url: '/account/password',
+                data: {
+                    "old": document.getElementById("oldPassword").value,
+                    "new": document.getElementById("newPassword").value,
+                    "repeat": document.getElementById("repeatPassword").value,
+                },
+                success: function (result) {
+                    var res = JSON.parse(result);
+                    Swal.fire({
+                        icon: res.icon,
+                        title: res.title,
+                        text: res.text,
+                        footer: res.footer
+                    });
+                    if (res.icon === 'success') {
+                        document.getElementById("oldPassword").value = "";
+                        document.getElementById("newPassword").value = "";
+                        document.getElementById("repeatPassword").value = "";
+                    }
+                }
+            });
+        } catch (err) {
+            $.NotificationApp.send("Аккаунт", "Не удалось изменить пароль.", "top-right", "#FF5B5B", "error");
+        }
+    }
+
+    function change_tg_auth() {
+        let tg_auth = document.getElementById("telegram_auth");
+        let auth_status = document.getElementById("auth_status");
+        try {
+            $.ajax({
+                type: 'POST',
+                url: '/account/telegram/auth',
+                data: {
+                    'status': tg_auth.checked
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success) {
+                        $.NotificationApp.send("Авторизация", "Вы изменили способ авторизации", "top-right", "#10C469", "success");
+                    } else {
+                        $.NotificationApp.send("Авторизация", "Не удалось изменить способ авторизации", "top-right", "#FF5B5B", "error");
+                    }
+                }
+            });
+            if ("{{current_user.telegram_id}}" === "None") {
+                tg_auth.checked = false;
+                auth_status.innerHTML = "Авторизация <div class=\"spinner-grow text-danger spinner-grow-sm\" role=\"status\"></div>";
+            } else {
+                if (tg_auth.checked) {
+                    auth_status.innerHTML = "Авторизация <div class=\"spinner-grow text-success spinner-grow-sm\" role=\"status\"></div>";
+                } else {
+                    auth_status.innerHTML = "Авторизация <div class=\"spinner-grow text-danger spinner-grow-sm\" role=\"status\"></div>";
+                }
+            }
+        } catch (e) {
+        }
+        call_down("telegram_auth");
+    }
+
+    function tg_token(action) {
+        let token_box = document.getElementById("tg-token");
+        if (Number("{{current_user.telegram_id}}") > 0) {
+            token_box.innerHTML = "<span class=\"placeholder w-100 bg-success\"></span>";
+            return;
+        }
+        if (action === 'hide') {
+            token_box.innerHTML = "<span class=\"placeholder w-100\"></span>";
+        } else {
+            if (!token_box.innerHTML.includes('placeholder')) return;
+            try {
+                $.ajax({
+                    type: 'POST',
+                    url: '/account/telegram',
+                    success: function (result) {
+                        const res = JSON.parse(result);
+                        if (res.success) {
+                            token_box.innerHTML = "<span>" + res.token + "</span>";
+                        } else {
+                            token_box.innerHTML = "<span class=\"placeholder w-100 bg-warning\"></span>";
+                        }
+                    }
+                });
+            } catch (err) {
+                token_box.innerHTML = "<span class=\"placeholder w-100 bg-danger\"></span>";
+            }
+        }
+    }
+
+</script>
+
+{% endblock %}

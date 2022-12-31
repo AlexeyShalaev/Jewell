@@ -1,0 +1,44 @@
+{% extends 'teacher-base.html' %}
+
+{% block title %}
+Attendance
+{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block body %}
+
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{url_for('teacher.teacher_home')}}">Преподаватель</a></li>
+                    <li class="breadcrumb-item active">Посещаемость</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Посещаемость</h4>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="text-center">
+            <img src="../../../assets/images/svg/file-searching.svg" height="90" alt="File not found Image">
+
+            <h1 class="text-error mt-4">Посещаемость</h1>
+            <h4 class="text-uppercase text-danger mt-3">У вас нет награды</h4>
+            <p class="text-muted mt-3">Возможно вы уже когда-то были участником нашей программы, однако теперь не можете
+                получать награду за посещение занятий. Обратитесь к администрации.</p>
+        </div> <!-- end /.text-center-->
+    </div> <!-- end col-->
+</div>
+
+
+{% endblock %}

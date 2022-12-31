@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="detached" data-topbar-color="dark" data-sidenav-color="light"
+      data-sidenav-user="true">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>Validation | Jewell Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.ico">
+
+    <!-- Theme Config Js -->
+    <script src="../../assets/js/hyper-config.js"></script>
+
+    <!-- Bootstrap Datepicker css -->
+    <link href="../../assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet"
+          type="text/css">
+
+    <!-- Select2 Plugins css -->
+    <link href="../../assets/vendor/select2/css/select2.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Icons css -->
+    <link href="../../assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- App css -->
+    <link href="../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
+</head>
+
+<body class="authentication-bg">
+{{ toastr.include_toastr_js() }}
+<div class="account-pages pt-2 pt-sm-5 pb-4 pb-sm-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xxl-4 col-lg-5">
+                <div class="card">
+
+                    <!-- Logo -->
+                    <div class="card-header pt-4 pb-4 text-center bg-primary">
+                        <a class="logo-dark" href="{{url_for('view.landing')}}">
+                            <span><img src="../../assets/images/logo-dark.png" alt="logo"></span>
+                        </a>
+                    </div>
+
+                    <div class="card-body p-4">
+                        <form action="{{ url_for('view.registered')}}" method="post">
+
+                            <div class="col">
+
+                                <!-- Номер телефона -->
+                                <div class="mb-3">
+                                    <label for="phonenumber" class="form-label">Номер телефона</label>
+                                    <div class="input-group input-group-merge">
+                                        <input type="text" id="phonenumber" class="form-control"
+                                               disabled value="{{current_user['phone_number']}}">
+                                        <div class="input-group-text" onclick="link_telegram()">
+                                            <span class="ri-telegram-fill"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Имя -->
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">Имя</label>
+                                    <input type="text" id="first_name" name="first_name"
+                                           class="form-control" value="{{current_user['first_name']}}"
+                                           placeholder="Введите ваше имя"
+                                           pattern="[\u0400-\u04ff]{1,32}"
+                                           required>
+                                </div>
+
+                                <!-- Фамилия -->
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Фамилия</label>
+                                    <input type="text" id="last_name" name="last_name"
+                                           class="form-control" value="{{current_user['last_name']}}"
+                                           placeholder="Введите вашу фамилию" pattern="[\u0400-\u04ff]{1,32}"
+                                           required>
+                                </div>
+
+                                <!-- День рождения -->
+                                <div class="mb-3 position-relative" id="datepicker1">
+                                    <label class="form-label">День рождения</label>
+                                    <input type="text" class="form-control" data-provide="datepicker"
+                                           data-date-container="#datepicker1"
+                                           data-date-format="dd.mm.yyyy"
+                                           data-date-autoclose="true"
+                                           pattern="\d{2}.\d{2}.\d{4}"
+                                           required id="birthday" name="birthday" value="{{current_user['birthday']}}">
+                                </div>
+
+                            </div> <!-- end col-->
+
+                            <div class="mb-0 text-center">
+                                <button class="btn btn-primary" type="submit">Отправить</button>
+                            </div>
+                        </form>
+                    </div> <!-- end card-body -->
+                </div>
+                <!-- end card -->
+
+                <div class="row mt-3">
+                    <div class="col text-center">
+                        <a href="{{url_for('view.logout')}}"
+                           class="text-muted ms-1"><b>Выйти из аккаунта</b></a>
+                    </div> <!-- end col -->
+                </div>
+                <!-- end row -->
+
+            </div> <!-- end col -->
+        </div>
+        <!-- end row -->
+    </div>
+    <!-- end container -->
+</div>
+<!-- end page -->
+
+<footer class="footer footer-alt">
+    © 2022 -
+    <script>document.write(new Date().getFullYear())</script>
+    Jewell Club. Designed and coded by
+    <a href="https://vk.com/rhekszksskebekewllw">
+        Alex Shalaev
+    </a>
+</footer>
+
+<script>
+
+    $(document).ready(function () {
+        let telegram_validated = "{{telegram_validated}}";
+        let phone = document.getElementById("phonenumber");
+        phone.style.borderWidth = "2px";
+        if (telegram_validated === 'True') {
+            phone.style.borderColor = "green";
+        } else {
+            phone.style.borderColor = "red";
+        }
+    });
+
+    function link_telegram() {
+        try {
+            $.ajax({
+                type: 'POST',
+                url: '/registered/token',
+                success: function (result) {
+                    var res = JSON.parse(result);
+                    Swal.fire({
+                        icon: res.icon,
+                        title: res.title,
+                        text: res.text,
+                        footer: res.footer
+                    });
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+</script>
+
+<!-- Sweet Alert 2 -->
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Vendor js -->
+<script src="../../assets/js/vendor.min.js"></script>
+
+<!-- Bootstrap Datepicker Plugin js -->
+<script src="../../assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+
+<!-- Select2 js  -->
+<script src="../../assets/vendor/select2/js/select2.min.js"></script>
+
+<!-- App js -->
+<script src="../../assets/js/app.min.js"></script>
+
+</body>
+</html>

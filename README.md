@@ -1,2 +1,2 @@
 # Jewell
-Jewell admin panel + telegram bot
+Jewell Management System

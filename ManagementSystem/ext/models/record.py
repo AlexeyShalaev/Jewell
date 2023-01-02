@@ -20,7 +20,7 @@ class Record:
     type: RecordType  # тип записи
     text: str  # текст записи
     time: datetime  # время публикации
-    lifetime: int  # время действия <=0 -> бессрочно. >0 число секунд
+    lifetime: int  # время действия <=0 -> бессрочно. >0 число дней
 
     def __init__(self, data):
         self.id = data['_id']

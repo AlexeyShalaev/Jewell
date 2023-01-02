@@ -75,6 +75,14 @@ def update_record(id, key, value):
     db.records.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
 
 
+# обновление данных записи по ID
+def update_record_news(id, text, lifetime):
+    db.records.update_one({'_id': ObjectId(id)}, {"$set": {
+        "text": text,
+        "lifetime": lifetime
+    }})
+
+
 # удаление записи по ID
 def delete_record(id):
     db.records.delete_one({

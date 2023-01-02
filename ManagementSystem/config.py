@@ -22,6 +22,7 @@ class FlaskConfig:
 @dataclass
 class TgBot:
     token: str
+    chat: str  # чат не с ботом, а общий чат с участниками
 
 
 @dataclass
@@ -55,7 +56,8 @@ def load_config(path: str = ".env"):
             },
         ),
         tg_bot=TgBot(
-            token=env.str("BOT_TOKEN")
+            token=env.str("BOT_TOKEN"),
+            chat=env.str("TELEGRAM_CHAT"),
         ),
         yahad=Yahad(trip=datetime.strptime(env.str("YAHAD_TRIP"), "%d.%m.%Y"))
     )

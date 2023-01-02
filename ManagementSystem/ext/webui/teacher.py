@@ -76,8 +76,33 @@ def teacher_news():
                         flash('Число дней может быть от 0 до 365.', 'warning')
                         return redirect(url_for('teacher.teacher_news'))
 
-                add_record(current_user.id, record_text, datetime.now(), type=RecordType.NEWS, lifetime=lifetime)
+                inserted_record = add_record(current_user.id, record_text, datetime.now(), type=RecordType.NEWS,
+                                             lifetime=lifetime)
                 flash('Вы добавили новость.', 'success')
+
+                # image
+                try:
+                    image = request.files['record_image']
+                    img_type = image.filename.split('.')[-1].lower()
+                    types = ['jpeg', 'jpg', 'png']
+                    if img_type in types:
+                        resp_status, data = encrypt_id_with_no_digits(str(inserted_record.inserted_id))
+                        record_id = data
+                        filename = ''
+                        directory = 'storage/records/'
+                        files = os.listdir(directory)
+                        for file in files:
+                            if record_id == file.split('.')[0]:
+                                filename = file
+                                break
+                        if filename != '':
+                            os.remove(directory + filename)
+                        image.save(directory + record_id + '.' + img_type)
+                    else:
+                        flash('Недопустимый тип файла.', 'warning')
+                except Exception as ex:
+                    flash('Не удалось прикрепить изображение.', 'warning')
+                    logger.error(ex)
 
                 if send_in_telegram is not None:
                     send_news(record_text)
@@ -105,10 +130,52 @@ def teacher_news():
 
                 update_record_news(record_id, record_text, lifetime)
                 flash('Вы обновили новость.', 'success')
+
+                # image
+                try:
+                    image = request.files['record_image']
+                    img_type = image.filename.split('.')[-1].lower()
+                    types = ['jpeg', 'jpg', 'png']
+                    if img_type in types:
+                        resp_status, data = encrypt_id_with_no_digits(str(record_id))
+                        record_id = data
+                        filename = ''
+                        directory = 'storage/records/'
+                        files = os.listdir(directory)
+                        for file in files:
+                            if record_id == file.split('.')[0]:
+                                filename = file
+                                break
+                        if filename != '':
+                            os.remove(directory + filename)
+                        image.save(directory + record_id + '.' + img_type)
+                    else:
+                        flash('Недопустимый тип файла.', 'warning')
+                except Exception as ex:
+                    flash('Не удалось изменить изображение.', 'warning')
+                    logger.error(ex)
+
             elif request.form['btn_news'] == 'delete_record':
-                record_id = request.form.get("record_id")
-                delete_record(record_id)
+                rec_id = request.form.get("record_id")
+
+                try:
+                    resp_status, data = encrypt_id_with_no_digits(str(rec_id))
+                    record_id = data
+                    filename = ''
+                    directory = 'storage/records/'
+                    files = os.listdir(directory)
+                    for file in files:
+                        if record_id == file.split('.')[0]:
+                            filename = file
+                            break
+                    if filename != '':
+                        os.remove(directory + filename)
+                except Exception as ex:
+                    logger.error(ex)
+
+                delete_record(rec_id)
                 flash('Вы удалили новость.', 'success')
+
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
@@ -145,7 +212,7 @@ def teacher_account():
         return redirect(url_for("view.landing"))
     if request.method == "POST":
         avatar = request.files['avatar']
-        img_type = avatar.filename.split('.')[-1]
+        img_type = avatar.filename.split('.')[-1].lower()
         types = ['jpeg', 'jpg', 'png']
         if img_type in types:
             try:

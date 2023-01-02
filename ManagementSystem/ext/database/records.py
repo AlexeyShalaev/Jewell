@@ -56,7 +56,7 @@ def get_record_by_id(id) -> MongoDBResult:
 
 # добавление записи
 def add_record(author, text, time, type=RecordType.POST, lifetime=0):
-    db.records.insert_one({
+    return db.records.insert_one({
         "author": ObjectId(author),
         "type": type.value,
         "text": text,

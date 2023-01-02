@@ -86,12 +86,10 @@ Student
                         </a> <!-- end d-flex -->
                         <div id="{{i['record_id']}}" class="collapse show">
                             <div class="row g-0 align-items-center">
-                                <div id="img_{{ i['record_id'] }}" class="col-4">
-                                    <img onerror="hide_img('{{ i['record_id'] }}');" src="{{url_for('api.get_record_image', record_id=i['record_id'])}}" class="card-img">
+                                <div id="img_{{ i['record_id'] }}" class="mb-2">
+                                    <img class="card-img" onerror="hide_img('{{ i['record_id'] }}');" src="{{url_for('api.get_record_image', record_id=i['record_id'])}}">
                                 </div>
-                               <div class="col-8 ps-1">
-                                   <p style="white-space:pre-wrap">{{i['text']}}</p>
-                                </div>
+                               <p style="white-space:pre-wrap">{{i['text']}}</p>
                             </div>
                         </div>
                     </div> <!-- end card-body -->

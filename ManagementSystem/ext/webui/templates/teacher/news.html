@@ -23,7 +23,7 @@
         </p>
         <div class="collapse collapse-horizontal" id="collapseWidthExample">
             <div class="card card-body mb-0" style="width: 600px;">
-                <form class="form-horizontal" method="post">
+                <form class="form-horizontal" method="post" enctype="multipart/form-data">
                     <div class="row mb-3">
                         <label for="input_lifetime" class="col-3 col-form-label">Удалить через</label>
                         <div class="col-9">
@@ -41,6 +41,12 @@
                         <div class="col-9">
                             <textarea required minlength="5" class="form-control" name="input_text"
                                       id="example-textarea" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="input_lifetime" class="col-3 col-form-label">Фотография</label>
+                        <div class="col-9">
+                            <input class="form-control" type="file" name="record_image" accept="image/jpeg,image/png">
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -82,7 +88,7 @@
                         </div> <!-- end w-100-->
                     </a> <!-- end d-flex -->
                     <div id="{{ i.id }}" class="collapse">
-                        <form class="form-horizontal" method="post">
+                        <form class="form-horizontal" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="record_id" value="{{ i.record_id }}">
                             <div class="row mb-3">
                                 <label for="input_lifetime" class="col-3 col-form-label">Удалить через</label>
@@ -102,6 +108,17 @@
                                 <div class="col-9">
                                             <textarea required minlength="5" class="form-control" name="input_text"
                                                       id="example-textarea" rows="5">{{ i.text }}</textarea>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="input_lifetime" class="col-3 col-form-label">Фотография</label>
+                                <div class="col-9">
+                                    <div id="img_{{ i['record_id'] }}">
+                                        <img class="card-img mb-2" onerror="hide_img('{{ i['record_id'] }}');"
+                                             src="{{ url_for('api.get_record_image', record_id=i['record_id']) }}">
+                                    </div>
+                                    <input class="form-control" type="file" name="record_image"
+                                           accept="image/jpeg,image/png">
                                 </div>
                             </div>
                             <div class="justify-content-end row">

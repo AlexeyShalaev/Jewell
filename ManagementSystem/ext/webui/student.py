@@ -58,7 +58,7 @@ def student_account():
         return redirect(url_for("view.landing"))
     if request.method == "POST":
         avatar = request.files['avatar']
-        img_type = avatar.filename.split('.')[-1]
+        img_type = avatar.filename.split('.')[-1].lower()
         types = ['jpeg', 'jpg', 'png']
         if img_type in types:
             try:

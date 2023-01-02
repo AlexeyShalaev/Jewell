@@ -53,7 +53,7 @@
             <!-- Topbar Logo -->
             <div class="logo-topbar">
                 <!-- Logo -->
-                <a href="{{url_for('view.landing')}}" class="logo-light">
+                <a href="{{ url_for('view.landing') }}" class="logo-light">
                     <span class="logo-lg">
                         <img src="../../assets/images/logo-dark.png" alt="logo" height="22">
                     </span>
@@ -81,7 +81,8 @@
                     <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="false" aria-expanded="false">
                         <i class="ri-notification-3-line noti-icon"></i>
-                        <span id="notifications_cnt" class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+                        <span id="notifications_cnt"
+                              class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
                     </a>
                     <div id="pre_notes" class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg py-0">
                         <div class="p-2 border-top-0 border-start-0 border-end-0 border-dashed border">
@@ -180,8 +181,8 @@
                                          class="rounded-circle avatar-img">
                                 </span>
                         <span>
-                                    <span class="account-user-name">{{current_user.last_name}}</span>
-                                    <span class="account-position">{{current_user.first_name}}</span>
+                                    <span class="account-user-name">{{ current_user.last_name }}</span>
+                                    <span class="account-position">{{ current_user.first_name }}</span>
                                 </span>
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated topbar-dropdown-menu profile-dropdown">
@@ -191,7 +192,7 @@
                         </div>
 
                         <!-- item-->
-                        <a href="{{url_for('teacher.teacher_account')}}" class="dropdown-item notify-item">
+                        <a href="{{ url_for('teacher.teacher_account') }}" class="dropdown-item notify-item">
                             <i class="mdi mdi-account-circle me-1"></i>
                             <span>Мой аккаунт</span>
                         </a>
@@ -203,7 +204,7 @@
                         </a>
 
                         <!-- item-->
-                        <a href="{{url_for('view.logout')}}" class="dropdown-item notify-item">
+                        <a href="{{ url_for('view.logout') }}" class="dropdown-item notify-item">
                             <i class="mdi mdi-logout me-1"></i>
                             <span>Выход</span>
                         </a>
@@ -248,10 +249,10 @@
         <div class="h-100" id="leftside-menu-container" data-simplebar>
             <!-- Leftbar User -->
             <div class="leftbar-user">
-                <a href="{{url_for('teacher.teacher_account')}}">
+                <a href="{{ url_for('teacher.teacher_account') }}">
                     <img src="" alt="user-image" height="100"
                          class="rounded-circle shadow-sm avatar-img">
-                    <span class="leftbar-user-name">{{current_user.last_name}} {{current_user.first_name}}</span>
+                    <span class="leftbar-user-name">{{ current_user.last_name }} {{ current_user.first_name }}</span>
                 </a>
             </div>
 
@@ -261,7 +262,7 @@
                 <li class="side-nav-title side-nav-item">Навигация</li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('teacher.teacher_home')}}" class="side-nav-link">
+                    <a href="{{ url_for('teacher.teacher_home') }}" class="side-nav-link">
                         <i class="uil-home-alt"></i>
                         <span id="news_cnt" class="badge bg-success float-end"></span>
                         <span> Главная </span>
@@ -269,7 +270,7 @@
                 </li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('teacher.teacher_news')}}" class="side-nav-link">
+                    <a href="{{ url_for('teacher.teacher_news') }}" class="side-nav-link">
                         <i class="uil-newspaper"></i>
                         <span> Ваши новости </span>
                     </a>
@@ -278,7 +279,7 @@
                 <li class="side-nav-title side-nav-item">Курсы</li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('teacher.teacher_schedule')}}" class="side-nav-link">
+                    <a href="{{ url_for('teacher.teacher_schedule') }}" class="side-nav-link">
                         <i class="fa-solid fa-calendar-days"></i>
                         <span> Расписание </span>
                     </a>
@@ -287,14 +288,14 @@
                 <li class="side-nav-title side-nav-item">Net Working</li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('networking.feed')}}" class="side-nav-link">
+                    <a href="{{ url_for('networking.feed') }}" class="side-nav-link">
                         <i class="fa-solid fa-users-rectangle"></i>
                         <span> Лента </span>
                     </a>
                 </li>
 
                 <li class="side-nav-item">
-                    <a href="{{url_for('networking.networking_relations')}}" class="side-nav-link">
+                    <a href="{{ url_for('networking.networking_relations') }}" class="side-nav-link">
                         <i><img src="../../assets/icons/sprites/network-icon-16.jpg"
                                 style="height: 20px;width: 20px;"></img></i>
                         <span class="badge bg-danger float-end">New</span>
@@ -318,10 +319,10 @@
                                         class="badge rounded-pill bg-light text-dark font-10 float-end">New</span></a>
                             </li>
                             <li>
-                                <a href="{{url_for('teacher.teacher_mezuzah')}}">Мезуза на дом</a>
+                                <a href="{{ url_for('teacher.teacher_mezuzah') }}">Мезуза на дом</a>
                             </li>
                             <li>
-                                <a href="{{url_for('teacher.teacher_offers')}}" class="side-nav-link">
+                                <a href="{{ url_for('teacher.teacher_offers') }}" class="side-nav-link">
                                     <span class="badge bg-info float-end" id="offers_cnt"></span>
                                     <span> Вакансии </span>
                                 </a>
@@ -944,7 +945,7 @@
                 url: link,
                 success: function (result) {
                     const res = JSON.parse(result);
-                    if(res.success){
+                    if (res.success) {
                         if (res.news > 0) document.getElementById("news_cnt").innerText = res.news;
                         if (res.notifications > 0) document.getElementById("notifications_cnt").innerText = res.notifications;
                     }
@@ -953,6 +954,10 @@
         } catch (err) {
             console.log(err);
         }
+    }
+
+    function hide_img(id) {
+        document.getElementById("img_" + id).remove();
     }
 
     function set_notifications() {
@@ -1018,7 +1023,7 @@
 
     function show_info_about_notification(index) {
         const note = notifications[index];
-        let note_html = `<strong>${note.time}</strong><br><div class="mt-3" style="white-space:pre">${note.text}</div>`;
+        let note_html = `<strong>${note.time}</strong><br><div class="mt-3" style="white-space:pre-wrap">${note.text}</div>`;
         Swal.fire({
             title: `<a href="/networking/profile/${note.user_id}">${note.author}</a>`,
             icon: 'info',

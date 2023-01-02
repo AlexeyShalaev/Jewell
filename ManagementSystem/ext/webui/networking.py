@@ -119,7 +119,7 @@ def feed():
                         user_records.append({
                             'record_id': f'{record_id}',
                             'text': rec.text,
-                            'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                            'time': rec.time.strftime("%d.%m.%Y %H:%M:%S")
                         })
                 fr, frt, frf = set_relations(current_user)
                 resp = get_records()
@@ -156,7 +156,7 @@ def feed():
                 user_records.append({
                     'record_id': f'{record_id}',
                     'text': rec.text,
-                    'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                    'time': rec.time.strftime("%d.%m.%Y %H:%M:%S")
                 })
     fr, frt, frf = set_relations(current_user)
 
@@ -197,7 +197,7 @@ def profile(user_id):
             records.append({
                 'author': f'{user.first_name} {user.last_name}',
                 'text': rec.text,
-                'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                'time': rec.time.strftime("%d.%m.%Y %H:%M:%S")
             })
 
     btn_action = 'add'

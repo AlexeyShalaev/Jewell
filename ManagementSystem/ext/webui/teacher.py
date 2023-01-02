@@ -124,7 +124,7 @@ def teacher_news():
                     'record_id': str(rec.id),
                     'text': rec.text,
                     'lifetime': "Никогда" if rec.lifetime == 0 else rec.lifetime,
-                    'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                    'time': rec.time.strftime("%d.%m.%Y %H:%M:%S")
                 })
     return render_template("teacher/news.html", news=user_news)
 

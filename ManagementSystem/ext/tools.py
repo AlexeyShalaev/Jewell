@@ -71,7 +71,7 @@ def set_records(resp: MongoDBResult, sort=True) -> list:
                         'user_id': f'{author.id}',
                         'author': f'{author.first_name} {author.last_name}',
                         'text': rec.text,
-                        'time': rec.time.strftime("%m.%d.%Y %H:%M:%S")
+                        'time': rec.time.strftime("%d.%m.%Y %H:%M:%S")
                     })
     return records
 

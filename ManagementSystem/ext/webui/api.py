@@ -35,6 +35,29 @@ def get_avatar(user_id):
     return send_file(directory + filename, as_attachment=True)
 
 
+# Уровень:              record/record_id
+# База данных:          storage/records
+# HTML:                 -
+@api.route('/record/<record_id>', methods=['POST', 'GET'])
+def get_record_image(record_id):
+    filename = ''
+    directory = 'storage/records/'
+    resp_status, data = encrypt_id_with_no_digits(str(record_id))
+    if resp_status:
+        try:
+            files = os.listdir(directory)
+            for file in files:
+                if data == file.split('.')[0]:
+                    filename = file
+                    break
+        except Exception as ex:
+            logger.error(ex)
+    if filename == '':
+        return json.dumps({'info': 'image not found'}), 200, {
+            'ContentType': 'application/json'}
+    return send_file(directory + filename, as_attachment=True)
+
+
 # NET WORKING
 
 

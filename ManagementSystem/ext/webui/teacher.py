@@ -81,36 +81,47 @@ def teacher_news():
                 flash('Вы добавили новость.', 'success')
 
                 # image
+                filename = ''
                 try:
                     image = request.files['record_image']
                     img_type = image.filename.split('.')[-1].lower()
-                    types = ['jpeg', 'jpg', 'png']
-                    if img_type in types:
-                        resp_status, data = encrypt_id_with_no_digits(str(inserted_record.inserted_id))
-                        record_id = data
-                        filename = ''
-                        directory = 'storage/records/'
-                        files = os.listdir(directory)
-                        for file in files:
-                            if record_id == file.split('.')[0]:
-                                filename = file
-                                break
-                        if filename != '':
-                            os.remove(directory + filename)
-                        image.save(directory + record_id + '.' + img_type)
-                    else:
-                        flash('Недопустимый тип файла.', 'warning')
+                    if img_type != '':
+                        types = ['jpeg', 'jpg', 'png']
+                        if img_type in types:
+                            resp_status, data = encrypt_id_with_no_digits(str(inserted_record.inserted_id))
+                            record_id = data
+                            directory = 'storage/records/'
+                            files = os.listdir(directory)
+                            for file in files:
+                                if record_id == file.split('.')[0]:
+                                    filename = file
+                                    break
+                            if filename != '':
+                                os.remove(directory + filename)
+                            filename = record_id + '.' + img_type
+                            image.save(directory + filename)
+                        else:
+                            flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось прикрепить изображение.', 'warning')
                     logger.error(ex)
 
                 if send_in_telegram is not None:
-                    send_news(record_text)
+                    send_news(record_text, filename)
                     flash('Вы отправили новость в телеграмм.', 'success')
             elif request.form['btn_news'] == 'send_telegram':
                 record_id = request.form.get("record_id")
                 record_text = request.form.get("input_text")
-                send_news(record_text)
+                resp_status, data = encrypt_id_with_no_digits(record_id)
+                record_id = data
+                filename = ''
+                directory = 'storage/records/'
+                files = os.listdir(directory)
+                for file in files:
+                    if record_id == file.split('.')[0]:
+                        filename = file
+                        break
+                send_news(record_text, filename)
                 flash('Вы отправили новость в телеграмм.', 'success')
             elif request.form['btn_news'] == 'edit_record':
                 record_id = request.form.get("record_id")
@@ -135,29 +146,30 @@ def teacher_news():
                 try:
                     image = request.files['record_image']
                     img_type = image.filename.split('.')[-1].lower()
-                    types = ['jpeg', 'jpg', 'png']
-                    if img_type in types:
-                        resp_status, data = encrypt_id_with_no_digits(str(record_id))
-                        record_id = data
-                        filename = ''
-                        directory = 'storage/records/'
-                        files = os.listdir(directory)
-                        for file in files:
-                            if record_id == file.split('.')[0]:
-                                filename = file
-                                break
-                        if filename != '':
-                            os.remove(directory + filename)
-                        image.save(directory + record_id + '.' + img_type)
-                    else:
-                        flash('Недопустимый тип файла.', 'warning')
+                    if img_type != '':
+                        types = ['jpeg', 'jpg', 'png']
+                        if img_type in types:
+                            resp_status, data = encrypt_id_with_no_digits(str(record_id))
+                            record_id = data
+                            filename = ''
+                            directory = 'storage/records/'
+                            files = os.listdir(directory)
+                            for file in files:
+                                if record_id == file.split('.')[0]:
+                                    filename = file
+                                    break
+                            if filename != '':
+                                os.remove(directory + filename)
+                            filename = record_id + '.' + img_type
+                            image.save(directory + filename)
+                        else:
+                            flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось изменить изображение.', 'warning')
                     logger.error(ex)
 
             elif request.form['btn_news'] == 'delete_record':
                 rec_id = request.form.get("record_id")
-
                 try:
                     resp_status, data = encrypt_id_with_no_digits(str(rec_id))
                     record_id = data

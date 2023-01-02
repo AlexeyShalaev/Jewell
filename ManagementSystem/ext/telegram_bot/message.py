@@ -11,9 +11,15 @@ def send_message(text: str, chat_id: int):
         pass
 
 
-def send_news(text: str):
+def send_news(text: str, filename=''):
     try:
-        link = url + f'sendMessage?chat_id={telegram_chat}&text={text}'
-        resp = requests.get(link)
+        if filename == '':
+            link = url + f'sendMessage?chat_id={telegram_chat}&text={text}'
+            resp = requests.post(link)
+        else:
+            directory = 'storage/records/'
+            img = open(directory+filename, 'rb')
+            link = url + f'sendPhoto?chat_id={telegram_chat}&caption={text}'
+            resp = requests.post(link, files={'photo': img})
     except Exception as ex:
         pass

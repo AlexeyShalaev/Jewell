@@ -1,18 +1,19 @@
-import logging
 import os
+from logging import getLogger
 
 from flask import *
 
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
 from ManagementSystem.ext.database.offers import get_offers
+from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
 from ManagementSystem.ext.database.users import get_users, get_user_by_id
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, set_records
 
-logger = logging.getLogger(__name__)  # logging
+logger = getLogger(__name__)  # logging
 api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates', static_folder='assets')
 
 
@@ -33,7 +34,7 @@ def get_avatar(user_id):
                     break
         except Exception as ex:
             logger.error(ex)
-    return send_file(directory + filename, as_attachment=True)
+    return send_file(directory + filename)
 
 
 # Уровень:              record/record_id
@@ -56,7 +57,28 @@ def get_record_image(record_id):
     if filename == '':
         return json.dumps({'info': 'image not found'}), 200, {
             'ContentType': 'application/json'}
-    return send_file(directory + filename, as_attachment=True)
+    return send_file(directory + filename)
+
+
+# Уровень:              product/product_id
+# База данных:          storage/products
+# HTML:                 -
+@api.route('/product/<product_id>', methods=['POST', 'GET'])
+def get_product_image(product_id):
+    filename = ''
+    directory = 'storage/products/'
+    try:
+        files = os.listdir(directory)
+        for file in files:
+            if str(product_id) == file.split('.')[0]:
+                filename = file
+                break
+    except Exception as ex:
+        logger.error(ex)
+    if filename == '':
+        return json.dumps({'info': 'image not found'}), 200, {
+            'ContentType': 'application/json'}
+    return send_file(directory + filename)
 
 
 # NET WORKING
@@ -185,6 +207,20 @@ def get_schedule():
 def offers_count():
     try:
         cnt = len(get_offers().data)
+        if cnt > 0:
+            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              products/count
+# База данных:          Products
+# HTML:                 -
+@api.route('/products/count', methods=['POST'])
+def products_count():
+    try:
+        cnt = len(get_products().data)
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:

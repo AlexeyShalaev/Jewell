@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 from datetime import datetime
 
 from flask import *
@@ -15,7 +15,7 @@ from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.text_filter import TextFilter
 from ManagementSystem.ext.tools import set_relations, set_records
 
-logger = logging.getLogger(__name__)  # logging
+logger = getLogger(__name__)  # logging
 networking = Blueprint('networking', __name__, url_prefix='/networking', template_folder='templates',
                        static_folder='assets')
 

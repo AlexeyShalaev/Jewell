@@ -1,6 +1,6 @@
-import logging
 import os
 from datetime import datetime
+from logging import getLogger
 
 from flask import *
 from flask_login import *
@@ -15,7 +15,7 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, get_month
 
-logger = logging.getLogger(__name__)  # logging
+logger = getLogger(__name__)  # logging
 student = Blueprint('student', __name__, url_prefix='/student', template_folder='templates/student',
                     static_folder='assets')
 

@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 from random import choice
 
 from flask import *
@@ -14,7 +14,7 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.telegram_bot.message import send_message
 from ManagementSystem.ext.tools import normal_phone_number
 
-logger = logging.getLogger(__name__)  # logging
+logger = getLogger(__name__)  # logging
 view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
 
 

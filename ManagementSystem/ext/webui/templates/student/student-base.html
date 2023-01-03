@@ -308,14 +308,15 @@
 
                 <li class="side-nav-item">
                     <a href="{{ url_for('other.offers') }}" class="side-nav-link">
+                        <span class="badge bg-info float-end" id="offers_cnt"></span>
                         <i class="fa-solid fa-briefcase"></i>
                         <span> Вакансии </span>
                     </a>
                 </li>
 
                 <li class="side-nav-item">
-                    <a href="{{ url_for('other.orders') }}" class="side-nav-link">
-                        <span class="badge bg-info float-end" id="offers_cnt"></span>
+                    <a href="{{ url_for('other.products') }}" class="side-nav-link">
+                        <span class="badge bg-info float-end" id="products_cnt"></span>
                         <i class="uil uil-shopping-trolley"></i>
                         <span> Товары </span>
                     </a>
@@ -398,9 +399,7 @@
 
     <!-- ============================================================== -->
     <!-- End Page content -->
-    <!-- ==============================================
-    set_offers_cnt();
-================ -->
+    <!-- ============================================================== -->
 
 </div>
 <!-- END wrapper -->
@@ -919,6 +918,7 @@
     let notifications;
     set_avatars("{{url_for('api.get_avatar', user_id=current_user.id)}}");
     set_offers_cnt();
+    set_products_cnt();
     set_attendances_cnt();
     set_records_cnt();
 
@@ -942,6 +942,21 @@
                 url: link,
                 success: function (result) {
                     document.getElementById("offers_cnt").innerText = JSON.parse(result).data;
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    function set_products_cnt() {
+        try {
+            const link = "{{url_for('api.products_count')}}";
+            $.ajax({
+                type: 'POST',
+                url: link,
+                success: function (result) {
+                    document.getElementById("products_cnt").innerText = JSON.parse(result).data;
                 }
             });
         } catch (err) {

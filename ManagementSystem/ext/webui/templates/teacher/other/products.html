@@ -1,0 +1,276 @@
+{% extends 'teacher-base.html' %}
+
+{% block title %}
+    Products
+{% endblock %}
+
+{% block css %}
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('teacher.teacher_home') }}">Преподаватель</a>
+                        </li>
+                        <li class="breadcrumb-item active">Товары</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Заказы</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="nav nav-pills bg-nav-pills nav-justified mb-3" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a href="#billing-information" data-bs-toggle="tab" aria-expanded="false"
+                               class="nav-link rounded-0 active" aria-selected="true" role="tab">
+                                <i class="mdi mdi-account-circle font-18"></i>
+                                <span class="d-none d-lg-block">Оформление заказа</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="#shipping-information" data-bs-toggle="tab" aria-expanded="true"
+                               class="nav-link rounded-0" aria-selected="false" role="tab" tabindex="-1">
+                                <i class="mdi mdi-truck-fast font-18"></i>
+                                <span class="d-none d-lg-block">Ваши заказы</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <!-- Steps Information -->
+                    <div class="tab-content">
+
+                        <div class="tab-pane active show" id="billing-information" role="tabpanel">
+                            <div class="row">
+                                <div class="col-lg-8">
+                                    <h4 class="mt-2">Оформление заказа</h4>
+
+                                    <p class="text-muted mb-4">Заполните форму ниже, чтобы
+                                        отправить запрос на получение услуги.</p>
+
+                                    <form method="post">
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label for="billing-address" class="form-label">Адрес</label>
+                                                    <input class="form-control" type="text"
+                                                           placeholder="Введите ваш адрес"
+                                                           id="billing-address" required name="address">
+                                                </div>
+                                            </div>
+                                        </div> <!-- end row -->
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="billing-town-city" class="form-label">Страна</label>
+                                                    <input class="form-control" type="text"
+                                                           placeholder="Введите вашу страну" required name="country">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="billing-state" class="form-label">Город</label>
+                                                    <input class="form-control" type="text"
+                                                           placeholder="Введите вашу город"
+                                                           id="billing-state" required name="city">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="mb-3">
+                                                    <label for="billing-zip-postal" class="form-label">Индекс</label>
+                                                    <input class="form-control" type="text"
+                                                           placeholder="Введите ваш почтовый индекс"
+                                                           id="billing-zip-postal" name="zip_postal">
+                                                </div>
+                                            </div>
+                                        </div> <!-- end row -->
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label for="pr_sel" class="form-label">Товар</label>
+                                                    <select id="pr_sel" class="form-select mb-3" name="product">
+                                                        <option value="none" selected>Выберите товар</option>
+                                                        {% for i in products %}
+                                                            <option value="{{ i.id }}">{{ i.name }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div> <!-- end row -->
+
+                                        <div class="row">
+                                            <div class="col-12">
+
+                                                <div class="mb-3 mt-3">
+                                                    <label for="example-textarea" class="form-label">Комментарии к
+                                                        заказу:</label>
+                                                    <textarea maxlength="512" class="form-control" id="example-textarea" rows="3"
+                                                              name="comments"
+                                                              placeholder="Напишите сюда.."></textarea>
+                                                </div>
+                                            </div>
+                                        </div> <!-- end row -->
+
+                                        <div class="row mt-4">
+                                            <div class="col-sm-6">
+                                                <div class="text-sm-end">
+                                                    <button type="submit" name="btn_products" value="send_product"
+                                                            class="btn btn-danger">
+                                                        <i class="mdi mdi-truck-fast me-1"></i> Заказать
+                                                    </button>
+                                                </div>
+                                            </div> <!-- end col -->
+                                        </div> <!-- end row -->
+                                    </form>
+
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="border p-3 mt-4 mt-lg-0 rounded">
+                                        <h4 class="header-title mb-3">Товары</h4>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-nowrap table-centered mb-0">
+                                                <tbody>
+                                                {% for i in products %}
+                                                    <tr>
+                                                        <td>
+                                                            <img src="{{ url_for('api.get_product_image', product_id=i.id) }}"
+                                                                 class="rounded me-2" height="48">
+                                                            <p class="m-0 d-inline-block align-middle">
+                                                                {{ i.name }}
+                                                                <br>
+                                                                <small>{{ i.info }}</small>
+                                                            </p>
+                                                        </td>
+                                                        <td class="text-end">
+                                                            {{ i.price }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- end table-responsive -->
+                                    </div> <!-- end .border-->
+
+                                </div> <!-- end col -->
+                            </div> <!-- end row-->
+                        </div>
+
+                        <div class="tab-pane" id="shipping-information" role="tabpanel">
+                            <div class="row">
+                                {% for i in orders %}
+                                    <div class="col-12">
+                                        <div class="card">
+                                            <div class="card-body">
+
+                                                <div class="row mt-2">
+
+                                                    <div class="col">
+                                                        <h6>Адрес</h6>
+                                                        <address>
+                                                            {{ i.address }}
+                                                            <br>
+                                                            {{ i.country }}, {{ i.city }}
+                                                            <br>
+                                                            {{ i.zip_postal }}
+                                                            <br>
+                                                            {{ i.country }}
+                                                            <br>
+                                                            {{ i.comments }}
+                                                        </address>
+                                                    </div> <!-- end col-->
+
+                                                    <div class="col pt-2">
+                                                        <p class="font-13"><strong>Дата: </strong> &nbsp;&nbsp;&nbsp;
+                                                            {{ i.get_timestamp() }}</p>
+                                                        <p class="font-13"><strong>Cтатус: </strong> &nbsp;&nbsp;&nbsp;
+                                                            {% if i.status.value == 'placed' %}
+                                                                <span class="badge bg-danger">Создан</span>
+                                                            {% elif i.status.value == 'packed' %}
+                                                                <span class="badge bg-warning">Упакован</span>
+                                                            {% elif i.status.value == 'shipped' %}
+                                                                <span class="badge bg-primary">Отправлен</span>
+                                                            {% elif i.status.value == 'delivered' %}
+                                                                <span class="badge bg-success">Доставлен</span>
+                                                            {% endif %}</p>
+                                                        <p class="font-13"><strong>ID заказа: </strong> &nbsp;&nbsp;&nbsp;
+                                                            {{ i.id }}</p>
+                                                        <p class="font-13"><strong>ID товара: </strong> &nbsp;&nbsp;&nbsp;
+                                                            {{ i.product }}</p>
+                                                    </div> <!-- end col-->
+
+                                                    {% if i.status.value == 'placed' %}
+                                                        <div class="col mt-auto mb-auto">
+                                                            <form method="post">
+                                                                <input type="hidden" name="order_id"
+                                                                       value="{{i.id}}">
+                                                                <button type="submit" class="btn btn-danger btn-lg"
+                                                                        name="btn_products" value="cancel_order">
+                                                                    Отменить
+                                                                </button>
+                                                            </form>
+                                                        </div> <!-- end col-->
+                                                    {% endif %}
+
+                                                </div>
+                                                <!-- end row -->
+
+                                                <div class="row justify-content-center">
+                                                    <div class="col-lg-7 col-md-10 col-sm-11">
+                                                        <div class="horizontal-steps mt-4 pb-4">
+                                                            <div class="horizontal-steps-content">
+                                                                <div class="step-item {% if i.status.value == 'placed' %}current{% endif %}">
+                                                                    <span>Создан</span>
+                                                                </div>
+                                                                <div class="step-item {% if i.status.value == 'packed' %}current{% endif %}">
+                                                                    <span>Упакован</span>
+                                                                </div>
+                                                                <div class="step-item {% if i.status.value == 'shipped' %}current{% endif %}">
+                                                                    <span>Отправлен</span>
+                                                                </div>
+                                                                <div class="step-item {% if i.status.value == 'delivered' %}current{% endif %}">
+                                                                    <span>Доставлен</span>
+                                                                </div>
+                                                            </div>
+
+                                                            {% if i.status.value == 'placed' %}
+                                                                <div class="process-line" style="width: 0%;"></div>
+                                                            {% elif i.status.value == 'packed' %}
+                                                                <div class="process-line" style="width: 33%;"></div>
+                                                            {% elif i.status.value == 'shipped' %}
+                                                                <div class="process-line" style="width: 66%;"></div>
+                                                            {% elif i.status.value == 'delivered' %}
+                                                                <div class="process-line" style="width: 100%;"></div>
+                                                            {% endif %}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- end row -->
+
+                                            </div> <!-- end card-body-->
+                                        </div> <!-- end card -->
+                                    </div>
+                                {% endfor %}
+                            </div> <!-- end row-->
+                        </div>
+
+                    </div> <!-- end tab content-->
+
+                </div> <!-- end card-body-->
+            </div> <!-- end card-->
+        </div> <!-- end col -->
+    </div>
+    <!-- end row-->
+
+{% endblock %}

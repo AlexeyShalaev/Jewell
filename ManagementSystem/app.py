@@ -1,4 +1,4 @@
-import logging
+from logging import getLogger
 
 from flask import *
 from flask_login import *
@@ -9,6 +9,7 @@ from ManagementSystem.ext.webui.admin import admin
 from ManagementSystem.ext.webui.api import api
 from ManagementSystem.ext.webui.error import error
 from ManagementSystem.ext.webui.networking import networking
+from ManagementSystem.ext.webui.forms import forms
 from ManagementSystem.ext.webui.other import other
 from ManagementSystem.ext.webui.student import student
 from ManagementSystem.ext.webui.teacher import teacher
@@ -16,7 +17,7 @@ from ManagementSystem.ext.webui.view import view
 from config import load_config
 
 config = load_config()  # config
-logger = logging.getLogger(__name__)  # logging
+logger = getLogger(__name__)  # logging
 
 # flask
 app = Flask(config.flask.app_name)
@@ -24,6 +25,7 @@ app.register_blueprint(view)
 app.register_blueprint(error)
 app.register_blueprint(api)
 app.register_blueprint(networking)
+app.register_blueprint(forms)
 app.register_blueprint(other)
 app.register_blueprint(student)
 app.register_blueprint(teacher)

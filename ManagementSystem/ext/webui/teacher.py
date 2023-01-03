@@ -1,6 +1,6 @@
-import logging
 import os
 from datetime import datetime
+from logging import getLogger
 
 from flask import *
 from flask_login import *
@@ -16,7 +16,7 @@ from ManagementSystem.ext.models.userModel import Role
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends
 
-logger = logging.getLogger(__name__)  # logging
+logger = getLogger(__name__)  # logging
 teacher = Blueprint('teacher', __name__, url_prefix='/teacher', template_folder='templates/teacher',
                     static_folder='assets')
 

@@ -1,6 +1,8 @@
-from ManagementSystem.ext.database.attendances import *
-from ManagementSystem.ext.database.users import *
 import random
+
+from ManagementSystem.ext.database.attendances import add_attendance
+from ManagementSystem.ext.database.products import add_product
+from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, Reward
 
 
 def rand(mn=1, mx=2):
@@ -25,7 +27,11 @@ def test_attendance():
     add_attendance(user.id, 1, "08.12.2022 21:00:00")
 
 
-
 def change_reward():
     user = get_user_by_phone_number("89854839731").data
     update_user(user.id, "reward", Reward.TRIP.value)
+
+
+def test_products():
+    add_product("Мезуза", "", "бесплатно")
+    add_product("Подсвечник", "для соблюдения", "бесплатно")

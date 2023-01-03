@@ -306,6 +306,21 @@
                 <li class="side-nav-title side-nav-item">Прочее</li>
 
                 <li class="side-nav-item">
+                    <a href="{{ url_for('other.offers') }}" class="side-nav-link">
+                        <i class="fa-solid fa-briefcase"></i>
+                        <span> Вакансии </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
+                    <a href="{{ url_for('other.orders') }}" class="side-nav-link">
+                        <span class="badge bg-info float-end" id="offers_cnt"></span>
+                        <i class="uil uil-shopping-trolley"></i>
+                        <span> Товары </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarLinks" aria-expanded="false" aria-controls="sidebarLinks"
                        class="side-nav-link collapsed">
                         <i class="fa-solid fa-compass"></i>
@@ -317,15 +332,6 @@
                             <li>
                                 <a href="https://jewellclub.ru/new-season/" target="_blank">Новый сезон Яхад <span
                                         class="badge rounded-pill bg-light text-dark font-10 float-end">New</span></a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('teacher.teacher_mezuzah') }}">Мезуза на дом</a>
-                            </li>
-                            <li>
-                                <a href="{{ url_for('teacher.teacher_offers') }}" class="side-nav-link">
-                                    <span class="badge bg-info float-end" id="offers_cnt"></span>
-                                    <span> Вакансии </span>
-                                </a>
                             </li>
                             <li>
                                 <a href="https://bit.ly/3dX5iMT" target="_blank">Правила программы</a>

@@ -4,6 +4,7 @@ from flask_login import *
 from ManagementSystem.ext.models.userModel import *
 import logging
 
+logger = logging.getLogger(__name__)  # logging
 error = Blueprint('error', __name__, template_folder='templates/errors', static_folder='assets')  # route
 
 

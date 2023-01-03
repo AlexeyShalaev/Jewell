@@ -1,15 +1,16 @@
+import logging
 import os
 
 from flask import *
-from ManagementSystem.ext.database.courses import get_courses, Time
-from ManagementSystem.ext.database.records import get_records_by_type, RecordType
-from ManagementSystem.ext.database.relationships import get_relationships_by_sender, RelationStatus
-from ManagementSystem.ext.database.users import get_users, get_user_by_id
-from ManagementSystem.ext.database.offers import get_offers
+
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
+from ManagementSystem.ext.database.courses import get_courses, Time
+from ManagementSystem.ext.database.offers import get_offers
+from ManagementSystem.ext.database.records import get_records_by_type, RecordType
+from ManagementSystem.ext.database.relationships import get_relationships_by_sender
+from ManagementSystem.ext.database.users import get_users, get_user_by_id
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, set_records
-import logging
 
 logger = logging.getLogger(__name__)  # logging
 api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates', static_folder='assets')

@@ -1,15 +1,19 @@
+import logging
+from datetime import datetime
+
 from flask import *
 from flask_login import login_required, logout_user, current_user
-from ManagementSystem.ext.logistics import check_session, auto_render
-from ManagementSystem.ext.text_filter import TextFilter
-from ManagementSystem.ext.search_engine import search_documents
-from ManagementSystem.ext.tools import *
+
 from ManagementSystem.ext.crypt import decrypt_id_with_no_digits, encrypt_id_with_no_digits
-from ManagementSystem.ext.database.records import *
-from ManagementSystem.ext.database.users import *
-from ManagementSystem.ext.database.relationships import *
-from datetime import datetime
-import logging
+from ManagementSystem.ext.database.records import add_record, update_record, delete_record, get_records_by_author, \
+    RecordType, get_records
+from ManagementSystem.ext.database.relationships import update_relationship, delete_relationship, get_relationships, \
+    RelationStatus, add_relationship
+from ManagementSystem.ext.database.users import update_social_data, MongoDBResult, get_user_by_id
+from ManagementSystem.ext.logistics import check_session, auto_render
+from ManagementSystem.ext.search_engine import search_documents
+from ManagementSystem.ext.text_filter import TextFilter
+from ManagementSystem.ext.tools import set_relations, set_records
 
 logger = logging.getLogger(__name__)  # logging
 networking = Blueprint('networking', __name__, url_prefix='/networking', template_folder='templates',

@@ -1,7 +1,8 @@
-from dataclasses import dataclass
-from bson import ObjectId
 import json
 import re
+from dataclasses import dataclass
+
+from bson import ObjectId
 
 
 @dataclass

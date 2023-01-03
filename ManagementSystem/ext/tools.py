@@ -1,11 +1,16 @@
-from ManagementSystem.ext.database.users import get_user_by_id, MongoDBResult
-from ManagementSystem.ext.database.relationships import get_relationships, RelationStatus
-from ManagementSystem.ext.crypt import encrypt_id_with_no_digits, logger
-import requests
-from datetime import datetime
+import logging
 import queue
-import re
 import random
+import re
+from datetime import datetime
+
+import requests
+
+from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
+from ManagementSystem.ext.database.relationships import get_relationships, RelationStatus
+from ManagementSystem.ext.database.users import get_user_by_id, MongoDBResult
+
+logger = logging.getLogger(__name__)  # logging
 
 
 def normal_phone_number(phone_number: str) -> str:

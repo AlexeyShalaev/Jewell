@@ -1,17 +1,18 @@
-from ManagementSystem.ext.logistics import *
-from ManagementSystem.ext.database.users import *
-from ManagementSystem.ext.database.recover_pw import *
-from ManagementSystem.ext.database.flask_sessions import *
-from ManagementSystem.ext.models.userModel import *
-from ManagementSystem.ext.models.recover_pw import *
-from ManagementSystem.ext.telegram_bot.message import *
-from ManagementSystem.ext.crypt import *
-from ManagementSystem.ext.tools import normal_phone_number
-from flask import *
-from flask_toastr import *
-from flask_login import *
 import logging
 from random import choice
+
+from flask import *
+from flask_login import *
+from flask_toastr import *
+
+from ManagementSystem.ext.crypt import check_password_hash, crypt_pass, create_token
+from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip
+from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by_phone
+from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, check_user_by_phone, add_user, \
+    Role, update_registered_user, get_user_by_access_token
+from ManagementSystem.ext.logistics import auto_redirect, check_session
+from ManagementSystem.ext.telegram_bot.message import send_message
+from ManagementSystem.ext.tools import normal_phone_number
 
 logger = logging.getLogger(__name__)  # logging
 view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route

@@ -1,15 +1,19 @@
+import logging
 import os
+from datetime import datetime
+
 from flask import *
 from flask_login import *
 from flask_toastr import *
+
 from ManagementSystem.ext import trip_date
-from ManagementSystem.ext.crypt import *
-from ManagementSystem.ext.database.records import get_records_by_type, RecordType
+from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
+from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.maps import get_map_by_name
-from ManagementSystem.ext.database.attendances import *
-from ManagementSystem.ext.database.offers import *
-from ManagementSystem.ext.logistics import *
-from ManagementSystem.ext.tools import *
+from ManagementSystem.ext.database.records import get_records_by_type, RecordType
+from ManagementSystem.ext.logistics import auto_redirect, check_session
+from ManagementSystem.ext.models.userModel import Role, Reward
+from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, get_month
 
 logger = logging.getLogger(__name__)  # logging
 student = Blueprint('student', __name__, url_prefix='/student', template_folder='templates/student',
@@ -38,7 +42,8 @@ def student_home():
         for i in range(len(countries)):
             trip_map["values"][countries[i]] = i + 1
             trip_map["colors"][str(i + 1)] = get_random_color()
-    return render_template("student/home.html", shabbat=shabbat(), news=set_records(get_records_by_type(RecordType.NEWS)),
+    return render_template("student/home.html", shabbat=shabbat(),
+                           news=set_records(get_records_by_type(RecordType.NEWS)),
                            map=trip_map)
 
 
@@ -231,50 +236,3 @@ def student_schedule():
         logout_user()
         return redirect(url_for("view.landing"))
     return render_template("student/courses/schedule.html")
-
-
-# Уровень:              offers
-# База данных:          Offers
-# HTML:                 offers
-@student.route('/offers', methods=['POST', 'GET'])
-@login_required
-def student_offers():
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.STUDENT)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-    if request.method == "POST":
-        pass
-    offers = get_offers()
-    if len(offers.data) == 0:
-        return render_template("student/navigator/no-offers.html")
-    if request.method == "POST":
-        # TODO сделать логику запросов
-        pass
-    # TODO сделать страницу
-    return render_template("student/navigator/offers.html", offers=offers.data)
-
-
-# Уровень:              mezuzah
-# База данных:          TODO: products
-# HTML:                 mezuzah
-@student.route('/mezuzah', methods=['POST', 'GET'])
-@login_required
-def student_mezuzah():
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.STUDENT)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-    if request.method == "POST":
-        # TODO сделать логику запросов
-        pass
-    # TODO сделать страницу
-    return render_template("student/navigator/mezuzah.html")

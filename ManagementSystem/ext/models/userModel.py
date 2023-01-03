@@ -1,5 +1,6 @@
 import json
 from enum import Enum
+
 from bson import ObjectId
 from flask import url_for
 from flask_login import UserMixin

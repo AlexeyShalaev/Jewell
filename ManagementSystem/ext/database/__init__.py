@@ -1,7 +1,9 @@
-from pymongo import MongoClient
-from ManagementSystem.config import load_config
-from dataclasses import dataclass
 import logging
+from dataclasses import dataclass
+
+from pymongo import MongoClient
+
+from ManagementSystem.config import load_config
 
 config = load_config()  # config
 logger = logging.getLogger(__name__)  # logging

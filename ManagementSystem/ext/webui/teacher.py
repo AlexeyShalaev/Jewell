@@ -1,16 +1,22 @@
+import logging
 import os
+from datetime import datetime
+
 from flask import *
 from flask_login import *
 from flask_toastr import *
+
+from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
+from ManagementSystem.ext.database.courses import get_courses_by_teacher
+from ManagementSystem.ext.database.maps import get_map_by_name
 from ManagementSystem.ext.database.records import get_records_by_author, get_records_by_type, RecordType, add_record, \
     update_record_news, delete_record
-from ManagementSystem.ext.telegram_bot.message import *
-from ManagementSystem.ext.database.maps import get_map_by_name
-from ManagementSystem.ext.database.offers import *
-from ManagementSystem.ext.database.courses import get_courses_by_teacher
-from ManagementSystem.ext.logistics import *
-from ManagementSystem.ext.tools import *
+from ManagementSystem.ext.logistics import auto_redirect, check_session
+from ManagementSystem.ext.models.userModel import Role
+from ManagementSystem.ext.telegram_bot.message import send_news
+from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends
 
+logger = logging.getLogger(__name__)  # logging
 teacher = Blueprint('teacher', __name__, url_prefix='/teacher', template_folder='templates/teacher',
                     static_folder='assets')
 
@@ -269,50 +275,3 @@ def teacher_schedule():
         logout_user()
         return redirect(url_for("view.landing"))
     return render_template("teacher/courses/schedule.html", courses=get_courses_by_teacher(current_user.id).data)
-
-
-# Уровень:              offers
-# База данных:          Offers
-# HTML:                 offers
-@teacher.route('/offers', methods=['POST', 'GET'])
-@login_required
-def teacher_offers():
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.TEACHER)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-    if request.method == "POST":
-        pass
-    offers = get_offers()
-    if len(offers.data) == 0:
-        return render_template("teacher/navigator/no-offers.html")
-    if request.method == "POST":
-        # TODO сделать логику запросов
-        pass
-    # TODO сделать страницу
-    return render_template("teacher/navigator/offers.html", offers=offers.data)
-
-
-# Уровень:              mezuzah
-# База данных:          TODO: products
-# HTML:                 mezuzah
-@teacher.route('/mezuzah', methods=['POST', 'GET'])
-@login_required
-def teacher_mezuzah():
-    # auto redirect
-    status, url = auto_redirect(ignore_role=Role.TEACHER)
-    if status:
-        return redirect(url)
-    # check session
-    if not check_session():
-        logout_user()
-        return redirect(url_for("view.landing"))
-    if request.method == "POST":
-        # TODO сделать логику запросов
-        pass
-    # TODO сделать страницу
-    return render_template("teacher/navigator/mezuzah.html")

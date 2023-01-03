@@ -1,5 +1,5 @@
-from . import db, MongoDBResult
 from ManagementSystem.ext.models.map import *
+from . import db, MongoDBResult
 
 """
 Это собственно-написанная ORM - для NoSql базы данных MongoDB, для взаимодействия с моделью Map

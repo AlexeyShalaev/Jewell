@@ -1,7 +1,8 @@
+import json
 from dataclasses import dataclass
 from datetime import datetime
+
 from bson import ObjectId
-import json
 
 
 @dataclass

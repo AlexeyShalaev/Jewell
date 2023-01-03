@@ -1,6 +1,7 @@
-from werkzeug.security import generate_password_hash, check_password_hash
-from secrets import token_hex
 import logging
+from secrets import token_hex
+
+from werkzeug.security import generate_password_hash, check_password_hash
 
 logger = logging.getLogger(__name__)  # logging
 

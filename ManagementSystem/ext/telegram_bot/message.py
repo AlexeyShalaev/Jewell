@@ -1,6 +1,7 @@
 import requests
-from . import url
+
 from ManagementSystem.ext import telegram_chat
+from . import url
 
 
 def send_message(text: str, chat_id: int):

@@ -15,90 +15,59 @@ Student
 </div>
 
 <div class="row">
-    <div class="col-xl-4 col-lg-4">
-        <div class="card cta-box overflow-hidden">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div>
-                        <h3 class="m-0 fw-normal cta-box-title">Время зажигания свечей:<br><b>{{shabbat['candle']}}</b>
-                        </h3>
-                    </div>
-                    <img class="ms-3" src="../../assets/images/shabbat/candle.jpg" width="92"
-                         alt="Generic placeholder image">
-                </div>
-            </div>
-            <!-- end card-body -->
-        </div>
-        <!--end card-->
-
-        <div class="card cta-box overflow-hidden">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div>
-                        <h3 class="m-0 fw-normal cta-box-title">Авдала:<br><b>{{shabbat['havdalah']}}</b></h3>
-                    </div>
-                    <img class="ms-3" src="../../assets/images/shabbat/havdalah.jpg" width="92"
-                         alt="Generic placeholder image">
-                </div>
-            </div>
-            <!-- end card-body -->
-        </div>
-        <!--end card-->
-
-        <div class="card cta-box overflow-hidden">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div>
-                        <a href="https://jewellclub.ru/shabbat/kabbalat-shabbat/" target="_blank"><h3
-                                class="m-0 fw-normal cta-box-title">КАББАЛАТ ШАББАТ</h3></a>
-                    </div>
-                    <img class="ms-3" src="../../assets/images/brands/yahad-logo.png" width="92"
-                         alt="Generic placeholder image">
-                </div>
-            </div>
-            <!-- end card-body -->
-        </div>
-    </div> <!-- end col -->
-
-    <div class="col-xl-8 col-lg-8">
-        <div class="card bg-primary bg-opacity-10">
-            <div class="card-header">
-                <h4 class="header-title">Новости</h4>
-            </div>
-            <div class="card-body py-0" data-simplebar data-simplebar-primary style="height: 500px;">
-                {% for i in news %}
-                <div class="card mt-2">
-                    <div class="card-body pb-1">
-                        <div class="card-widgets">
-                            <a data-bs-toggle="collapse" href="#{{i['record_id']}}" role="button"
-                               aria-expanded="false" aria-controls="{{i['record_id']}}"><i
-                                    class="mdi mdi-minus"></i></a>
-                            <a href="#" data-bs-toggle="remove"><i class="mdi mdi-close"></i></a>
+        <div class="col-lg-4 m-auto">
+            <div class="card cta-box overflow-hidden">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h3 class="m-0 fw-normal cta-box-title">Время зажигания
+                                свечей:<br><b>{{ shabbat['candle'] }}</b>
+                            </h3>
                         </div>
-                        <a href="{{url_for('networking.profile', user_id=i['user_id'])}}" class="d-flex">
-                            <img class="me-2 rounded" src="{{url_for('api.get_avatar', user_id=i['user_id'])}}"
-                                 alt="avatar"
-                                 height="32">
-                            <div class="w-100">
-                                <h5 class="m-0">{{i['author']}}</h5>
-                                <p class="text-muted"><small>{{i['time']}}</small></p>
-                            </div> <!-- end w-100-->
-                        </a> <!-- end d-flex -->
-                        <div id="{{i['record_id']}}" class="collapse show">
-                            <div class="row g-0 align-items-center">
-                                <div id="img_{{ i['record_id'] }}" class="mb-2">
-                                    <img class="card-img" onerror="hide_img('{{ i['record_id'] }}');" src="{{url_for('api.get_record_image', record_id=i['record_id'])}}">
-                                </div>
-                               <p style="white-space:pre-wrap">{{i['text']}}</p>
-                            </div>
-                        </div>
-                    </div> <!-- end card-body -->
+                        <img class="ms-3" src="../../assets/images/shabbat/candle.jpg" width="92"
+                             alt="Generic placeholder image">
+                    </div>
                 </div>
-                {% endfor %}
+                <!-- end card-body -->
             </div>
-        </div>
+            <!--end card-->
+        </div> <!-- end col -->
+
+        <div class="col-lg-4 m-auto">
+            <div class="card cta-box overflow-hidden">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <h3 class="m-0 fw-normal cta-box-title">Авдала:<br><b>{{ shabbat['havdalah'] }}</b></h3>
+                        </div>
+                        <img class="ms-3" src="../../assets/images/shabbat/havdalah.jpg" width="92"
+                             alt="Generic placeholder image">
+                    </div>
+                </div>
+                <!-- end card-body -->
+            </div>
+            <!--end card-->
+        </div> <!-- end col -->
+
+        <div class="col-lg-4 m-auto">
+            <div class="card cta-box overflow-hidden">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div>
+                            <a href="https://jewellclub.ru/shabbat/kabbalat-shabbat/" target="_blank"><h3
+                                    class="m-0 fw-normal cta-box-title">КАББАЛАТ ШАББАТ</h3></a>
+                        </div>
+                        <img class="ms-3" src="../../assets/images/brands/yahad-logo.png" width="92"
+                             alt="Generic placeholder image">
+                    </div>
+                </div>
+                <!-- end card-body -->
+            </div>
+            <!--end card-->
+        </div> <!-- end col -->
+
+
     </div>
-</div>
 
 <div class="row">
     <div class="col-12">
@@ -108,7 +77,53 @@ Student
         </div>
     </div> <!-- end col-->
 </div>
-<!-- end row -->
+
+<div class="row">
+        <div class="card bg-primary bg-opacity-10">
+            <div class="card-header">
+                <h4 class="header-title">Новости</h4>
+            </div>
+            <div class="card-body py-0" data-simplebar data-simplebar-primary style="height: 1000px;">
+                {% for i in news %}
+                    <div class="card mt-2">
+                        <div class="card-body pb-1">
+                        <div class="card-widgets">
+                            <a data-bs-toggle="collapse" href="#{{ i['record_id'] }}" role="button"
+                               aria-expanded="false" aria-controls="{{ i['record_id'] }}"><i
+                                    class="mdi mdi-minus"></i></a>
+                            <a href="#" data-bs-toggle="remove"><i class="mdi mdi-close"></i></a>
+                        </div>
+                        <a href="{{ url_for('networking.profile', user_id=i['user_id']) }}" class="d-flex">
+                            <img class="me-2 rounded" src="{{ url_for('api.get_avatar', user_id=i['user_id']) }}"
+                                 alt="avatar"
+                                 height="32">
+                            <div class="w-100">
+                                <h5 class="m-0">{{ i['author'] }}</h5>
+                                <p class="text-muted"><small>{{ i['time'] }}</small></p>
+                            </div> <!-- end w-100-->
+                        </a> <!-- end d-flex -->
+                        <div id="{{ i['record_id'] }}" class="collapse show">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-lg-6">
+                                     <div id="img_{{ i['record_id'] }}" class="mb-2 text-center">
+                                    <img style="width: 100%; max-width: 400px;" class="card-img"
+                                         onerror="hide_img('{{ i['record_id'] }}');"
+                                         src="{{ url_for('api.get_record_image', record_id=i['record_id']) }}">
+                                </div>
+                                </div>
+                                <div class="col-lg-6">
+                                      <p style="white-space:pre-wrap">{{ i['text'] }}</p>
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </div> <!-- end card-body -->
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
 
 <script>
     $(document).ready(function () {

@@ -1,0 +1,144 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    News
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Ваши новости</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <p>
+            <a href="apps-projects-add.html" class="btn btn-danger rounded-pill mb-3" type="button"
+               data-bs-toggle="collapse"
+               data-bs-target="#collapseWidthExample"
+               aria-expanded="false" aria-controls="collapseWidthExample"><i class="mdi mdi-plus"></i> Выложить новость</a>
+        </p>
+        <div class="collapse collapse-horizontal" id="collapseWidthExample">
+            <div class="card card-body mb-0" style="width: 600px;">
+                <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                    <div class="row mb-3">
+                        <label for="input_lifetime" class="col-3 col-form-label">Удалить через</label>
+                        <div class="col-9">
+                            <input required id="input_lifetime" name="input_lifetime" list="lifetimes" type="text"
+                                   class="form-control" placeholder="Число дней">
+                            <datalist id="lifetimes">
+                                <option value="Никогда">
+                                <option value="День">
+                                <option value="Неделя">
+                            </datalist>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="example-textarea" class="col-3 col-form-label">Текст</label>
+                        <div class="col-9">
+                            <textarea required minlength="5" class="form-control" name="input_text"
+                                      id="example-textarea" rows="5"></textarea>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="input_lifetime" class="col-3 col-form-label">Фотография</label>
+                        <div class="col-9">
+                            <input class="form-control" type="file" name="record_image" accept="image/jpeg,image/png">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="input_telegram" class="col-3 col-form-label">Рассылка</label>
+                        <div class="col-9">
+                            <div class="form-check pt-1">
+                                <input type="checkbox" class="form-check-input" id="input_telegram"
+                                       name="input_telegram">
+                                <label class="form-check-label" for="input_telegram">Выложить в телеграмм</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="justify-content-end row">
+                        <div class="col-9">
+                            <button type="submit" name="btn_news" value="add_record" class="btn btn-sm btn-info"><i
+                                    class="uil uil-message me-1"></i>Опубликовать
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        {% for i in news %}
+            <div class="card mt-2">
+                <div class="card-body pb-1">
+                    <div class="card-widgets">
+                        <a data-bs-toggle="collapse" href="#{{ i.id }}" role="button"
+                           aria-expanded="false" aria-controls="{{ i.id }}"><i
+                                class="mdi mdi-minus"></i></a>
+                        <a href="#" data-bs-toggle="remove"><i class="mdi mdi-close"></i></a>
+                    </div>
+                    <a class="d-flex" data-bs-toggle="collapse" href="#{{ i.id }}" role="button"
+                       aria-expanded="false" aria-controls="{{ i.id }}">
+                        <div class="w-100">
+                            <p class="text-muted"><small>{{ i.time }}</small></p>
+                        </div> <!-- end w-100-->
+                    </a> <!-- end d-flex -->
+                    <div id="{{ i.id }}" class="collapse">
+                        <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                            <input type="hidden" name="record_id" value="{{ i.record_id }}">
+                            <div class="row mb-3">
+                                <label for="input_lifetime" class="col-3 col-form-label">Удалить через</label>
+                                <div class="col-9">
+                                    <input value="{{ i.lifetime }}" required id="input_lifetime"
+                                           name="input_lifetime" list="lifetimes" type="text"
+                                           class="form-control" placeholder="Число дней">
+                                    <datalist id="lifetimes">
+                                        <option value="Никогда">
+                                        <option value="День">
+                                        <option value="Неделя">
+                                    </datalist>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="example-textarea" class="col-3 col-form-label">Текст</label>
+                                <div class="col-9">
+                                            <textarea required minlength="5" class="form-control" name="input_text"
+                                                      id="example-textarea" rows="5">{{ i.text }}</textarea>
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="input_lifetime" class="col-3 col-form-label">Фотография</label>
+                                <div class="col-9">
+                                    <div id="img_{{ i['record_id'] }}">
+                                        <img class="card-img mb-2" onerror="hide_img('{{ i['record_id'] }}');"
+                                             src="{{ url_for('api.get_record_image', record_id=i['record_id']) }}">
+                                    </div>
+                                    <input class="form-control" type="file" name="record_image"
+                                           accept="image/jpeg,image/png">
+                                </div>
+                            </div>
+                            <div class="justify-content-end row">
+                                <div class="col-9">
+                                    <button type="submit" name="btn_news" value="send_telegram"
+                                            class="btn btn-info rounded-pill mb-3 me-3">Отправить в телеграмм
+                                    </button>
+                                    <button type="submit" name="btn_news" value="edit_record"
+                                            class="btn btn-primary rounded-pill mb-3 me-3">Сохранить
+                                    </button>
+                                    <button type="submit" name="btn_news" value="delete_record"
+                                            class="btn btn-danger rounded-pill mb-3 me-3">Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div> <!-- end card-body -->
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

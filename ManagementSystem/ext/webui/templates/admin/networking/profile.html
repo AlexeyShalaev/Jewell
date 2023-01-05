@@ -1,0 +1,200 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+Profile
+{% endblock %}
+
+{% block body %}
+
+<!-- start page title -->
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="{{url_for('admin.admin_home')}}">Администратор</a></li>
+                    <li class="breadcrumb-item">Net Working</li>
+                    <li class="breadcrumb-item active">Профиль</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Профиль</h4>
+        </div>
+    </div>
+</div>
+<!-- end page title -->
+
+<div class="row">
+    <div class="col-xl-4 col-lg-5">
+        <div class="card text-center">
+            <div class="card-body">
+                <img src="{{url_for('api.get_avatar', user_id=user.id)}}" class="rounded-circle avatar-lg img-thumbnail"
+                     alt="profile-image">
+
+                <h4 class="mb-0 mt-2">{{user.first_name}} {{user.last_name}}</h4>
+                <p class="text-muted font-14">{{user.birthday}}</p>
+
+                <!-- Contact -->
+                <div class="btn-group">
+                    <form action="" method="POST">
+                         <button type="submit" class="btn btn-{{btn_color}} btn-sm"><i class="me-1 mdi mdi-{{btn_icon}}"></i>{{btn_text}}</button>
+                    </form>
+                    <button type="button" class="ms-2 btn btn-dark btn-sm mb-2" data-bs-toggle="dropdown"
+                            aria-haspopup="true" aria-expanded="false">Написать</button>
+                    <div class="dropdown-menu p-1" style="max-width: 200px;">
+                        {% if user.telegram_username %}
+
+                        <a href="https://t.me/{{user.telegram_username}}"><i class="fa-brands fa-telegram">{{user.telegram_username}}</i></a>
+                        {% else %}
+                        <p>
+                            {{user.first_name}} еще не привязал Telegram к своему аккаунту.
+                        </p>
+                        {% endif %}
+
+                    </div>
+                </div>
+
+                <div class="list-group list-group-flush mt-2">
+                    {% if user.sex.value == 'male' %}
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-person me-1"></i>Мужчина</a>
+                    {% elif user.sex.value == 'female' %}
+                    <a class="list-group-item list-group-item-action border-0"><i
+                            class="fa-solid fa-person-dress me-1"></i>Женщина</a>
+                    {% endif %}
+
+                    {% if user.location != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i
+                            class="fa-solid fa-location-dot me-1"></i>{% if user.location | length > 0
+                        %}{{user.location}}{% else %}Локация{% endif %}</a>
+                    {% endif %}
+
+                    {% if user.languages != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-language me-1"></i>
+                        {% if user.languages | length > 0 %}{% for language in user.languages
+                        %}{{language}} {% endfor %}{% else %}Языки{% endif %}
+                    </a>
+                    {% endif %}
+
+                    {% if user.profession != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-user-tie me-1"></i>{%
+                        if user.profession | length > 0 %}{{user.profession}}{% else %}Профессия{% endif
+                        %}</a>
+                    {% endif %}
+
+                    {% if user.university != None %}
+                    <a class="list-group-item list-group-item-action border-0"><i
+                            class="fa-solid fa-graduation-cap me-1"></i>{% if user.university | length > 0
+                        %}{{user.university}}{% else %}Университет{% endif %}</a>
+                    {% endif %}
+                </div>
+            </div> <!-- end card-body -->
+        </div> <!-- end card -->
+
+        <!-- Tags-->
+        <div class="card ribbon-box">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="header-title">Теги</h4>
+                </div>
+
+                {% if user.tags != None %}
+                <ul class="list-group list-group-flush">
+                    {% for tag in user.tags %}
+                    <li class="list-group-item">{{tag}}</li>
+                    {% endfor %}
+                </ul>
+                {% else%}
+                <div class="ribbon ribbon-warning float-start"><i class="mdi mdi-access-point me-1"></i>Предупреждение
+                </div>
+                <div class="ribbon-content">
+                    Заполните теги для лучшей работы сервиса Net Working
+                </div>
+                {% endif %}
+
+
+            </div> <!-- end card-body-->
+        </div> <!-- end card-->
+
+    </div> <!-- end col-->
+
+    <div class="col-xl-8 col-lg-7">
+        <div id="records">
+            <!-- start news feeds -->
+            {% for record in records[:5] %}
+            <div class="card">
+                <div class="card-body pb-1">
+                    <div class="d-flex">
+                        <img class="me-2 rounded" src="{{url_for('api.get_avatar', user_id=user.id)}}"
+                             alt="avatar"
+                             height="32">
+                        <div class="w-100">
+                            <h5 class="m-0">{{record['author']}}</h5>
+                            <p class="text-muted"><small>{{record['time']}}</small></p>
+                        </div> <!-- end w-100-->
+                    </div> <!-- end d-flex -->
+
+                    <hr class="m-0">
+
+                    <div class="my-3">
+                        <p>{{record['text']}}</p>
+                    </div>
+
+                </div> <!-- end card-body -->
+            </div>
+            {% endfor %}
+            <!-- end news feeds -->
+        </div>
+
+        <div class="text-center mb-3" id="load_more">
+            <a onclick="fetchRecords()" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1 font-16"></i>
+                Загрузить еще </a>
+        </div>
+    </div> <!-- end col -->
+</div>
+
+<script>
+
+    let records = {{records | safe}};
+
+    let counter = 5;
+
+    if (counter >= records.length) document.getElementById("load_more").remove();
+
+
+    function appendRecord(index) {
+        let recs = document.getElementById("records");
+        const rec_html = "<div class=\"card\">" +
+            "                <div class=\"card-body pb-1\">" +
+            "                    <div class=\"d-flex\">" +
+            "                        <img class=\"me-2 rounded\" src=\"/api/avatar/{{user.id}}\"" +
+            "                             alt=\"avatar\"" +
+            "                             height=\"32\">" +
+            "                        <div class=\"w-100\">" +
+            "                            <h5 class=\"m-0\">" + records[index]['author'] + "</h5>" +
+            "                            <p class=\"text-muted\"><small>" + records[index]['time'] + "</small></p>" +
+            "                        </div> <!-- end w-100-->" +
+            "                    </div> <!-- end d-flex -->" +
+            "                    <hr class=\"m-0\">" +
+            "                    <div class=\"my-3\">" +
+            "                        <p>" + records[index]['text'] + "</p>" +
+            "                    </div>" +
+            "                </div> <!-- end card-body -->" +
+            "            </div>"
+        recs.innerHTML += rec_html;
+    }
+
+    function fetchRecords() {
+        let i = 0;
+        while (i < 5 && counter + i < records.length) {
+            appendRecord(counter + i);
+            i++;
+        }
+        counter += i;
+        if (counter >= records.length) {
+            document.getElementById("load_more").remove();
+            return;
+        }
+    }
+
+</script>
+
+{% endblock %}

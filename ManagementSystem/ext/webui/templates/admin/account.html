@@ -1,4 +1,4 @@
-{% extends 'student-base.html' %}
+{% extends 'admin-base.html' %}
 
 {% block title %}
 Account
@@ -16,7 +16,7 @@ Account
         <div class="page-title-box">
             <div class="page-title-right">
                 <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{url_for('student.student_home')}}">Студент</a></li>
+                    <li class="breadcrumb-item"><a href="{{url_for('admin.admin_home')}}">Администратор</a></li>
                     <li class="breadcrumb-item active">Аккаунт</li>
                 </ol>
             </div>
@@ -51,22 +51,12 @@ Account
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">{{current_user.last_name}}
                                         {{current_user.first_name}}</h4>
-                                    <p class="font-13 text-white-50"> Студент</p>
+                                    <p class="font-13 text-white-50"> Администратор</p>
 
                                     <ul class="mb-0 list-inline text-light">
                                         <li class="list-inline-item me-3">
                                             <h5 class="mb-1 text-white">{{friends | length}}</h5>
                                             <p class="mb-0 font-13 text-white-50">Число связей</p>
-                                        </li>
-                                        <li class="list-inline-item me-3">
-                                            {% if current_user.reward.value == 'trip' %}
-                                            <h5 class="mb-1 text-white">Поездка</h5>
-                                            {% elif current_user.reward.value == 'grant' %}
-                                            <h5 class="mb-1 text-white">Стипендия</h5>
-                                            {% else %}
-                                            <h5 class="mb-1 text-white">-</h5>
-                                            {% endif %}
-                                            <p class="mb-0 font-13 text-white-50">Награда</p>
                                         </li>
                                     </ul>
                                 </div>

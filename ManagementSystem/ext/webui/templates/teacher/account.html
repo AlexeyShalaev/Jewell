@@ -32,7 +32,7 @@ Account
         <div class="card bg-primary" onmouseleave="tg_token('hide');">
             <div class="card-body profile-user-box">
                 <div class="row">
-                    <div class="col-sm-8">
+                    <div class="col">
                         <div class="row align-items-center">
                             <div class="col-lg-3">
                                 <form id="avatar_form" action="" method="POST" enctype="multipart/form-data">
@@ -47,7 +47,7 @@ Account
                                     </div>
                                 </form>
                             </div>
-                            <div class="col-lg-3 ">
+                            <div class="col-lg-2">
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">{{current_user.last_name}}
                                         {{current_user.first_name}}</h4>
@@ -65,7 +65,7 @@ Account
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-lg-3">
+                            <div class="col-lg-4">
                                 <div>
                                     <h4 class="mt-1 mb-1 text-white">Telegram
                                         {% if current_user.telegram_id %}

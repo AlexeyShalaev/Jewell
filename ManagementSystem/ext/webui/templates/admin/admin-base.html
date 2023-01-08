@@ -18,6 +18,12 @@
     <!-- Vector Map css -->
     <link rel="stylesheet" href="../../assets/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-2.0.5.css">
 
+    <!-- Bootstrap Datepicker css -->
+    <link href="../../assets/vendor/bootstrap-datepicker/css/bootstrap-datepicker.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- Bootstrap Timepicker css -->
+    <link href="../../assets/vendor/bootstrap-timepicker/css/bootstrap-timepicker.min.css" rel="stylesheet" type="text/css"/>
+
     <!-- Theme Config Js -->
     <script src="../../assets/js/hyper-config.js"></script>
 
@@ -259,7 +265,7 @@
             <!--- Sidemenu -->
             <ul class="side-nav">
 
-                <li class="side-nav-title side-nav-item">Навигация</li>
+                <li class="side-nav-title side-nav-item">Основное</li>
 
                 <li class="side-nav-item">
                     <a href="{{ url_for('admin.admin_home') }}" class="side-nav-link">
@@ -276,49 +282,83 @@
                     </a>
                 </li>
 
-                <li class="side-nav-title side-nav-item">Курсы</li>
-
                 <li class="side-nav-item">
-                    <a href="{{ url_for('admin.admin_schedule') }}" class="side-nav-link">
-                        <i class="fa-solid fa-calendar-days"></i>
-                        <span> Расписание </span>
+                    <a data-bs-toggle="collapse" href="#courses" aria-expanded="false" aria-controls="courses"
+                       class="side-nav-link collapsed">
+                        <i class="fa-solid fa-school"></i>
+                        <span> Курсы </span>
+                        <span class="menu-arrow"></span>
                     </a>
-                </li>
-
-                <li class="side-nav-title side-nav-item">Net Working</li>
-
-                <li class="side-nav-item">
-                    <a href="{{ url_for('networking.feed') }}" class="side-nav-link">
-                        <i class="fa-solid fa-users-rectangle"></i>
-                        <span> Лента </span>
-                    </a>
-                </li>
-
-                <li class="side-nav-item">
-                    <a href="{{ url_for('networking.networking_relations') }}" class="side-nav-link">
-                        <i><img src="../../assets/icons/sprites/network-icon-16.jpg"
-                                style="height: 20px;width: 20px;"></img></i>
-                        <span class="badge bg-danger float-end">New</span>
-                        <span> Связи </span>
-                    </a>
-                </li>
-
-                <li class="side-nav-title side-nav-item">Прочее</li>
-
-                <li class="side-nav-item">
-                    <a href="{{ url_for('other.offers') }}" class="side-nav-link">
-                        <span class="badge bg-info float-end" id="offers_cnt"></span>
-                        <i class="fa-solid fa-briefcase"></i>
-                        <span> Вакансии </span>
-                    </a>
+                    <div class="collapse" id="courses" style="">
+                        <ul class="side-nav-second-level">
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.admin_schedule') }}" class="side-nav-link">
+                                    <i class="fa-regular fa-calendar-check"></i>
+                                    <span> Посещаемость </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.admin_schedule') }}" class="side-nav-link">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                    <span> Расписание </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <li class="side-nav-item">
-                    <a href="{{ url_for('other.products') }}" class="side-nav-link">
-                        <span class="badge bg-info float-end" id="products_cnt"></span>
-                        <i class="uil uil-shopping-trolley"></i>
-                        <span> Товары </span>
+                    <a data-bs-toggle="collapse" href="#networking" aria-expanded="false" aria-controls="networking"
+                       class="side-nav-link collapsed">
+                        <i class="fa-solid fa-circle-nodes"></i>
+                        <span> Net Working </span>
+                        <span class="menu-arrow"></span>
                     </a>
+                    <div class="collapse" id="networking" style="">
+                        <ul class="side-nav-second-level">
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('networking.feed') }}" class="side-nav-link">
+                                    <i class="fa-solid fa-users-rectangle"></i>
+                                    <span> Лента </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('networking.networking_relations') }}" class="side-nav-link">
+                                    <i><img src="../../assets/icons/sprites/network-icon-16.jpg"
+                                            style="height: 20px;width: 20px;"></img></i>
+                                    <span class="badge bg-danger float-end">New</span>
+                                    <span> Связи </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#other" aria-expanded="false" aria-controls="other"
+                       class="side-nav-link collapsed">
+                        <i class="fa-brands fa-elementor"></i>
+                        <span> Прочее </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="other" style="">
+                        <ul class="side-nav-second-level">
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('other.offers') }}" class="side-nav-link">
+                                    <span class="badge bg-info float-end" id="offers_cnt"></span>
+                                    <i class="fa-solid fa-briefcase"></i>
+                                    <span> Вакансии </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('other.products') }}" class="side-nav-link">
+                                    <span class="badge bg-info float-end" id="products_cnt"></span>
+                                    <i class="uil uil-shopping-trolley"></i>
+                                    <span> Товары </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </li>
 
                 <li class="side-nav-item">
@@ -341,6 +381,10 @@
                         </ul>
                     </div>
                 </li>
+
+                <li class="side-nav-title side-nav-item">Telegram BOT</li>
+
+                <li class="side-nav-title side-nav-item">Безопасность</li>
 
             </ul>
             <!--- End Sidemenu -->
@@ -1096,6 +1140,12 @@
 <!-- Vector Map js -->
 <script src="../../assets/vendor/admin-resources/jquery.vectormap/jquery-jvectormap-2.0.5.min.js"></script>
 <script src="../../assets/vendor/admin-resources/jquery.vectormap/maps/jquery-jvectormap-world-mill-en.js"></script>
+
+<!-- Bootstrap Datepicker js -->
+<script src="../../assets/vendor/bootstrap-datepicker/js/bootstrap-datepicker.min.js"></script>
+
+<!-- Bootstrap Timepicker js -->
+<script src="../../assets/vendor/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
 
 <!--  Select2 Js -->
 <script src="../../assets/vendor/select2/js/select2.min.js"></script>

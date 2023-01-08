@@ -7,6 +7,14 @@ from . import db, MongoDBResult
 """
 
 
+# проверка курса по имени
+def check_course_by_name(name: str) -> bool:
+    res = db.courses.find_one({'name': name})
+    if res:
+        return True
+    return False
+
+
 # получение записей о всех курсах
 def get_courses() -> MongoDBResult:
     res = db.courses.find()
@@ -29,9 +37,9 @@ def get_course_by_id(id) -> MongoDBResult:
 
 
 # добавление курса
-def add_course(teachers, name, timetable):
+def add_course(name, teachers, timetable):
     db.courses.insert_one({
-        "teachers": teachers,
+        "teachers": [ObjectId(teacher_id) for teacher_id in teachers],
         "name": name,
         "timetable": timetable
     })
@@ -43,8 +51,12 @@ def add_courses(courses):
 
 
 # обновление данных курса по ID
-def update_course(id, key, value):
-    db.courses.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
+def update_course(id, name, teachers, timetable):
+    db.courses.update_one({'_id': ObjectId(id)}, {"$set": {
+        "teachers": [ObjectId(teacher_id) for teacher_id in teachers],
+        "name": name,
+        "timetable": timetable
+    }})
 
 
 # удаление курса по ID

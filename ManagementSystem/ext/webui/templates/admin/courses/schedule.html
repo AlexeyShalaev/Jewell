@@ -56,27 +56,163 @@
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
-                <h4 class="page-title">Ваши курсы</h4>
+                <h4 class="page-title">
+                    Настройка расписания курсов
+                </h4>
+
             </div>
+            <button onclick="select_teachers();" type="button" class="mb-2 btn btn-danger rounded-pill"
+                    data-bs-toggle="modal"
+                    data-bs-target="#course-modal"><i class="mdi mdi-plus"></i>Добавить курс
+            </button>
         </div>
     </div>
 
     <div class="row">
         {% for course in courses %}
-            <div class="col-md-4">
-                <div id="course_{{ course.name }}" class="card" style="border: 2px solid black">
+            <div class="col-md-6 col-xxl-3">
+                <!-- project card -->
+                <div id="course_{{ course.name }}" class="card d-block" style="border: 2px solid black">
                     <div class="card-body">
-                        <h5 class="card-title">{{ course.name }}</h5>
+                        <div class="dropdown card-widgets">
+                            <a class="dropdown-toggle arrow-none" data-bs-toggle="dropdown"
+                               aria-expanded="false">
+                                <i class="ri-more-fill"></i>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end" style="">
+                                <!-- item-->
+                                <a class="dropdown-item"
+                                   onclick="set_course_data('{{ course.id }}', '{{ course.name }}');"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#course-modal-edit"><i class="mdi mdi-pencil me-1"></i>Редактировать</a>
+                                <!-- item-->
+                                <form method="post">
+                                    <input type="hidden" name="course_id" value="{{ course.id }}">
+                                    <button onclick="return confirm('Вы точно хотите удалить курс?')"
+                                            class="dropdown-item" type="submit" name="btn_schedule"
+                                            value="delete_course"><i class="mdi mdi-delete me-1"></i>Удалить
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- project title-->
+                        <h4 class="mt-0">
+                            <a class="text-title">{{ course.name }}</a>
+                        </h4>
+
                     </div> <!-- end card-body-->
                 </div> <!-- end card-->
-            </div> <!-- end col-->
+            </div>
         {% endfor %}
     </div>
     <!-- end row-->
 
+    <div id="course-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-danger">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Добавление курса</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="ps-3 pe-3" method="post">
+
+                        <div class="mb-3">
+                            <label for="course_name" class="form-label">Название</label>
+                            <input class="form-control" type="text" id="course_name" name="course_name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="course_name" class="form-label">Учителя</label>
+                            <!-- Multiple Select -->
+                            <select id="course_teachers" name="course_teachers"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2" multiple="multiple"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="course_name" class="form-label">Расписание</label>
+                            <!-- Multiple Select -->
+                            <select id="course_times" name="course_times"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2" multiple="multiple"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-danger" type="submit" name="btn_schedule"
+                                    value="add_course">Создать
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="course-modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-primary">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Редактирование курса</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="ps-3 pe-3" method="post">
+                        <input type="hidden" id="edit_course_id" name="course_id" value="">
+
+                        <div class="mb-3">
+                            <label for="course_name" class="form-label">Название</label>
+                            <input class="form-control" type="text" id="edit_course_name" name="course_name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="course_name" class="form-label">Учителя</label>
+                            <!-- Multiple Select -->
+                            <select id="edit_course_teachers" name="course_teachers"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2" multiple="multiple"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="course_name" class="form-label">Расписание</label>
+                            <!-- Multiple Select -->
+                            <select id="edit_course_times" name="course_times"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2" multiple="multiple"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-primary" type="submit" name="btn_schedule"
+                                    value="edit_course">Сохранить
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
     <script>
+
         let courses;
         set_schedule();
+        select_times();
 
         function set_schedule() {
             try {
@@ -127,7 +263,16 @@
                                     p.innerText = `${to_rus(key)} ${('0' + value.hours).slice(-2)}:${('0' + value.minutes).slice(-2)}`;
                                     course.children[0].appendChild(p);
                                 }
+
+                                //teachers
+                                let teachers = document.createElement("div");
+                                teachers.setAttribute('class', 'row');
+                                for (const teacher of courses[i].teachers) {
+                                    teachers.innerHTML += teacher;
+                                }
+                                course.children[0].appendChild(teachers);
                             }
+
                         } else {
                             $.NotificationApp.send("Расписание", "Не удалось загрузить расписание", "top-right", "#FF5B5B", "error");
                         }
@@ -196,6 +341,69 @@
             }
 
         }
+
+        function select_teachers(element = "course_teachers", sel_teachers = []) {
+            let sel = document.getElementById(element);
+            sel.innerHTML = "";
+            const teachers = {{teachers | safe}};
+            for (const [key, value] of Object.entries(teachers)) {
+                let opt = document.createElement("option");
+                opt.setAttribute("value", value.id);
+                opt.innerText = value.name;
+                if (sel_teachers.includes(value.id)) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            }
+        }
+
+        function select_times(element = "course_times", sel_times = []) {
+            let sel = document.getElementById(element);
+            sel.innerHTML = "";
+            const days = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
+            const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+            const minutes = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+            for (const day of days) {
+                for (const hour of hours) {
+                    for (const minute of minutes) {
+                        let opt = document.createElement("option");
+                        opt.setAttribute("value", `${day}-${hour}-${minute}`);
+                        opt.innerText = `${to_rus(day)} ${hour}:${('0' + minute).slice(-2)}`;
+                        if (sel_times.includes(`${day}-${hour}-${minute}`)) {
+                            opt.selected = true;
+                        }
+                        sel.appendChild(opt);
+                    }
+                }
+            }
+        }
+
+        function set_course_data(id, name) {
+            document.getElementById("edit_course_id").value = "";
+            document.getElementById("edit_course_name").value = "";
+            for (const [key, value] of Object.entries(courses)) {
+                if (value.name == name) {
+                    document.getElementById("edit_course_id").value = id;
+                    document.getElementById("edit_course_name").value = name;
+                    sel_teachers = [];
+                    for (const t of value.teachers) {
+                        const indexStart = t.indexOf('profile') + 'profile'.length + 1;
+                        const indexEnd = t.indexOf('target=') - 2;
+                        const t_id = t.substring(indexStart, indexEnd);
+                        sel_teachers.push(t_id);
+                    }
+                    select_teachers("edit_course_teachers", sel_teachers);
+                    sel_times = [];
+                    for (const [k, v] of Object.entries(value.timetable)) {
+                        sel_times.push(`${k}-${v.hours}-${v.minutes}`);
+                    }
+                    select_times("edit_course_times", sel_times);
+                    break;
+                }
+            }
+
+        }
+
     </script>
 
 {% endblock %}

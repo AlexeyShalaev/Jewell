@@ -7,8 +7,10 @@ from flask_login import *
 from flask_toastr import *
 
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
-from ManagementSystem.ext.database.courses import get_courses
-from ManagementSystem.ext.database.maps import get_map_by_name
+from ManagementSystem.ext.database.users import get_users_by_role
+from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
+    check_course_by_name
+from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.records import get_records_by_author, get_records_by_type, RecordType, add_record, \
     update_record_news, delete_record
 from ManagementSystem.ext.logistics import auto_redirect, check_session
@@ -35,6 +37,17 @@ def admin_home():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_home'] == 'upd_map':
+                countries = request.form.getlist('countries')
+                update_trips(countries)
+                flash('Вы успешно обновили карту поездок', 'success')
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
     trip_map = {"values": {}, "colors": {}}
     resp = get_map_by_name(name='trips')
     if resp.success:
@@ -272,4 +285,42 @@ def admin_schedule():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    return render_template("admin/courses/schedule.html", courses=get_courses().data)
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_schedule'] == 'add_course':
+                course_name = request.form.get('course_name')
+                if check_course_by_name(course_name):
+                    flash('Курс с таким именем уже существует', 'warning')
+                else:
+                    course_teachers = request.form.getlist('course_teachers')
+                    course_times = request.form.getlist('course_times')
+                    timetable = dict()
+                    for time in course_times:
+                        d, h, m = time.split('-')
+                        timetable[d] = '{"hours": ' + h + ', "minutes": ' + m + '}'
+                    add_course(teachers=course_teachers, name=course_name, timetable=timetable)
+                    flash('Вы успешно добавили курс', 'success')
+            elif request.form['btn_schedule'] == 'delete_course':
+                course_id = request.form.get('course_id')
+                delete_course(course_id)
+                flash('Вы успешно удалили курс', 'success')
+            elif request.form['btn_schedule'] == 'edit_course':
+                course_id = request.form.get('course_id')
+                course_name = request.form.get('course_name')
+                course_teachers = request.form.getlist('course_teachers')
+                course_times = request.form.getlist('course_times')
+                timetable = dict()
+                for time in course_times:
+                    d, h, m = time.split('-')
+                    timetable[d] = '{"hours": ' + h + ', "minutes": ' + m + '}'
+                update_course(id=course_id, name=course_name, teachers=course_teachers, timetable=timetable)
+                flash('Вы успешно обновили курс', 'success')
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    teachers = []
+    for teacher in get_users_by_role(Role.TEACHER).data:
+        teachers.append({"name": f'{teacher.first_name} {teacher.last_name}', "id": str(teacher.id)})
+    return render_template("admin/courses/schedule.html", courses=get_courses().data, teachers=teachers)

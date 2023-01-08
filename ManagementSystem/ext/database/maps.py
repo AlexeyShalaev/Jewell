@@ -55,6 +55,11 @@ def update_map(id, key, value):
     db.maps.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
 
 
+# обновление данных карты поездок
+def update_trips(countries):
+    db.maps.update_one({'name': 'trips'}, {"$set": {'countries': countries}})
+
+
 # удаление карты по ID
 def delete_map(id):
     db.maps.delete_one({

@@ -193,11 +193,92 @@ def shabbat(geo_name_id: int = 524901) -> dict:
                     else:
                         date = datetime.strptime(date, '%Y-%m-%d')
                     if title.startswith('Candle'):
-                        res['candle'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{date.minute}'
+                        res[
+                            'candle'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{"0" * (2 - len(str(date.minute))) + str(date.minute)}'
                     elif title.startswith('Havdalah'):
-                        res['havdalah'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{date.minute}'
+                        res[
+                            'havdalah'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{"0" * (2 - len(str(date.minute))) + str(date.minute)}'
                 except Exception:
                     pass
     except Exception as ex:
         logger.error(ex)
     return res
+
+
+def rus2eng(word: str) -> str:
+    try:
+        word = word.replace('ей', 'ey')
+        word = word.replace('ый', 'iy')
+
+        word = word.replace('А', 'A')
+        word = word.replace('Б', 'B')
+        word = word.replace('В', 'V')
+        word = word.replace('Г', 'G')
+        word = word.replace('Д', 'D')
+        word = word.replace('Е', 'E')
+        word = word.replace('Ё', 'Io')
+        word = word.replace('Ж', 'Zh')
+        word = word.replace('З', 'Z')
+        word = word.replace('И', 'I')
+        word = word.replace('Й', 'I')
+        word = word.replace('К', 'K')
+        word = word.replace('Л', 'L')
+        word = word.replace('М', 'M')
+        word = word.replace('Н', 'N')
+        word = word.replace('О', 'O')
+        word = word.replace('П', 'P')
+        word = word.replace('Р', 'R')
+        word = word.replace('С', 'S')
+        word = word.replace('Т', 'T')
+        word = word.replace('У', 'U')
+        word = word.replace('Ф', 'Ph')
+        word = word.replace('Х', 'X')
+        word = word.replace('Ц', 'C')
+        word = word.replace('Ч', 'Ch')
+        word = word.replace('Ш', 'Sh')
+        word = word.replace('Щ', 'Sch')
+        word = word.replace('Ъ', '')
+        word = word.replace('Ы', 'I')
+        word = word.replace('Ь', '')
+        word = word.replace('Э', 'E')
+        word = word.replace('Ю', 'U')
+        word = word.replace('Я', 'Ya')
+
+        word = word.replace('а', 'a')
+        word = word.replace('б', 'b')
+        word = word.replace('в', 'v')
+        word = word.replace('г', 'g')
+        word = word.replace('д', 'd')
+        word = word.replace('е', 'e')
+        word = word.replace('ё', 'io')
+        word = word.replace('ж', 'zh')
+        word = word.replace('з', 'z')
+        word = word.replace('и', 'i')
+        word = word.replace('й', 'i')
+        word = word.replace('к', 'k')
+        word = word.replace('л', 'l')
+        word = word.replace('м', 'm')
+        word = word.replace('н', 'n')
+        word = word.replace('о', 'o')
+        word = word.replace('п', 'p')
+        word = word.replace('р', 'r')
+        word = word.replace('с', 's')
+        word = word.replace('т', 't')
+        word = word.replace('у', 'u')
+        word = word.replace('ф', 'f')
+        word = word.replace('х', 'x')
+        word = word.replace('ц', 'c')
+        word = word.replace('ч', 'ch')
+        word = word.replace('ш', 'sh')
+        word = word.replace('щ', 'sch')
+        word = word.replace('ъ', '')
+        word = word.replace('ы', 'i')
+        word = word.replace('ь', '')
+        word = word.replace('э', 'e')
+        word = word.replace('ю', 'u')
+        word = word.replace('я', 'ya')
+
+        return word
+    except Exception as ex:
+        logger.error(ex)
+        return word

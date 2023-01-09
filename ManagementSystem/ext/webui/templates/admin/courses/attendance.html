@@ -1,0 +1,288 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance
+{% endblock %}
+
+{% block css %}
+    <!-- Datatables css -->
+
+    <link href="../../../assets/vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="../../../assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="../../../assets/vendor/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet"
+          type="text/css"/>
+    <style>
+
+        #context-menu {
+            background-color: #ffffff;
+            color: #1f194c;
+            width: 10em;
+            padding: 0.8em 0.6em;
+            font-size: 1.3rem;
+            position: fixed;
+            visibility: hidden;
+        }
+
+        .item {
+            padding: 0.3em 1.2em;
+        }
+
+        .item:hover {
+            background-color: rgba(44, 141, 247, 0.2);
+            cursor: pointer;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
+                        </li>
+                        <li class="breadcrumb-item active">Посещаемость</li>
+                    </ol>
+                </div>
+                <h4 class="page-title" id="page-header">Посещаемость</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        <table id="attendance_table" class="table table-striped" style="width:100%">
+            <thead>
+            <tr>
+                <th>name</th>
+                <th>september</th>
+                <th>october</th>
+                <th>november</th>
+                <th>december</th>
+                <th>january</th>
+                <th>february</th>
+                <th>march</th>
+                <th>april</th>
+                <th>may</th>
+                <th>all</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>name</th>
+                <th>september</th>
+                <th>october</th>
+                <th>november</th>
+                <th>december</th>
+                <th>january</th>
+                <th>february</th>
+                <th>march</th>
+                <th>april</th>
+                <th>may</th>
+                <th>all</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div id="filter-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-info">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Фильтрация посещаемости</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <form class="px-4 py-3">
+                        <div class="mb-3">
+                            <label class="form-label">Награда</label>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="reward" value="trip" id="trip">
+                                <label class="form-check-label" for="trip">Поездка</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" name="reward" value="grant" id="grant">
+                                <label class="form-check-label" for="grant">Стипендия</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Год</label>
+                            <select id="years" name="years"
+                                    class="select2 form-control select2-multiple"
+                                    data-toggle="select2"
+                                    data-placeholder="Выбрать ...">
+                            </select>
+
+                        </div>
+                        <button type="button" onclick="render();" class="btn btn-dark">Применить</button>
+                        <button type="button" onclick="clear_filters();" class="btn btn-secondary">Очистить</button>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div class="modal fade" id="uwba-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-danger">
+                    <h4 class="modal-title">Студенты с плохой посещаемостью | Поездка</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div id="uwba" class="modal-body">
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
+
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+
+    <script>
+        set_years();
+        render();
+
+        function render() {
+            //reward
+            const rewards = document.getElementsByName('reward');
+            let rewardsChecked = "";
+            for (let index = 0; index < rewards.length; index++) {
+                if (rewards[index].checked) {
+                    rewardsChecked += rewards[index].value + ";";
+                }
+            }
+            //years
+            const years = document.getElementById("years").value.split("/");
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('api.get_attendance')}}",
+                data: {
+                    'reward': rewardsChecked,
+                    'start': years[0],
+                    'end': years[1],
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success === true) {
+                        $('#attendance_table').DataTable().destroy();
+                        const table = $('#attendance_table').DataTable({
+                            data: res.users,
+                            columns: [
+                                {data: "name"},
+                                {data: "september"},
+                                {data: "october"},
+                                {data: "november"},
+                                {data: "december"},
+                                {data: "january"},
+                                {data: "february"},
+                                {data: "march"},
+                                {data: "april"},
+                                {data: "may"},
+                                {data: "all"}
+                            ],
+                            autofill: true,
+                            select: true,
+                            responsive: true,
+                            lengthMenu: [10, 25, 50, 100, 300],
+                            buttons: true,
+                            /*exporting */
+                            dom: 'Blfrtip',
+                            order: [[1, 'asc']],
+                            buttons: [
+                                'copy', 'print',
+                                {
+                                    text: 'EXCEL',
+                                    action: function (e, dt, node, config) {
+                                        var data = document.getElementById('attendance_table');
+                                        var excelFile = XLSX.utils.table_to_book(data, {sheet: "sheet1"});
+                                        XLSX.write(excelFile, {bookType: "xlsx", bookSST: true, type: 'base64'});
+                                        XLSX.writeFile(excelFile, 'attendance' + ".xlsx");
+                                    }
+                                },
+                                {
+                                    text: 'Фильтры',
+                                    action: function (e, dt, node, config) {
+                                        $('#filter-modal').modal('show');
+                                    }
+                                }
+                            ],
+                            language: {
+                                "lengthMenu": "Показывать _MENU_ записей",
+                                "zeroRecords": "Ничего не найдено",
+                                "info": "Показано _PAGE_ из _PAGES_",
+                                "infoEmpty": "Нет доступных записей",
+                                "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                                "paginate": {
+                                    "first": "Первый",
+                                    "last": "Последний",
+                                    "next": "Следующий",
+                                    "previous": "Предыдущий"
+                                },
+                                "loadingRecords": "Загрузка...",
+                                "processing": "",
+                                "search": "Искать:",
+                                "zeroRecords": "Совпадающих записей не найдено"
+                            }
+                        });
+                        document.getElementsByClassName("dt-buttons btn-group flex-wrap")[0].classList.add("mb-3");
+
+                        const uwba = res.users_with_bad_attendance;
+                        if (uwba.length == 0) {
+                            document.getElementById("page-header").innerText = "Посещаемость";
+                        } else {
+                            document.getElementById("page-header").innerHTML = "Посещаемость" +
+                                "<div data-bs-toggle=\"modal\" data-bs-target=\"#uwba-modal\" class=\"spinner-grow text-danger\" role=\"status\"></div>";
+
+                            let uwba_modal = document.getElementById("uwba");
+                            let tbody = "";
+                            for (const user of uwba) {
+                                tbody += `<tr><td>${user.name}</td><td>${user.visits}</td></tr>`;
+                            }
+                            uwba_modal.innerHTML = `<table class="table table-centered mb-0"><thead><tr><th>Имя</th><th>Кол-во посещений</th></tr></thead><tbody>${tbody}</tbody></table>`;
+                        }
+
+                    } else {
+                        $.NotificationApp.send("Посещаемость", "Не удалось загрузить данные.", "top-right", "#FF5B5B", "error");
+                    }
+                }
+            });
+        }
+
+        function set_years(sel_years = []) {
+            let sel = document.getElementById("years");
+            sel.innerHTML = "";
+            for (let year = new Date().getFullYear(); year > 2020; --year) {
+                let opt = document.createElement("option");
+                opt.setAttribute("value", `${year - 1}/${year}`);
+                opt.innerText = `${year - 1}/${year}`;
+                if (sel_years.includes(`${year - 1}/${year}`)) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            }
+        }
+
+        function clear_filters() {
+            //reward
+            const rewards = document.getElementsByName('reward');
+            for (let index = 0; index < rewards.length; index++) {
+                if (rewards[index].checked) {
+                    rewards[index].checked = false;
+                }
+            }
+            set_years();
+        }
+
+    </script>
+
+{% endblock %}

@@ -324,3 +324,39 @@ def admin_schedule():
     for teacher in get_users_by_role(Role.TEACHER).data:
         teachers.append({"name": f'{teacher.first_name} {teacher.last_name}', "id": str(teacher.id)})
     return render_template("admin/courses/schedule.html", courses=get_courses().data, teachers=teachers)
+
+
+# Уровень:              attendance
+# База данных:          -
+# HTML:                 attendance
+@admin.route('/attendance', methods=['POST', 'GET'])
+@login_required
+def admin_attendance():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+    return render_template("admin/courses/attendance.html")
+
+
+# Уровень:              attendance/user_id
+# База данных:          User
+# HTML:                 TODO
+@admin.route('/attendance/<user_id>', methods=['POST', 'GET'])
+@login_required
+def user_attendance(user_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+    print(user_id)
+    # TODO
+    return render_template("admin/courses/attendance.html")

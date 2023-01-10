@@ -1,0 +1,232 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_attendance') }}">Посещаемость</a>
+                        </li>
+                        <li class="breadcrumb-item active"><a
+                                href="{{ url_for('networking.profile', user_id=user.id) }}">{{ user.id }}</a></li>
+                    </ol>
+                </div>
+                 <h4 class="page-title" id="page-header"></h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        <div class="col-2">
+            <label class="form-label">Год</label>
+            <select onchange="render()" id="years" name="years"
+                    class="select2 form-control select2-multiple"
+                    data-toggle="select2"
+                    data-placeholder="Выбрать ...">
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-2">
+            <a data-bs-toggle="modal" data-bs-target="#attendance-modal-add" class="btn btn-sm btn-light">Добавить <i
+                    class="mdi mdi-note-plus ms-1"></i></a>
+        </div>
+    </div>
+
+    <div class="mt-3" id="attendance-months">
+
+    </div>
+
+    <div id="attendance-modal-add" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-primary">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Добавление посещаемости</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="ps-3 pe-3" method="post">
+
+                        <div class="mb-3">
+                            <label class="form-label">Дата и время</label>
+                            <input name="attendance_date" required type="text" class="form-control"
+                                   data-toggle="input-mask" data-mask-format="00.00.0000 00:00:00">
+                            <span class="font-13 text-muted">ДД.ММ.ГГГГ ЧЧ:ММ:СС</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Количество</label>
+                            <input type="number" required min="1" max="10" name="attendance_count" class="form-control"
+                                   value="1">
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-primary" type="submit" name="btn_user_attendance"
+                                    value="add_attendance">Добавить
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="attendance-modal-edit" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-primary">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Редактирование посещаемости</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="ps-3 pe-3" method="post">
+                        <input type="hidden" id="attendance_id" name="attendance_id" value="">
+
+                        <div class="mb-3">
+                            <label for="attendance_date" class="form-label">Дата и время</label>
+                            <input name="attendance_date" required id="attendance_date" type="text" class="form-control"
+                                   data-toggle="input-mask" data-mask-format="00.00.0000 00:00:00">
+                            <span class="font-13 text-muted">ДД.ММ.ГГГГ ЧЧ:ММ:СС</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="attendance_count" class="form-label">Количество</label>
+                            <input type="number" required min="1" max="10" name="attendance_count" id="attendance_count"
+                                   class="form-control">
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-primary" type="submit" name="btn_user_attendance"
+                                    value="edit_attendance">Сохранить
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script>
+        set_years();
+        render();
+
+        function render() {
+            //years
+            const years = document.getElementById("years").value.split("/");
+            $.ajax({
+                type: "POST",
+                url: "{{url_for('api.get_user_attendance')}}",
+                data: {
+                    'user_id': "{{user.id}}",
+                    'start': years[0],
+                    'end': years[1],
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success === true) {
+                        let block = document.getElementById("attendance-months");
+                        block.innerHTML = "";
+                        let sum = 0;
+                        const months = ['september', 'october', 'november', 'december', 'january', 'february', 'march', 'april', 'may'];
+                        for (const month of months) {
+                            const data = res.data[month];
+                            let tbody = "";
+                            let cnt = 0;
+                            for (const i of data) {
+                                cnt += i.count;
+                                tbody += `<tr>
+                                            <td>
+                                                <h5 class="font-16 my-1 fw-normal">${i.date}</h5>
+                                            </td>
+                                            <td>
+                                                <h5 class="font-16 my-1 fw-normal">${i.count}</h5>
+                                            </td>
+                                            <td>
+                                                <a class="dropdown-item" onclick="set_attendance_data('${i.id}', '${i.date}', '${i.count}');" data-bs-toggle="modal"
+                                   data-bs-target="#attendance-modal-edit"><i class="mdi mdi-pencil me-1"></i>Редактировать</a>
+                                            </td>
+                                            <td>
+                                                <form method="post">
+                                                    <input type="hidden" name="attendance_id" value="${i.id}">
+                                                    <button onclick="return confirm('Вы точно хотите удалить?')" class="dropdown-item" type="submit" name="btn_user_attendance" value="delete_attendance"><i class="mdi mdi-delete me-1"></i>Удалить
+                                                    </button>
+                                                </form>
+                                            </td>
+                                        </tr>`;
+                            }
+                            sum+=cnt;
+                            block.innerHTML += `<div class="row"><div class="card">
+                                    <div class="accordion d-flex card-header justify-content-between align-items-center collapsed" data-bs-toggle="collapse" data-bs-target="#collapse${month}"
+                        aria-expanded="true" aria-controls="collapse${month}">
+                                        <h4 class="header-title">${month}</h4>
+                                        <h4><a class="badge bg-primary">${cnt}</a></h4>
+                                    </div>
+
+                                    <div class="card-body pt-0 collapse" id="collapse${month}" class="accordion-collapse collapse" aria-labelledby="heading${month}">
+                                        <div class="table-responsive">
+                                            <table class="table table-centered table-nowrap table-hover mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Дата</th>
+                                                        <th>Кол-во</th>
+                                                        <th>Ред.</th>
+                                                        <th>Удалить</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    ${tbody}
+                                                </tbody>
+                                            </table>
+                                        </div> <!-- end table-responsive-->
+                                    </div> <!-- end card-body-->
+                                </div></div>`;
+                        }
+                        document.getElementById("page-header").innerHTML=`Всего посещений <span class="badge bg-warning text-light">${sum}</span>`;
+                    } else {
+                        $.NotificationApp.send("Посещаемость", "Не удалось загрузить данные.", "top-right", "#FF5B5B", "error");
+                    }
+                }
+            });
+        }
+
+        function set_years(sel_years = []) {
+            let sel = document.getElementById("years");
+            sel.innerHTML = "";
+            for (let year = new Date().getFullYear(); year > 2020; --year) {
+                let opt = document.createElement("option");
+                opt.setAttribute("value", `${year - 1}/${year}`);
+                opt.innerText = `${year - 1}/${year}`;
+                if (sel_years.includes(`${year - 1}/${year}`)) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            }
+        }
+
+        function set_attendance_data(id, date, count) {
+            document.getElementById("attendance_id").value = id;
+            document.getElementById("attendance_date").value = date;
+            document.getElementById("attendance_count").value = count;
+        }
+
+    </script>
+
+{% endblock %}

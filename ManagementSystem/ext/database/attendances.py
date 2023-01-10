@@ -44,8 +44,8 @@ def get_attendances_by_user_id(user_id) -> MongoDBResult:
 def add_attendance(user_id, count, date):
     db.attendances.insert_one({
         "user_id": ObjectId(user_id),
-        "count": count,
-        "date": date.strftime("%d.%m.%Y %H:%M:%S")
+        "count": int(count),
+        "date": date
     })
 
 
@@ -55,8 +55,11 @@ def add_attendances(attendances):
 
 
 # обновление данных посещаемости по ID
-def update_attendance(id, key, value):
-    db.attendances.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
+def update_attendance(id, date, count):
+    db.attendances.update_one({'_id': ObjectId(id)}, {"$set": {
+        "date": date,
+        "count": int(count),
+    }})
 
 
 # удаление посещаемости по ID

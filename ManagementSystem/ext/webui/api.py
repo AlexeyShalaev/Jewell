@@ -252,7 +252,9 @@ def records_count():
 @api.route('/attendance/count/<user_id>', methods=['POST'])
 def attendance_count(user_id):
     try:
-        cnt = len(get_attendances_by_user_id(user_id).data)
+        cnt = 0
+        for i in get_attendances_by_user_id(user_id).data:
+            cnt += i.count
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
@@ -283,6 +285,18 @@ def get_attendance():
         days_remaining = (trip_date - now).days
         weeks_remaining = int(days_remaining / 7)
 
+        months = {
+            9: 'september',
+            10: 'october',
+            11: 'november',
+            12: 'december',
+            1: 'january',
+            2: 'february',
+            3: 'march',
+            4: 'april',
+            5: 'may'
+        }
+
         for user in get_users().data:
             try:
                 if user.role == Role.STUDENT and user.reward in rewards:
@@ -302,25 +316,10 @@ def get_attendance():
                     for i in get_attendances_by_user_id(user.id).data:
                         date = i.date
                         if (str(date.year) == start and date.month >= 9) or (str(date.year) == end and date.month < 9):
-                            d['all'] += 1
-                            if date.month == 9:
-                                d['september'] += 1
-                            elif date.month == 10:
-                                d['october'] += 1
-                            elif date.month == 11:
-                                d['november'] += 1
-                            elif date.month == 12:
-                                d['december'] += 1
-                            elif date.month == 1:
-                                d['january'] += 1
-                            elif date.month == 2:
-                                d['february'] += 1
-                            elif date.month == 3:
-                                d['march'] += 1
-                            elif date.month == 4:
-                                d['april'] += 1
-                            elif date.month == 5:
-                                d['may'] += 1
+                            if date.month in months.keys():
+                                d[months[date.month]] += i.count
+                                d['all'] += i.count
+
                     users.append(d)
                     if user.reward == Reward.TRIP:
                         if now < trip_date:
@@ -335,6 +334,53 @@ def get_attendance():
         return json.dumps({'success': True, 'users': users,
                            'users_with_bad_attendance': users_with_bad_attendance}), 200, {
                    'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/get
+# База данных:          attendances, users
+# HTML:                 -
+@api.route('/attendance/get/user', methods=['POST'])
+def get_user_attendance():
+    try:
+        user_id = request.form['user_id']
+        start = request.form['start']
+        end = request.form['end']
+
+        d = {
+            "september": [],
+            "october": [],
+            "november": [],
+            "december": [],
+            "january": [],
+            "february": [],
+            "march": [],
+            "april": [],
+            "may": []
+        }
+
+        months = {
+            9: 'september',
+            10: 'october',
+            11: 'november',
+            12: 'december',
+            1: 'january',
+            2: 'february',
+            3: 'march',
+            4: 'april',
+            5: 'may'
+        }
+
+        for i in get_attendances_by_user_id(user_id).data:
+            date = i.date
+            if (str(date.year) == start and date.month >= 9) or (str(date.year) == end and date.month < 9):
+                if date.month in months.keys():
+                    d[months[date.month]].append({"id": str(i.id), "date": date.strftime("%d.%m.%Y %H:%M:%S"), "count": i.count})
+
+        return json.dumps({'success': True, 'data': d}), 200, {
+            'ContentType': 'application/json'}
     except Exception as ex:
         logger.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

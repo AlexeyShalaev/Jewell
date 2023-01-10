@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime
 from logging import getLogger
 
@@ -6,8 +7,9 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
+from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
-from ManagementSystem.ext.database.users import get_users_by_role
+from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
@@ -344,8 +346,8 @@ def admin_attendance():
 
 
 # Уровень:              attendance/user_id
-# База данных:          User
-# HTML:                 TODO
+# База данных:          User, attendance
+# HTML:                 user-attendance
 @admin.route('/attendance/<user_id>', methods=['POST', 'GET'])
 @login_required
 def user_attendance(user_id):
@@ -357,6 +359,44 @@ def user_attendance(user_id):
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
-    print(user_id)
-    # TODO
-    return render_template("admin/courses/attendance.html")
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_user_attendance'] == 'add_attendance':
+                attendance_date = request.form.get('attendance_date')
+                attendance_count = request.form.get('attendance_count')
+                if not (1 <= int(attendance_count) <= 10):
+                    flash('Число посещений должно быть от 1 до 10', 'error')
+                elif not re.fullmatch(r'\d\d.\d\d.\d\d\d\d \d\d:\d\d:\d\d', attendance_date):
+                    flash('Дата посещения должна иметь формат ДД.ММ.ГГГГ ЧЧ:ММ:СС', 'error')
+                else:
+                    add_attendance(user_id=user_id, date=attendance_date, count=attendance_count)
+                    flash('Вы успешно добавили данные', 'success')
+            elif request.form['btn_user_attendance'] == 'delete_attendance':
+                attendance_id = request.form.get('attendance_id')
+                delete_attendance(attendance_id)
+                flash('Вы успешно удалили данные', 'success')
+            elif request.form['btn_user_attendance'] == 'edit_attendance':
+                attendance_id = request.form.get('attendance_id')
+                attendance_date = request.form.get('attendance_date')
+                attendance_count = request.form.get('attendance_count')
+                if not (1 <= int(attendance_count) <= 10):
+                    flash('Число посещений должно быть от 1 до 10', 'error')
+                elif not re.fullmatch(r'\d\d.\d\d.\d\d\d\d \d\d:\d\d:\d\d', attendance_date):
+                    flash('Дата посещения должна иметь формат ДД.ММ.ГГГГ ЧЧ:ММ:СС', 'error')
+                else:
+                    update_attendance(id=attendance_id, date=attendance_date, count=attendance_count)
+                    flash('Вы успешно обновили данные', 'success')
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    try:
+        resp = get_user_by_id(user_id)
+        if not resp.success:
+            return render_template("error-500.html")
+    except Exception as ex:
+        logger.error(ex)
+        return render_template("error-500.html")
+
+    return render_template("admin/courses/user-attendance.html", user=resp.data)

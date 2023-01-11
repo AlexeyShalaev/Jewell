@@ -26,6 +26,46 @@
 
     <div class="row">
 
+        <div class="col-md-6 col-xxl-3">
+            <form method="post">
+                <div class="card d-block">
+                    <div class="card-body" onchange="set_range_time();">
+
+                        <h5>Название:</h5>
+
+                        <input placeholder="Название" type="text" required minlength="3" name="name"
+                               class="form-control me-3">
+
+                        <h5>Описание:</h5>
+
+                        <input placeholder="Описание" type="text" required minlength="3" name="description"
+                               class="form-control mb-2">
+
+                        <h5>Начало и конец</h5>
+
+                        <input type="text" class="form-control date" data-toggle="date-picker" data-time-picker="true"
+                               required name="date" data-locale="{'format': 'DD/MM hh:mm'}">
+
+                        <h5>Награда</h5>
+
+                        <input placeholder="добровольно" type="text" required minlength="3" name="reward"
+                               class="form-control me-3 mb-3">
+
+                        <input type="hidden" id="start_time" name="start_time" value="">
+                        <input type="hidden" id="finish_time" name="finish_time" value="">
+
+                        <button type="submit" name="btn_offers" value="add_offer"
+                                class="btn btn-warning"><i
+                                class="mdi mdi-rocket me-1"></i> <span>Добавить</span></button>
+
+
+                    </div> <!-- end card-body-->
+
+                </div>
+            </form>
+        </div>
+        <!-- end row-->
+
         {% for offer in offers %}
 
             <div class="col-md-6 col-xxl-3">
@@ -35,9 +75,13 @@
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <h3 class="">{{ offer.name }}</h3>
                             <div class="dropdown">
-                                <a href="{{ url_for('networking.profile', user_id=offer.author) }}"
-                                   class="dropdown-item"><i
-                                        class="mdi mdi-email-outline me-1"></i>Ответить</a>
+                                <form method="post">
+                                    <input type="hidden" name="offer_id" value="{{ offer.id }}">
+                                    <button onclick="return confirm('Вы точно хотите удалить оффер?')" type="submit"
+                                            name="btn_offers" value="delete_offer"
+                                            class="dropdown-item"><i class="mdi mdi-delete me-1"></i>Удалить
+                                    </button>
+                                </form>
                             </div>
                             <!-- project title-->
                         </div>
@@ -83,4 +127,37 @@
         {% endfor %}
 
     </div>
+
+    <script>
+
+        function set_range_time() {
+            try {
+                const hours = document.getElementsByClassName("hourselect");
+                const minutes = document.getElementsByClassName("minuteselect");
+                const ampm = document.getElementsByClassName("ampmselect");
+
+                let start = "";
+                let finish = "";
+
+                if (ampm[0].value === "AM") {
+                    start = `${hours[0].value}:${minutes[0].value}`;
+                } else {
+                    start = `${Number(hours[0].value) + 12}:${minutes[0].value}`;
+                }
+
+                if (ampm[1].value === "AM") {
+                    finish = `${hours[1].value}:${minutes[1].value}`;
+                } else {
+                    finish = `${Number(hours[1].value) + 12}:${minutes[1].value}`;
+                }
+
+                document.getElementById("start_time").value = start;
+                document.getElementById("finish_time").value = finish;
+            } catch (err) {
+                console.log(err);
+            }
+        }
+
+    </script>
+
 {% endblock %}

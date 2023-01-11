@@ -9,269 +9,215 @@
 
 {% block body %}
 
-    <!-- start page title -->
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
                 <div class="page-title-right">
                     <ol class="breadcrumb m-0">
-                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
-                        </li>
-                        <li class="breadcrumb-item active">Товары</li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item active">Товары и заказы</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Заказы</h4>
+                <h4 class="page-title">Товары и заказы</h4>
             </div>
         </div>
     </div>
-    <!-- end page title -->
 
+    <ul class="nav nav-pills bg-nav-pills nav-justified mb-3">
+        <li class="nav-item">
+            <a href="#orders" data-bs-toggle="tab" aria-expanded="false" class="nav-link rounded-0 active">
+                <i class="mdi mdi-home-variant d-md-none d-block"></i>
+                <span class="d-none d-md-block">Заказы</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#products" data-bs-toggle="tab" aria-expanded="true" class="nav-link rounded-0">
+                <i class="mdi mdi-account-circle d-md-none d-block"></i>
+                <span class="d-none d-md-block">Товары</span>
+            </a>
+        </li>
+    </ul>
 
-    <div class="row">
-        <div class="col-12">
+    <div class="tab-content">
+        <div class="tab-pane show active" id="orders">
             <div class="card">
                 <div class="card-body">
-                    <ul class="nav nav-pills bg-nav-pills nav-justified mb-3" role="tablist">
-                        <li class="nav-item" role="presentation">
-                            <a href="#billing-information" data-bs-toggle="tab" aria-expanded="false"
-                               class="nav-link rounded-0 active" aria-selected="true" role="tab">
-                                <i class="mdi mdi-account-circle font-18"></i>
-                                <span class="d-none d-lg-block">Оформление заказа</span>
-                            </a>
-                        </li>
-                        <li class="nav-item" role="presentation">
-                            <a href="#shipping-information" data-bs-toggle="tab" aria-expanded="true"
-                               class="nav-link rounded-0" aria-selected="false" role="tab" tabindex="-1">
-                                <i class="mdi mdi-truck-fast font-18"></i>
-                                <span class="d-none d-lg-block">Ваши заказы</span>
-                            </a>
-                        </li>
-                    </ul>
-                    <!-- Steps Information -->
-                    <div class="tab-content">
-
-                        <div class="tab-pane active show" id="billing-information" role="tabpanel">
-                            <div class="row">
-                                <div class="col-lg-8">
-                                    <h4 class="mt-2">Оформление заказа</h4>
-
-                                    <p class="text-muted mb-4">Заполните форму ниже, чтобы
-                                        отправить запрос на получение услуги.</p>
-
-                                    <form method="post">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="mb-3">
-                                                    <label for="billing-address" class="form-label">Адрес</label>
-                                                    <input class="form-control" type="text"
-                                                           placeholder="Введите ваш адрес"
-                                                           id="billing-address" required name="address">
-                                                </div>
-                                            </div>
-                                        </div> <!-- end row -->
-                                        <div class="row">
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="billing-town-city" class="form-label">Страна</label>
-                                                    <input class="form-control" type="text"
-                                                           placeholder="Введите вашу страну" required name="country">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="billing-state" class="form-label">Город</label>
-                                                    <input class="form-control" type="text"
-                                                           placeholder="Введите вашу город"
-                                                           id="billing-state" required name="city">
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <div class="mb-3">
-                                                    <label for="billing-zip-postal" class="form-label">Индекс</label>
-                                                    <input class="form-control" type="text"
-                                                           placeholder="Введите ваш почтовый индекс"
-                                                           id="billing-zip-postal" name="zip_postal">
-                                                </div>
-                                            </div>
-                                        </div> <!-- end row -->
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="mb-3">
-                                                    <label for="pr_sel" class="form-label">Товар</label>
-                                                    <select id="pr_sel" class="form-select mb-3" name="product">
-                                                        <option value="none" selected>Выберите товар</option>
-                                                        {% for i in products %}
-                                                            <option value="{{ i.id }}">{{ i.name }}</option>
-                                                        {% endfor %}
-                                                    </select>
-                                                </div>
-                                            </div>
-                                        </div> <!-- end row -->
-
-                                        <div class="row">
-                                            <div class="col-12">
-
-                                                <div class="mb-3 mt-3">
-                                                    <label for="example-textarea" class="form-label">Комментарии к
-                                                        заказу:</label>
-                                                    <textarea maxlength="512" class="form-control" id="example-textarea"
-                                                              rows="3"
-                                                              name="comments"
-                                                              placeholder="Напишите сюда.."></textarea>
-                                                </div>
-                                            </div>
-                                        </div> <!-- end row -->
-
-                                        <div class="row mt-4">
-                                            <div class="col-sm-6">
-                                                <div class="text-sm-end">
-                                                    <button type="submit" name="btn_products" value="send_product"
-                                                            class="btn btn-danger">
-                                                        <i class="mdi mdi-truck-fast me-1"></i> Заказать
-                                                    </button>
-                                                </div>
-                                            </div> <!-- end col -->
-                                        </div> <!-- end row -->
-                                    </form>
-
-                                </div>
-                                <div class="col-lg-4">
-                                    <div class="border p-3 mt-4 mt-lg-0 rounded">
-                                        <h4 class="header-title mb-3">Товары</h4>
-
-                                        <div class="table-responsive">
-                                            <table class="table table-nowrap table-centered mb-0">
-                                                <tbody>
-                                                {% for i in products %}
-                                                    <tr>
-                                                        <td>
-                                                            <img src="{{ url_for('api.get_product_image', product_id=i.id) }}"
-                                                                 class="rounded me-2" height="48">
-                                                            <p class="m-0 d-inline-block align-middle">
-                                                                {{ i.name }}
-                                                                <br>
-                                                                <small>{{ i.info }}</small>
-                                                            </p>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            {{ i.price }}
-                                                        </td>
-                                                    </tr>
-                                                {% endfor %}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <!-- end table-responsive -->
-                                    </div> <!-- end .border-->
-
-                                </div> <!-- end col -->
-                            </div> <!-- end row-->
-                        </div>
-
-                        <div class="tab-pane" id="shipping-information" role="tabpanel">
-                            <div class="row">
-                                {% for i in orders %}
-                                    <div class="col-12">
-                                        <div class="card">
-                                            <div class="card-body">
-
-                                                <div class="row mt-2">
-
-                                                    <div class="col">
-                                                        <h6>Адрес</h6>
-                                                        <address>
-                                                            {{ i.address }}
-                                                            <br>
-                                                            {{ i.country }}, {{ i.city }}
-                                                            <br>
-                                                            {{ i.zip_postal }}
-                                                            <br>
-                                                            {{ i.country }}
-                                                            <br>
-                                                            {{ i.comments }}
-                                                        </address>
-                                                    </div> <!-- end col-->
-
-                                                    <div class="col pt-2">
-                                                        <p class="font-13"><strong>Дата: </strong> &nbsp;&nbsp;&nbsp;
-                                                            {{ i.get_timestamp() }}</p>
-                                                        <p class="font-13"><strong>Cтатус: </strong> &nbsp;&nbsp;&nbsp;
-                                                            {% if i.status.value == 'placed' %}
-                                                                <span class="badge bg-danger">Создан</span>
-                                                            {% elif i.status.value == 'packed' %}
-                                                                <span class="badge bg-warning">Упакован</span>
-                                                            {% elif i.status.value == 'shipped' %}
-                                                                <span class="badge bg-primary">Отправлен</span>
-                                                            {% elif i.status.value == 'delivered' %}
-                                                                <span class="badge bg-success">Доставлен</span>
-                                                            {% endif %}</p>
-                                                        <p class="font-13"><strong>ID заказа: </strong> &nbsp;&nbsp;&nbsp;
-                                                            {{ i.id }}</p>
-                                                        <p class="font-13"><strong>ID товара: </strong> &nbsp;&nbsp;&nbsp;
-                                                            {{ i.product }}</p>
-                                                    </div> <!-- end col-->
-
-                                                    {% if i.status.value == 'placed' %}
-                                                        <div class="col mt-auto mb-auto">
-                                                            <form method="post">
-                                                                <input type="hidden" name="order_id"
-                                                                       value="{{ i.id }}">
-                                                                <button type="submit" class="btn btn-danger btn-lg"
-                                                                        name="btn_products" value="cancel_order">
-                                                                    Отменить
-                                                                </button>
-                                                            </form>
-                                                        </div> <!-- end col-->
-                                                    {% endif %}
-
-                                                </div>
-                                                <!-- end row -->
-
-                                                <div class="row justify-content-center">
-                                                    <div class="col-lg-7 col-md-10 col-sm-11">
-                                                        <div class="horizontal-steps mt-4 pb-4">
-                                                            <div class="horizontal-steps-content">
-                                                                <div class="step-item {% if i.status.value == 'placed' %}current{% endif %}">
-                                                                    <span>Создан</span>
-                                                                </div>
-                                                                <div class="step-item {% if i.status.value == 'packed' %}current{% endif %}">
-                                                                    <span>Упакован</span>
-                                                                </div>
-                                                                <div class="step-item {% if i.status.value == 'shipped' %}current{% endif %}">
-                                                                    <span>Отправлен</span>
-                                                                </div>
-                                                                <div class="step-item {% if i.status.value == 'delivered' %}current{% endif %}">
-                                                                    <span>Доставлен</span>
-                                                                </div>
-                                                            </div>
-
-                                                            {% if i.status.value == 'placed' %}
-                                                                <div class="process-line" style="width: 0%;"></div>
-                                                            {% elif i.status.value == 'packed' %}
-                                                                <div class="process-line" style="width: 33%;"></div>
-                                                            {% elif i.status.value == 'shipped' %}
-                                                                <div class="process-line" style="width: 66%;"></div>
-                                                            {% elif i.status.value == 'delivered' %}
-                                                                <div class="process-line" style="width: 100%;"></div>
-                                                            {% endif %}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <!-- end row -->
-
-                                            </div> <!-- end card-body-->
-                                        </div> <!-- end card -->
-                                    </div>
-                                {% endfor %}
-                            </div> <!-- end row-->
-                        </div>
-
-                    </div> <!-- end tab content-->
-
+                    <div class="table-responsive">
+                        <table class="table table-centered table-nowrap mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th>ID заказа</th>
+                                <th>Товар</th>
+                                <th>Заказчик</th>
+                                <th>Дата</th>
+                                <th>Статус</th>
+                                <th style="width: 125px;">Действие</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for order in orders %}
+                                <tr>
+                                    <td>
+                                        <a href="" class="text-body fw-bold">{{ order.id }}</a>
+                                    </td>
+                                    <td>
+                                        {{ order.product.name }}
+                                    </td>
+                                    <td>
+                                        <a href="{{ order.client.id }}"
+                                           class="text-body fw-bold">{{ order.client.name }}</a>
+                                    </td>
+                                    <td>
+                                        {{ order.timestamp }}
+                                    </td>
+                                    <td>
+                                        <h5>
+                                            {% if order.status.value == 'placed' %}
+                                                <span class="badge bg-danger">Создан</span>
+                                            {% elif order.status.value == 'packed' %}
+                                                <span class="badge bg-warning">Упакован</span>
+                                            {% elif order.status.value == 'shipped' %}
+                                                <span class="badge bg-primary">Отправлен</span>
+                                            {% elif order.status.value == 'delivered' %}
+                                                <span class="badge bg-success">Доставлен</span>
+                                            {% endif %}
+                                        </h5>
+                                    </td>
+                                    <td>
+                                        <a href="javascript:void(0);" class="action-icon"> <i
+                                                class="mdi mdi-eye"></i></a>
+                                        <a href="javascript:void(0);" class="action-icon"> <i
+                                                class="mdi mdi-square-edit-outline"></i></a>
+                                        <a href="javascript:void(0);" class="action-icon"> <i
+                                                class="mdi mdi-delete"></i></a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div> <!-- end card-body-->
-            </div> <!-- end card-->
-        </div> <!-- end col -->
+            </div>
+        </div>
+        <div class="tab-pane" id="products">
+            <div class="row">
+                <p>
+                    <a class="btn btn-danger rounded-pill mb-3" type="button"
+                       data-bs-toggle="collapse"
+                       data-bs-target="#collapseWidthExample"
+                       aria-expanded="false" aria-controls="collapseWidthExample"><i class="mdi mdi-plus"></i>Добавить
+                        товар</a>
+                </p>
+                <div class="collapse collapse-horizontal" id="collapseWidthExample">
+                    <div class="card card-body mb-0" style="width: 600px;">
+                        <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                            <div class="row mb-3">
+                                <label for="name" class="col-3 col-form-label">Название</label>
+                                <div class="col-9">
+                                    <input required minlength="5" type="text" id="name" name="name"
+                                           class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="description" class="col-3 col-form-label">Описание</label>
+                                <div class="col-9">
+                                    <input type="text" id="description" name="description" class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label for="price" class="col-3 col-form-label">Цена</label>
+                                <div class="col-9">
+                                    <input required minlength="1" type="text" id="price" name="price"
+                                           class="form-control">
+                                </div>
+                            </div>
+                            <div class="row mb-3">
+                                <label class="col-3 col-form-label">Фотография</label>
+                                <div class="col-9">
+                                    <input class="form-control" type="file" name="image"
+                                           accept="image/jpeg,image/png">
+                                </div>
+                            </div>
+                            <div class="justify-content-end row">
+                                <div class="col-9">
+                                    <button type="submit" name="btn_products" value="add_product"
+                                            class="btn btn-sm btn-info"><i
+                                            class="uil uil-message me-1"></i>Добавить
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3">
+                {% for i in products %}
+                    <div class="card mt-2">
+                        <div class="card-body pb-1">
+                            <div class="card-widgets">
+                                <a data-bs-toggle="collapse" href="#{{ i.id }}" role="button"
+                                   aria-expanded="false" aria-controls="{{ i.id }}"><i
+                                        class="mdi mdi-minus"></i></a>
+                                <a href="#" data-bs-toggle="remove"><i class="mdi mdi-close"></i></a>
+                            </div>
+                            <a class="d-flex" data-bs-toggle="collapse" href="#{{ i.id }}" role="button"
+                               aria-expanded="false" aria-controls="{{ i.id }}">
+                                <div class="w-100">
+                                    <p class="text-muted"><small>{{ i.name }}</small></p>
+                                </div> <!-- end w-100-->
+                            </a> <!-- end d-flex -->
+                            <div id="{{ i.id }}" class="collapse">
+                                <form class="form-horizontal" method="post" enctype="multipart/form-data">
+                                    <input type="hidden" name="product_id" value="{{ i.product_id }}">
+                                    <div class="row mb-3">
+                                        <label for="name" class="col-3 col-form-label">Название</label>
+                                        <div class="col-9">
+                                            <input required minlength="5" type="text" id="name" name="name"
+                                                   class="form-control" value="{{i.name}}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label for="description" class="col-3 col-form-label">Описание</label>
+                                        <div class="col-9">
+                                            <input type="text" id="description" name="description" class="form-control" value="{{i.info}}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label for="price" class="col-3 col-form-label">Цена</label>
+                                        <div class="col-9">
+                                            <input required minlength="1" type="text" id="price" name="price"
+                                                   class="form-control" value="{{i.price}}">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <label class="col-3 col-form-label">Фотография</label>
+                                        <div class="col-9">
+                                            <div id="img_{{ i.product_id }}">
+                                                <img class="card-img mb-2" onerror="hide_img('{{ i.product_id }}');"
+                                                     src="{{ url_for('api.get_product_image', product_id=i.id) }}">
+                                            </div>
+                                            <input class="form-control" type="file" name="image"
+                                                   accept="image/jpeg,image/png">
+                                        </div>
+                                    </div>
+                                    <div class="justify-content-end row">
+                                        <div class="col-9">
+                                            <button type="submit" name="btn_products" value="edit_product"
+                                                    class="btn btn-primary rounded-pill mb-3 me-3">Сохранить
+                                            </button>
+                                            <button type="submit" name="btn_products" value="delete_product"
+                                                    class="btn btn-danger rounded-pill mb-3 me-3">Удалить
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div> <!-- end card-body -->
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
-    <!-- end row-->
 
 {% endblock %}

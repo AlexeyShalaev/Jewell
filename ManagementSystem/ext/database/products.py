@@ -40,7 +40,7 @@ def get_product_by_id(id) -> MongoDBResult:
 
 # добавление товара
 def add_product(name, info, price):
-    db.products.insert_one({
+    return db.products.insert_one({
         "name": name,
         "info": info,
         "price": price
@@ -53,8 +53,8 @@ def add_products(products):
 
 
 # обновление данных товара по ID
-def update_product(id, key, value):
-    db.products.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
+def update_product(id, name, info, price):
+    db.products.update_one({'_id': ObjectId(id)}, {"$set": {"name": name, "info": info, "price": price}})
 
 
 # удаление товара по ID

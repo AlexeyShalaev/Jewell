@@ -57,14 +57,14 @@
                             <tbody>
                             {% for order in orders %}
                                 <tr>
-                                    <td>
-                                        <a href="" class="text-body fw-bold">{{ order.id }}</a>
+                                    <td class="text-body fw-bold">
+                                        {{ order.id }}
                                     </td>
                                     <td>
                                         {{ order.product.name }}
                                     </td>
                                     <td>
-                                        <a href="{{ order.client.id }}"
+                                        <a href="TODO{{ order.client.id }}"
                                            class="text-body fw-bold">{{ order.client.name }}</a>
                                     </td>
                                     <td>
@@ -84,12 +84,19 @@
                                         </h5>
                                     </td>
                                     <td>
-                                        <a href="javascript:void(0);" class="action-icon"> <i
+                                        <a onclick="set_order_data('{{ order.address }}', '{{ order.country }}', '{{ order.city }}', '{{ order.zip_postal }}', '{{ order.comments }}');"
+                                           data-bs-toggle="modal" data-bs-target="#addressModal" class="action-icon"> <i
                                                 class="mdi mdi-eye"></i></a>
-                                        <a href="javascript:void(0);" class="action-icon"> <i
+                                        <a class="action-icon"> <i
                                                 class="mdi mdi-square-edit-outline"></i></a>
-                                        <a href="javascript:void(0);" class="action-icon"> <i
-                                                class="mdi mdi-delete"></i></a>
+                                        <form method="post" class="action-icon">
+                                            <input type="hidden" name="order_id" value="{{ order.id }}">
+                                            <button onclick="return confirm('Вы точно хотите удалить заказ?')"
+                                                    type="submit"
+                                                    name="btn_products" value="delete_order"
+                                                    class="dropdown-item"><i class="mdi mdi-delete me-1"></i>
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             {% endfor %}
@@ -174,20 +181,21 @@
                                         <label for="name" class="col-3 col-form-label">Название</label>
                                         <div class="col-9">
                                             <input required minlength="5" type="text" id="name" name="name"
-                                                   class="form-control" value="{{i.name}}">
+                                                   class="form-control" value="{{ i.name }}">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <label for="description" class="col-3 col-form-label">Описание</label>
                                         <div class="col-9">
-                                            <input type="text" id="description" name="description" class="form-control" value="{{i.info}}">
+                                            <input type="text" id="description" name="description" class="form-control"
+                                                   value="{{ i.info }}">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
                                         <label for="price" class="col-3 col-form-label">Цена</label>
                                         <div class="col-9">
                                             <input required minlength="1" type="text" id="price" name="price"
-                                                   class="form-control" value="{{i.price}}">
+                                                   class="form-control" value="{{ i.price }}">
                                         </div>
                                     </div>
                                     <div class="row mb-3">
@@ -219,5 +227,71 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="addressModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Информация о заказе</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Адрес</label>
+                                <input disabled class="form-control" type="text" id="address">
+                            </div>
+                        </div>
+                    </div> <!-- end row -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="country" class="form-label">Страна</label>
+                                <input class="form-control" type="text" disabled id="country">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="city" class="form-label">Город</label>
+                                <input class="form-control" type="text" disabled id="city">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="zip_postal" class="form-label">Индекс</label>
+                                <input class="form-control" type="text" disabled id="zip_postal">
+                            </div>
+                        </div>
+                    </div> <!-- end row -->
+
+                    <div class="row">
+                        <div class="col-12">
+
+                            <div class="mb-3 mt-3">
+                                <label for="comments" class="form-label">Комментарии к
+                                    заказу:</label>
+                                <textarea maxlength="512" class="form-control" id="comments" rows="3"
+                                          name="comments" disabled></textarea>
+                            </div>
+                        </div>
+                    </div> <!-- end row -->
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script>
+
+        function set_order_data(address, country, city, zip_postal, comments) {
+            document.getElementById("address").value = address;
+            document.getElementById("country").value = country;
+            document.getElementById("city").value = city;
+            document.getElementById("zip_postal").value = zip_postal;
+            document.getElementById("comments").value = comments;
+        }
+
+    </script>
 
 {% endblock %}

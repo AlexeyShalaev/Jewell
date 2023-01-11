@@ -13,7 +13,7 @@ from ManagementSystem.ext.database.courses import get_courses, add_course, delet
     check_course_by_name
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer
-from ManagementSystem.ext.database.orders import get_orders
+from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order
 from ManagementSystem.ext.database.products import get_products, get_product_by_id, add_product, update_product, \
     delete_product
 from ManagementSystem.ext.database.records import get_records_by_author, get_records_by_type, RecordType, add_record, \
@@ -572,6 +572,10 @@ def admin_products():
 
                 delete_product(prod_id)
                 flash('Вы удалили товар.', 'success')
+            elif request.form['btn_products'] == 'delete_order':
+                order_id = request.form.get("order_id")
+                delete_order(order_id)
+                flash('Вы удалили заказ.', 'success')
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
@@ -595,7 +599,12 @@ def admin_products():
             "client": {"id": str(i.client),
                        "name": client_name},
             "timestamp": i.timestamp.strftime("%d.%m.%Y %H:%M:%S"),
-            "status": i.status
+            "status": i.status,
+            "address": i.address,
+            "country": i.country,
+            "city": i.city,
+            "zip_postal": i.zip_postal,
+            "comments": i.comments
         })
 
     products = []

@@ -87,7 +87,9 @@
                                         <a onclick="set_order_data('{{ order.address }}', '{{ order.country }}', '{{ order.city }}', '{{ order.zip_postal }}', '{{ order.comments }}');"
                                            data-bs-toggle="modal" data-bs-target="#addressModal" class="action-icon"> <i
                                                 class="mdi mdi-eye"></i></a>
-                                        <a class="action-icon"> <i
+                                        <a onclick="set_order_status('{{ order.id }}', '{{ order.status.value }}')"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#statusModal" class="action-icon"> <i
                                                 class="mdi mdi-square-edit-outline"></i></a>
                                         <form method="post" class="action-icon">
                                             <input type="hidden" name="order_id" value="{{ order.id }}">
@@ -282,6 +284,47 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
+    <div class="modal fade" id="statusModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Статус заказа</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        <input type="hidden" id="edit_order_id" name="order_id" value="">
+                        <input type="hidden" id="edit_order_status" name="order_status" value="">
+                        <div class="mt-3 m-auto" style="width: 100px;">
+                            <div class="form-check form-radio-danger">
+                                <input type="radio" id="placed-Radio" name="orderRadio" class="form-check-input">
+                                <label class="form-check-label" for="placed-Radio">Создан</label>
+                            </div>
+                            <div class="form-check form-radio-warning">
+                                <input type="radio" id="packed-Radio" name="orderRadio" class="form-check-input">
+                                <label class="form-check-label" for="packed-Radio">Упакован</label>
+                            </div>
+                            <div class="form-check form-radio-primary">
+                                <input type="radio" id="shipped-Radio" name="orderRadio" class="form-check-input">
+                                <label class="form-check-label" for="shipped-Radio">Отправлен</label>
+                            </div>
+                            <div class="form-check form-radio-success">
+                                <input type="radio" id="delivered-Radio" name="orderRadio" class="form-check-input">
+                                <label class="form-check-label" for="delivered-Radio">Доставлен</label>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-primary" type="submit"
+                                    name="btn_products" value="change_status">Обновить
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+
     <script>
 
         function set_order_data(address, country, city, zip_postal, comments) {
@@ -290,6 +333,18 @@
             document.getElementById("city").value = city;
             document.getElementById("zip_postal").value = zip_postal;
             document.getElementById("comments").value = comments;
+        }
+
+        function set_order_status(id, status) {
+            document.getElementById("edit_order_id").value = id;
+            document.getElementById("edit_order_status").value = status;
+            let radios = document.getElementsByName("orderRadio");
+            for (let radio of radios) {
+                radio.checked = radio.id.includes(status);
+                radio.addEventListener('change', function () {
+                    document.getElementById("edit_order_status").value = this.id.split('-')[0];
+                });
+            }
         }
 
     </script>

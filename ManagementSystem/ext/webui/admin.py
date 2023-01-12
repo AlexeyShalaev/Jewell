@@ -576,6 +576,11 @@ def admin_products():
                 order_id = request.form.get("order_id")
                 delete_order(order_id)
                 flash('Вы удалили заказ.', 'success')
+            elif request.form['btn_products'] == 'change_status':
+                order_id = request.form.get("order_id")
+                order_status = request.form.get("order_status")
+                update_order(order_id, 'status', order_status)
+                flash('Вы изменили статус заказа.', 'success')
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')

@@ -1,0 +1,194 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Users
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Пользователи</li>
+                        <li class="breadcrumb-item active">Зарегистрированные</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Зарегистрированные</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <table id="registered_table" class="table table-striped" style="width:100%">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Телефон</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>День рождения</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>ID</th>
+                <th>Телефон</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>День рождения</th>
+                <th>Действие</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="modal fade" id="userModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Новый пользователь</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post">
+                        <div class="row">
+                            <div class="col-12">
+                                <input hidden type="text" id="user_id" name="user_id" value="">
+                                <!-- Телефон -->
+                                <div class="mb-3">
+                                    <label for="phone_number" class="form-label">Номер телефона</label>
+                                    <input class="form-control" type="phone" id="phone_number" name="phone_number"
+                                           disabled
+                                           pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                           placeholder="Введите номер" value="">
+                                </div>
+                                <!-- Имя -->
+                                <div class="mb-3">
+                                    <label for="first_name" class="form-label">Имя</label>
+                                    <input type="text" id="first_name" name="first_name"
+                                           class="form-control" value=""
+                                           placeholder="Введите ваше имя"
+
+                                    >
+                                </div>
+                                <!-- Фамилия -->
+                                <div class="mb-3">
+                                    <label for="last_name" class="form-label">Фамилия</label>
+                                    <input type="text" id="last_name" name="last_name"
+                                           class="form-control" value=""
+                                           placeholder="Введите вашу фамилию"
+                                    >
+                                </div>
+                                <!-- День рождения -->
+                                <div class="mb-3 position-relative" id="datepicker1">
+                                    <label class="form-label">День рождения</label>
+                                    <input type="text" class="form-control" data-provide="datepicker"
+                                           data-date-container="#datepicker1"
+                                           data-date-format="dd.mm.yyyy"
+                                           data-date-autoclose="true"
+                                           id="birthday" name="birthday" value="">
+                                </div>
+                                <!-- Роль -->
+                                <div class="mb-3">
+                                    <label for="role" class="form-label">Роль</label>
+                                    <select id="role" name="role" class="form-select mb-3" value="" required>
+                                        <option value="student" selected>Студент</option>
+                                        <option value="teacher">Учитель</option>
+                                        <option value="admin">Администратор</option>
+                                    </select>
+                                </div>
+
+                                <div class="text-center">
+                                    <button type="submit" name="btn_registered" value="add"
+                                            class="btn btn-outline-success">
+                                        Принять
+                                    </button>
+                                    <button type="submit" name="btn_registered" value="delete"
+                                            class="btn btn-outline-danger">
+                                        Отклонить
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div> <!-- end row -->
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script>
+
+        $(document).ready(function () {
+            render();
+        });
+
+        function render() {
+            $('#registered_table').DataTable().destroy();
+            let table = $('#registered_table').DataTable({
+                data: {{ registered | safe }},
+                columns: [
+                    {data: "id"},
+                    {data: "phone_number"},
+                    {data: "first_name"},
+                    {data: "last_name"},
+                    {data: "birthday"},
+                    {
+                        targets: -1,
+                        data: null,
+                        defaultContent: '<button data-bs-toggle="modal" data-bs-target="#userModal" type="button" class="btn btn-danger"><i class="mdi mdi-wrench"></i></button>',
+                    }
+                ],
+                autofill: true,
+                responsive: true,
+                lengthMenu: [10, 25, 50, 100, 300],
+                buttons: true,
+                /*exporting */
+                dom: 'Blfrtip',
+                order: [[1, 'asc']],
+                buttons: [
+                    'copy', 'print', 'csv'
+                ],
+                language: {
+                    "lengthMenu": "Показывать _MENU_ записей",
+                    "zeroRecords": "Ничего не найдено",
+                    "info": "Показано _PAGE_ из _PAGES_",
+                    "infoEmpty": "Нет доступных записей",
+                    "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                    "paginate": {
+                        "first": "Первый",
+                        "last": "Последний",
+                        "next": "Следующий",
+                        "previous": "Предыдущий"
+                    },
+                    "loadingRecords": "Загрузка...",
+                    "processing": "",
+                    "search": "Искать:",
+                    "zeroRecords": "Совпадающих записей не найдено"
+                }
+            });
+            document.getElementsByClassName("dt-buttons btn-group flex-wrap")[0].classList.add("mb-3");
+
+            $('#registered_table tbody').on('click', 'button', function () {
+                let data = table.row($(this).parents('tr')).data();
+                set_user_data(data);
+            });
+        }
+
+        function set_user_data(data) {
+            document.getElementById("user_id").value = data.id;
+            document.getElementById("phone_number").value = data.phone_number;
+            document.getElementById("first_name").value = data.first_name;
+            document.getElementById("last_name").value = data.last_name;
+            document.getElementById("birthday").value = data.birthday;
+        }
+
+    </script>
+
+{% endblock %}

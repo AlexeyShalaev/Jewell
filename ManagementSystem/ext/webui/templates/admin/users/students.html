@@ -1,0 +1,104 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Users
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Пользователи</li>
+                        <li class="breadcrumb-item active">Студенты</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Студенты</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <table id="students_table" class="table table-striped" style="width:100%">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Телефон</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Награда</th>
+                <th>День рождения</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>ID</th>
+                <th>Телефон</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>Награда</th>
+                <th>День рождения</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            render();
+        });
+
+        function render() {
+            $('#students_table').DataTable().destroy();
+            const table = $('#students_table').DataTable({
+                data: {{ students | safe }},
+                columns: [
+                    {data: "id"},
+                    {data: "phone_number"},
+                    {data: "first_name"},
+                    {data: "last_name"},
+                    {data: "reward"},
+                    {data: "birthday"},
+                ],
+                autofill: true,
+                responsive: true,
+                lengthMenu: [10, 25, 50, 100, 300],
+                buttons: true,
+                /*exporting */
+                dom: 'Blfrtip',
+                order: [[1, 'asc']],
+                buttons: [
+                    'copy', 'print', 'csv'
+                ],
+                language: {
+                    "lengthMenu": "Показывать _MENU_ записей",
+                    "zeroRecords": "Ничего не найдено",
+                    "info": "Показано _PAGE_ из _PAGES_",
+                    "infoEmpty": "Нет доступных записей",
+                    "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                    "paginate": {
+                        "first": "Первый",
+                        "last": "Последний",
+                        "next": "Следующий",
+                        "previous": "Предыдущий"
+                    },
+                    "loadingRecords": "Загрузка...",
+                    "processing": "",
+                    "search": "Искать:",
+                    "zeroRecords": "Совпадающих записей не найдено"
+                }
+            });
+            document.getElementsByClassName("dt-buttons btn-group flex-wrap")[0].classList.add("mb-3");
+        }
+
+    </script>
+
+{% endblock %}
+
+

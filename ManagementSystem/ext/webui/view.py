@@ -214,7 +214,7 @@ def registered():
             return redirect(url_for('view.registered'))
         except Exception as ex:
             logger.error(ex)
-    return render_template("authentication/registered.html",
+    return render_template("authentication/auth-registered.html",
                            telegram_validated=current_user.telegram_id is not None)
 
 

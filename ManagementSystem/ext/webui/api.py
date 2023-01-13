@@ -7,6 +7,7 @@ from flask import *
 from ManagementSystem.ext import trip_date
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
+from ManagementSystem.ext.database.orders import get_orders
 from ManagementSystem.ext.database.offers import get_offers
 from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
@@ -231,6 +232,20 @@ def products_count():
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
+# Уровень:              orders/count
+# База данных:          Orders
+# HTML:                 -
+@api.route('/orders/count', methods=['POST'])
+def orders_count():
+    try:
+        cnt = len(get_orders().data)
+        if cnt > 0:
+            return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+    return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
+
+
 # Уровень:              offers/count
 # База данных:          Offers
 # HTML:                 -
@@ -377,7 +392,8 @@ def get_user_attendance():
             date = i.date
             if (str(date.year) == start and date.month >= 9) or (str(date.year) == end and date.month < 9):
                 if date.month in months.keys():
-                    d[months[date.month]].append({"id": str(i.id), "date": date.strftime("%d.%m.%Y %H:%M:%S"), "count": i.count})
+                    d[months[date.month]].append(
+                        {"id": str(i.id), "date": date.strftime("%d.%m.%Y %H:%M:%S"), "count": i.count})
 
         return json.dumps({'success': True, 'data': d}), 200, {
             'ContentType': 'application/json'}

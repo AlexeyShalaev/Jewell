@@ -294,25 +294,25 @@
                     <div class="collapse" id="users" style="">
                         <ul class="side-nav-second-level">
                             <li class="side-nav-item">
-                                <a href="#1" class="side-nav-link">
+                                <a href="{{ url_for('admin.users_admins') }}" class="side-nav-link">
                                     <i class="fa-solid fa-user-gear"></i>
                                     <span> Администрация </span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="#2" class="side-nav-link">
+                                <a href="{{ url_for('admin.users_teachers') }}" class="side-nav-link">
                                     <i class="fa-solid fa-person-chalkboard"></i>
                                     <span> Преподаватели </span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="#3" class="side-nav-link">
+                                <a href="{{ url_for('admin.users_students') }}" class="side-nav-link">
                                     <i class="fa-solid fa-user-graduate"></i>
                                     <span> Студенты </span>
                                 </a>
                             </li>
                             <li class="side-nav-item">
-                                <a href="#4" class="side-nav-link">
+                                <a href="{{ url_for('admin.users_registered') }}" class="side-nav-link">
                                     <i class="fa-solid fa-user-plus"></i>
                                     <span> Новые </span>
                                 </a>
@@ -391,9 +391,9 @@
                             </li>
                             <li class="side-nav-item">
                                 <a href="{{ url_for('admin.admin_products') }}" class="side-nav-link">
-                                    <span class="badge bg-info float-end" id="products_cnt"></span>
+                                    <span class="badge bg-info float-end" id="orders_cnt"></span>
                                     <i class="uil uil-shopping-trolley"></i>
-                                    <span> Товары </span>
+                                    <span> Заказы </span>
                                 </a>
                             </li>
                         </ul>
@@ -1000,7 +1000,7 @@
     let notifications;
     set_avatars("{{url_for('api.get_avatar', user_id=current_user.id)}}");
     set_offers_cnt();
-    set_products_cnt();
+    set_orders_cnt();
     set_records_cnt();
 
 
@@ -1026,14 +1026,14 @@
         }
     }
 
-    function set_products_cnt() {
+    function set_orders_cnt() {
         try {
-            const link = "{{url_for('api.products_count')}}";
+            const link = "{{url_for('api.orders_count')}}";
             $.ajax({
                 type: 'POST',
                 url: link,
                 success: function (result) {
-                    document.getElementById("products_cnt").innerText = JSON.parse(result).data;
+                    document.getElementById("orders_cnt").innerText = JSON.parse(result).data;
                 }
             });
         } catch (err) {

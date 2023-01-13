@@ -146,7 +146,6 @@ def feed():
                                            friends_requests_from=frf, friends=fr, query=query)
                 else:
                     return render_template(render_html)
-
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')

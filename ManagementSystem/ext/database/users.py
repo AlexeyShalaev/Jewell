@@ -132,6 +132,25 @@ def update_social_data(id, sex, location, profession, university, languages, tag
     }})
 
 
+def update_main_data(id, first_name, last_name, phone_number, birthday, reward):
+    db.users.update_one({'_id': ObjectId(id)}, {"$set": {
+        "first_name": first_name,
+        "last_name": last_name,
+        "phone_number": phone_number,
+        "birthday": birthday,
+        "reward": reward
+    }})
+
+
+def update_new_user(id, first_name, last_name, birthday, role):
+    db.users.update_one({'_id': ObjectId(id)}, {"$set": {
+        "first_name": first_name,
+        "last_name": last_name,
+        "birthday": birthday,
+        "role": role
+    }})
+
+
 # удаление пользователя по ID
 def delete_user(id):
     db.users.delete_one({

@@ -64,7 +64,7 @@
                                         {{ order.product.name }}
                                     </td>
                                     <td>
-                                        <a href="TODO{{ order.client.id }}"
+                                        <a href="{{url_for('admin.users_student_profile', user_id=order.client.id)}}"
                                            class="text-body fw-bold">{{ order.client.name }}</a>
                                     </td>
                                     <td>
@@ -323,7 +323,6 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-
 
     <script>
 

@@ -1,0 +1,309 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    User
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Пользователи</li>
+                        <li class="breadcrumb-item">Студенты</li>
+                        <li class="breadcrumb-item active">{{ user.id | string }}</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Студент</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <!-- Profile -->
+            <div class="card bg-info">
+                <div class="card-body profile-user-box">
+                    <div class="row">
+                        <div class="col-sm-8">
+                            <div class="row align-items-center">
+                                <div class="col-auto">
+                                    <div class="avatar-lg">
+                                        <img src="{{ url_for('api.get_avatar', user_id=user.id) }}" alt=""
+                                             class="rounded-circle img-thumbnail">
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div>
+                                        <h4 class="mt-1 mb-1"><a class="text-white"
+                                                                 href="{{ url_for('networking.profile', user_id=user.id) }}"
+                                                                 target="_blank">{{ user.first_name }} {{ user.last_name }}</a>
+                                        </h4>
+                                        <p class="font-13 text-white-50"> Студент</p>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div>
+                                        <h4 class="mt-1 mb-1">{{ friends | length }}</h4>
+                                        <p class="font-13 text-white-50"> Число связей</p>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div>
+                                        <h4 class="mt-1 mb-1 text-white">Telegram
+                                            {% if user.telegram_id %}
+                                                <span class="ms-1 badge bg-success rounded-pill">Привязан</span>
+                                            {% else %}
+                                                <span class="ms-1 badge bg-danger rounded-pill">Не привязан</span>
+                                            {% endif %}
+                                        </h4>
+                                        {% if current_user.telegram_username %}
+                                            <a href="https://t.me/{{ user.telegram_username }}"><p
+                                                    class="font-13 text-white-50">
+                                                @{{ user.telegram_username }}</p></a>
+                                        {% else %}
+                                            <a href="https://t.me/JewellClub_bot"><p class="font-13 text-white-50">
+                                                @JewellClub_bot</p></a>
+                                        {% endif %}
+
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div>
+                                        <h4 id="auth_status" class="mt-1 mb-1 text-white">Авторизация
+                                            {% if user.telegram_auth %}
+                                                <div class="spinner-grow text-success spinner-grow-sm"
+                                                     role="status"></div>
+                                            {% else %}
+                                                <div class="spinner-grow text-danger spinner-grow-sm"
+                                                     role="status"></div>
+                                            {% endif %}
+                                        </h4>
+                                        <p class="font-13 text-white-50">Вход через телеграмм бота</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- end col-->
+
+                    </div> <!-- end row -->
+
+                </div> <!-- end card-body/ profile-user-box-->
+            </div><!--end profile/ card -->
+        </div> <!-- end col-->
+    </div>
+    <!-- end row -->
+
+
+    <div class="row">
+        <div class="col-xl-4">
+            <!-- Personal-Information -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mt-0 mb-3">Данные</h4>
+                    <hr>
+                    <form method="post">
+                        <!-- Имя -->
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Имя</label>
+                            <input type="text" id="first_name" name="first_name"
+                                   class="form-control" value="{{ user['first_name'] }}"
+                                   placeholder="Введите ваше имя"
+                                   pattern="[\u0400-\u04ff]{1,32}"
+                                   required>
+                        </div>
+
+                        <!-- Фамилия -->
+                        <div class="mb-3">
+                            <label for="last_name" class="form-label">Фамилия</label>
+                            <input type="text" id="last_name" name="last_name"
+                                   class="form-control" value="{{ user['last_name'] }}"
+                                   placeholder="Введите вашу фамилию" pattern="[\u0400-\u04ff]{1,32}"
+                                   required>
+                        </div>
+
+                        <!-- Телефон -->
+                        <div class="mb-3">
+                            <label for="phone_number" class="form-label">Номер телефона</label>
+                            <input class="form-control" type="phone" id="phone_number" name="phone_number" required=""
+                                   pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                   placeholder="Введите номер" value="{{ user.phone_number }}">
+                        </div>
+
+                        <!-- День рождения -->
+                        <div class="mb-3 position-relative" id="datepicker1">
+                            <label class="form-label">День рождения</label>
+                            <input type="text" class="form-control" data-provide="datepicker"
+                                   data-date-container="#datepicker1"
+                                   data-date-format="dd.mm.yyyy"
+                                   data-date-autoclose="true"
+                                   pattern="\d{2}.\d{2}.\d{4}"
+                                   required id="birthday" name="birthday" value="{{ user['birthday'] }}">
+                        </div>
+
+                        <!-- Награда -->
+                        <div class="mb-3">
+                            <label for="reward" class="form-label">Награда</label>
+                            <select id="reward" name="reward" class="form-select mb-3">
+                                {% if user.reward.value == 'trip' %}
+                                    <option value="trip" selected>Поездка</option>
+                                    <option value="grant">Стипендия</option>
+                                    <option value="null">Ничего</option>
+                                {% elif user.reward.value == 'grant' %}
+                                    <option value="grant" selected>Стипендия</option>
+                                    <option value="trip">Поездка</option>
+                                    <option value="null">Ничего</option>
+                                {% else %}
+                                    <option value="null" selected>Ничего</option>
+                                    <option value="trip">Поездка</option>
+                                    <option value="grant">Стипендия</option>
+                                {% endif %}
+                            </select>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="submit" name="btn_aus" value="edit" class="btn btn-outline-primary">Обновить
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+            <!-- Personal-Information -->
+
+        </div> <!-- end col-->
+
+        <div class="col-xl-8">
+
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated {{ progress_color }}"
+                             role="progressbar"
+                             aria-valuenow="75"
+                             aria-valuemin="0" aria-valuemax="100" style="width: {{ percent }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            {% if user.reward.value != 'null' %}
+
+                <div class="row">
+                    <div class="row">
+                        <div class="card tilebox-one">
+                            <div class="card-body">
+                                <i class="fa-solid fa-list-check float-end"></i>
+                                <h6 class="text-uppercase mt-0">Количество посещений</h6>
+                                <h2 class="my-2" id="active-users-count">{{ visits_count }} / {{ visits_aim }}</h2>
+                                <p class="mb-0 text-muted">
+                                    <span class="text-success me-2">{{ percent }}%</span>
+                                    <span class="text-nowrap">пройдено</span>
+                                </p>
+                            </div> <!-- end card-body-->
+                        </div>
+                        <!--end card-->
+
+                        <div class="card tilebox-one">
+                            <div class="card-body">
+                                <i class="fa-solid fa-wave-square float-end"></i>
+                                <h6 class="text-uppercase mt-0">Частота посещений</h6>
+                                <h2 class="my-2" id="active-views-count">{{ frequency }}</h2>
+                                <p class="mb-0 text-muted">
+                                    <span class="text-nowrap me-1">0</span>
+                                    <a style="color: red" class="fa-solid fa-thumbs-down me-lg-4"></a>
+                                    <span class="text-nowrap me-1">1</span>
+                                    <a style="color: green" class="fa-solid fa-thumbs-up"></a>
+                                </p>
+                            </div> <!-- end card-body-->
+                        </div>
+                        <!--end card-->
+
+                        <div class="card cta-box overflow-hidden">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <div>
+                                        <h3 class="m-0 fw-normal cta-box-title">{{ extra_info }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end card-body -->
+                        </div>
+                    </div> <!-- end col -->
+
+                    <div class="row">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h4 class="header-title mb-3">Шкала посещаемости</h4>
+                                <div id="chart">
+
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end card body-->
+                    </div>
+                </div>
+
+            {% endif %}
+
+        </div>
+        <!-- end col -->
+
+    </div>
+    <!-- end row -->
+
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <script>
+        var dataset;
+        var options;
+        var chart;
+
+        $(document).ready(function () {
+            draw_chart();
+        });
+
+        function draw_chart() {
+            dataset = {{visits_dataset | safe}};
+            var random_colors = [];
+            for (let i = 0; i < dataset.length; ++i) {
+                random_colors.push(randomColorGenerator());
+            }
+            options = {
+                series: [
+                    {
+                        name: 'Посещаемость',
+                        data: dataset
+                    }
+                ],
+                chart: {
+                    height: 400,
+                    type: 'bar'
+                },
+                plotOptions: {
+                    bar: {
+                        columnWidth: '50%',
+                        distributed: true
+                    }
+                },
+                colors: random_colors,
+                dataLabels: {
+                    enabled: false
+                }
+            };
+            chart = new ApexCharts(document.querySelector("#chart"), options);
+            chart.render();
+        }
+
+        function randomColorGenerator() {
+            let r = Math.floor(Math.random() * 256);
+            let g = Math.floor(Math.random() * 256);
+            let b = Math.floor(Math.random() * 256);
+            return 'rgba(' + r + ', ' + g + ', ' + b + ', 0.4)';
+        }
+
+    </script>
+
+{% endblock %}
+
+

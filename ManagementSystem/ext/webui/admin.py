@@ -7,8 +7,10 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
+from ManagementSystem.ext import trip_date
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
-from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance
+from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
+    get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
@@ -18,11 +20,13 @@ from ManagementSystem.ext.database.products import get_products, get_product_by_
     delete_product
 from ManagementSystem.ext.database.records import get_records_by_author, get_records_by_type, RecordType, add_record, \
     update_record_news, delete_record
-from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id
+from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
+    update_new_user
 from ManagementSystem.ext.logistics import auto_redirect, check_session
-from ManagementSystem.ext.models.userModel import Role
+from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
-from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends
+from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
+    get_month
 
 logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
@@ -625,3 +629,289 @@ def admin_products():
             })
 
     return render_template("admin/other/products.html", orders=orders, products=products)
+
+
+# Уровень:              users/admins
+# База данных:          User
+# HTML:                 admins
+@admin.route('/users-admins', methods=['POST', 'GET'])
+@login_required
+def users_admins():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("admin/users/admins.html", admins=get_users_by_role(Role.ADMIN).data)
+
+
+# Уровень:              users/teachers
+# База данных:          User
+# HTML:                 teachers
+@admin.route('/users-teachers', methods=['POST', 'GET'])
+@login_required
+def users_teachers():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("admin/users/teachers.html", teachers=get_users_by_role(Role.TEACHER).data)
+
+
+# Уровень:              users/students
+# База данных:          User
+# HTML:                 students
+@admin.route('/users-students', methods=['POST', 'GET'])
+@login_required
+def users_students():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    students = []
+    for i in get_users_by_role(Role.STUDENT).data:
+        students.append({
+            "id": f'<a href="{url_for("admin.users_student_profile", user_id=i.id)}" target="_blank">{i.id}</a>',
+            "phone_number": i.phone_number,
+            "first_name": i.first_name,
+            "last_name": i.last_name,
+            "reward": i.reward.value,
+            "birthday": i.birthday
+        })
+
+    return render_template("admin/users/students.html", students=students)
+
+
+# Уровень:              users/students/<user_id>
+# База данных:          User
+# HTML:                 student-profile
+@admin.route('/users-students/<user_id>', methods=['POST', 'GET'])
+@login_required
+def users_student_profile(user_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_aus'] == 'edit':
+                first_name = request.form.get("first_name")
+                last_name = request.form.get("last_name")
+                phone_number = normal_phone_number(request.form.get("phone_number"))
+                birthday = request.form.get("birthday")
+                reward = request.form.get("reward")
+                update_main_data(user_id, first_name, last_name, phone_number, birthday, reward)
+                flash('Вы успешно изменили данные пользователя', 'success')
+                return redirect(url_for('admin.users_student_profile', user_id=user_id))
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    try:
+        resp_user = get_user_by_id(user_id)
+        resp = get_attendances_by_user_id(user_id)
+        if not resp_user.success or not resp.success:
+            return render_template("error-500.html")
+        user = resp_user.data
+        if user.role != Role.STUDENT:
+            return redirect(url_for('networking.profile', user_id=user_id))
+        attendance = resp.data
+        visits_count = len(attendance)
+        # base set up
+        now = datetime.now()
+        visits_aim = '∞'
+        percent = 0
+        progress_color = 'bg-dark'
+        frequency = '∞'
+        extra_info = f'Награда: {user.reward.value}'
+        visits_dataset = []
+        # TRIP set up
+        if user.reward == Reward.TRIP:
+            visits_aim = 30
+            percent = int(visits_count / visits_aim * 100)
+            if percent < 25:
+                progress_color = 'bg-danger'
+            elif percent < 50:
+                progress_color = 'bg-warning'
+            elif percent < 75:
+                progress_color = 'bg-info'
+            else:
+                progress_color = 'bg-success'
+            frequency_data_set = dict()
+            for visit in attendance:
+                key = f'{visit.date.month} {visit.date.year}'
+                if key in frequency_data_set.keys():
+                    frequency_data_set[key] += 1 / 4
+                else:
+                    frequency_data_set[key] = 1 / 4
+            frequency_array = frequency_data_set.values()
+            if len(frequency_array) == 0:
+                frequency = 0
+            else:
+                frequency = int(sum(frequency_array) / len(frequency_array) * 1000) / 1000
+            for k, v in frequency_data_set.items():
+                m, y = map(int, k.split())
+                visits_dataset.append({
+                    'x': f'{get_month(m)} {y}',
+                    'y': int(v * 4)
+                })
+            if now < trip_date:
+                days_remaining = (trip_date - now).days
+                weeks_remaining = int(days_remaining / 7)
+                extra_info = f'До поездки осталось {days_remaining} дней. '
+                if visits_count < 25:
+                    extra_info += f'Необходимо минимум {25 - visits_count} посещений. '
+                    if visits_count + weeks_remaining < 25:
+                        extra_info += f'Если студент будет ходить раз в неделю, то НЕ сможет выполнить план, поэтому ему надо ходить на отработки/доп занятия. '
+                    else:
+                        extra_info += f'Если студент будет ходить раз в неделю, то сможет с легкостью выполнить план. '
+                else:
+                    extra_info += f'Посещаемость в норме. '
+            else:
+                if visits_count < 30:
+                    extra_info = f'Необходимо минимум {30 - visits_count} посещений. '
+                else:
+                    extra_info = f'Посещаемость в норме. '
+        # GRANT set up
+        elif user.reward == Reward.GRANT:
+            visits_count = 0
+            visits_aim = 4
+            frequency_data_set = dict()
+            for visit in attendance:
+                if visit.date.month == now.month:
+                    visits_count += 1
+                key = f'{visit.date.month} {visit.date.year}'
+                if key in frequency_data_set.keys():
+                    frequency_data_set[key] += 1 / 4
+                else:
+                    frequency_data_set[key] = 1 / 4
+            frequency_array = frequency_data_set.values()
+            if len(frequency_array) == 0:
+                frequency = 0
+            else:
+                frequency = int(sum(frequency_array) / len(frequency_array) * 1000) / 1000
+            for k, v in frequency_data_set.items():
+                m, y = map(int, k.split())
+                visits_dataset.append({
+                    'x': f'{get_month(m)} {y}',
+                    'y': int(v * 4),
+                    'goals': [
+                        {
+                            'name': 'Планка',
+                            'value': 8,
+                            'strokeHeight': 5,
+                            'strokeColor': '#775DD0'
+                        }],
+                })
+            percent = int(visits_count / (visits_aim + 4) * 100)
+            if percent < 50:
+                progress_color = 'bg-danger'
+            else:
+                progress_color = 'bg-success'
+            if visits_count < 4:
+                extra_info = f'Необходимо посетить еще {visits_aim - visits_count} занятий для получения стипендии в размере: 65$'
+            elif visits_count < 7:
+                extra_info = f'Есть возможность увеличить стипендию до {65 + 15 * (visits_count + 1 - 4)}$. На данный момент стипендия составляет целых {65 + 15 * (visits_count - 4)}$'
+            elif visits_count == 7:
+                extra_info = f'Есть возможность увеличить стипендию до 130$. На данный момент стипендия составляет целых {65 + 15 * (visits_count - 4)}$'
+            elif visits_count == 8:
+                extra_info = f'Стипендия составляет целых 130$'
+            else:
+                extra_info = f'Посещаемость идеальна :)'
+    except Exception as ex:
+        logger.error(ex)
+        return render_template("error-500.html")
+
+    return render_template("admin/users/student-profile.html", user=user, friends=get_friends(str(user_id)),
+                           visits_count=visits_count, visits_aim=visits_aim,
+                           progress_color=progress_color, percent=percent, frequency=frequency,
+                           extra_info=extra_info,
+                           visits_dataset=visits_dataset)
+
+
+# Уровень:              users/registered
+# База данных:          User
+# HTML:                 registered
+@admin.route('/users-registered', methods=['POST', 'GET'])
+@login_required
+def users_registered():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_registered'] == 'add':
+                user_id = request.form.get("user_id")
+                first_name = request.form.get("first_name")
+                last_name = request.form.get("last_name")
+                birthday = request.form.get("birthday")
+                role = request.form.get("role")
+                update_new_user(user_id, first_name, last_name, birthday, role)
+                flash('Вы успешно добавили нового пользователя', 'success')
+                return redirect(url_for('networking.profile', user_id=user_id))
+            elif request.form['btn_registered'] == 'delete':
+                user_id = request.form.get("user_id")
+                delete_user(user_id)
+                flash('Вы успешно отклонили заявку пользователя', 'success')
+                return redirect(url_for('admin.users_registered'))
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    registered = []
+    for i in get_users_by_role(Role.REGISTERED).data:
+        registered.append({
+            "id": str(i.id),
+            "phone_number": str(i.phone_number),
+            "first_name": str(i.first_name),
+            "last_name": str(i.last_name),
+            "birthday": str(i.birthday)
+        })
+
+    return render_template("admin/users/registered.html", registered=registered)

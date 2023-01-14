@@ -83,6 +83,16 @@ def update_record_news(id, text, lifetime):
     }})
 
 
+# удаление записей по user_id
+def delete_records_by_user_id(user_id):
+    try:
+        db.records.delete_many({
+            'author': ObjectId(user_id)
+        })
+    except Exception as ex:
+        print(ex)
+
+
 # удаление записи по ID
 def delete_record(id):
     db.records.delete_one({

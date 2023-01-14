@@ -64,7 +64,17 @@ def update(id, key, value):
     db.recovers.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
 
 
-# удаление пользователя по ID
+# удаление запросов по user_id
+def delete_recovers_by_user_id(user_id):
+    try:
+        db.recovers.delete_many({
+            'user_id': ObjectId(user_id)
+        })
+    except Exception as ex:
+        print(ex)
+
+
+# удаление запроса по ID
 def delete_recover(id):
     db.recovers.delete_one({
         '_id': ObjectId(id)

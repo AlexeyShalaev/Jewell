@@ -7,10 +7,12 @@ from flask import *
 from ManagementSystem.ext import trip_date
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
-from ManagementSystem.ext.database.orders import get_orders
+from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
 from ManagementSystem.ext.database.offers import get_offers
+from ManagementSystem.ext.database.orders import get_orders
 from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
+from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
 from ManagementSystem.ext.database.users import get_users, get_user_by_id, Reward, Role
 from ManagementSystem.ext.search_engine import search_documents
@@ -255,6 +257,22 @@ def records_count():
         news = len(get_records_by_type(RecordType.NEWS).data)
         notifications = len(get_records_by_type(RecordType.NOTIFICATION).data)
         return json.dumps({'success': True, 'news': news, 'notifications': notifications}), 200, {
+            'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(ex)
+        return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              offers/count
+# База данных:          Offers
+# HTML:                 -
+@api.route('/security/count', methods=['POST'])
+def security_count():
+    try:
+        users = len(get_users().data)
+        recovers = len(get_recovers().data)
+        sessions = len(get_flask_sessions().data)
+        return json.dumps({'success': True, 'users': users, 'recovers': recovers, 'sessions': sessions}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:
         logger.error(ex)

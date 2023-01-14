@@ -59,6 +59,13 @@ def update_course(id, name, teachers, timetable):
     }})
 
 
+# обновление списка учителей курса по ID
+def update_course_teachers(id, teachers):
+    db.courses.update_one({'_id': ObjectId(id)}, {"$set": {
+        "teachers": [ObjectId(teacher_id) for teacher_id in teachers]
+    }})
+
+
 # удаление курса по ID
 def delete_course(id):
     db.courses.delete_one({

@@ -91,6 +91,26 @@ def update_order(id, key, value):
     db.orders.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
 
 
+# удаление заказов по user_id
+def delete_orders_by_user_id(user_id):
+    try:
+        db.orders.delete_many({
+            'client': ObjectId(user_id)
+        })
+    except Exception as ex:
+        print(ex)
+
+
+# удаление заказов по product_id
+def delete_orders_by_product_id(user_id):
+    try:
+        db.orders.delete_many({
+            'product': ObjectId(user_id)
+        })
+    except Exception as ex:
+        print(ex)
+
+
 # удаление заказа по ID
 def delete_order(id):
     db.orders.delete_one({

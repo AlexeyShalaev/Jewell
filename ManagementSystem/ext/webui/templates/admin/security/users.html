@@ -1,0 +1,235 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Users
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Безопасность</li>
+                        <li class="breadcrumb-item active">Пользователи</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Пользователи</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <table id="users_table" class="table table-striped" style="width:100%">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Телефон</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>День рождения</th>
+                <th>Действие</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>ID</th>
+                <th>Телефон</th>
+                <th>Имя</th>
+                <th>Фамилия</th>
+                <th>День рождения</th>
+                <th>Действие</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <div class="modal fade" id="modalUser" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="modal_user_name"></h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <input hidden type="text" id="user_id" value="">
+
+                            <!-- Валидация -->
+                            <div class="mb-3">
+                                <label for="validation" class="form-label" id="validation_lbl"></label>
+                                <input type="number" id="validation"
+                                       class="form-control"
+                                       placeholder="Решите пример"
+                                >
+                            </div>
+
+                            <div class="text-center">
+                                <button type="button" onclick="admin_auth();" class="btn btn-outline-info">
+                                    Войти в аккаунт пользователя
+                                </button>
+                                <button type="button" onclick="delete_user();" class="btn btn-outline-danger">
+                                    Удалить
+                                </button>
+                            </div>
+
+                        </div>
+                    </div> <!-- end row -->
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script>
+
+        let expression;
+        let answer;
+
+        $(document).ready(function () {
+            render();
+        });
+
+        function render() {
+            $('#users_table').DataTable().destroy();
+            let table = $('#users_table').DataTable({
+                data: {{ users | safe }},
+                columns: [
+                    {data: "id"},
+                    {data: "phone_number"},
+                    {data: "first_name"},
+                    {data: "last_name"},
+                    {data: "birthday"},
+                    {
+                        targets: -1,
+                        data: null,
+                        defaultContent: '<button data-bs-toggle="modal" data-bs-target="#modalUser" type="button" class="btn btn-outline-primary"><i class="mdi mdi-wrench"></i></button>',
+                    }
+                ],
+                autofill: true,
+                responsive: true,
+                lengthMenu: [10, 25, 50, 100, 300],
+                buttons: true,
+                /*exporting */
+                dom: 'Blfrtip',
+                order: [[1, 'asc']],
+                buttons: [
+                    'copy', 'print'
+                ],
+                language: {
+                    "lengthMenu": "Показывать _MENU_ записей",
+                    "zeroRecords": "Ничего не найдено",
+                    "info": "Показано _PAGE_ из _PAGES_",
+                    "infoEmpty": "Нет доступных записей",
+                    "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                    "paginate": {
+                        "first": "Первый",
+                        "last": "Последний",
+                        "next": "Следующий",
+                        "previous": "Предыдущий"
+                    },
+                    "loadingRecords": "Загрузка...",
+                    "processing": "",
+                    "search": "Искать:",
+                    "zeroRecords": "Совпадающих записей не найдено"
+                }
+            });
+            document.getElementsByClassName("dt-buttons btn-group flex-wrap")[0].classList.add("mb-3");
+
+            $('#users_table tbody').on('click', 'button', function () {
+                let data = table.row($(this).parents('tr')).data();
+                set_user_data(data);
+            });
+        }
+
+        function set_user_data(data) {
+            let x = getRandomInt(10);
+            let y = getRandomInt(10);
+            let operation = getRandomInt(3);
+            if (operation === 0) {
+                expression = `${x} + ${y} = ?`;
+                answer = x + y;
+            } else if (operation === 1) {
+                expression = `${x} - ${y} = ?`;
+                answer = x - y;
+            } else if (operation === 2) {
+                expression = `${x} * ${y} = ?`;
+                answer = x * y;
+            }
+            document.getElementById("validation_lbl").innerText = expression;
+            document.getElementById("modal_user_name").innerText = `${data.first_name} ${data.last_name}`;
+            document.getElementById("user_id").value = data.id;
+        }
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
+
+        function admin_auth() {
+            const user_id = document.getElementById("user_id").value;
+            const user_answer = document.getElementById("validation").value;
+            if (answer != null && Number(user_answer) === answer) {
+                try {
+                    $.ajax({
+                            type: 'POST',
+                            url: '{{ url_for('admin.security_users_auth')}}',
+                            data: {
+                                'user_id': user_id
+                            },
+                            success: function (result) {
+                                const res = JSON.parse(result);
+                                if (res.success === true) {
+                                    location.reload(res.url);
+                                } else {
+                                    $.NotificationApp.send("Безопасность", "Не удалось авторизоваться под данным пользователем.", "top-right", "#FF5B5B", "error");
+                                }
+                            }
+                        }
+                    );
+                } catch
+                    (err) {
+                }
+            } else {
+                $.NotificationApp.send("Безопасность", "Неверный ответ.", "top-right", "#FF5B5B", "error");
+            }
+        }
+
+        function delete_user() {
+            const user_id = document.getElementById("user_id").value;
+            const user_answer = document.getElementById("validation").value;
+            if (answer != null && Number(user_answer) === answer) {
+                let confirmDelete = confirm("Вы точно хотите удалить навсегда данного пользователя и все данные, связанные с ним (посещаемость, новости, курсы, ...)?");
+                if (confirmDelete) {
+                    try {
+                        $.ajax({
+                                type: 'POST',
+                                url: '{{ url_for('admin.security_users_delete')}}',
+                                data: {
+                                    'user_id': user_id
+                                },
+                                success: function (result) {
+                                    const res = JSON.parse(result);
+                                    if (res.success === true) {
+                                        location.reload();
+                                    } else {
+                                        $.NotificationApp.send("Безопасность", "Не удалось удалить пользователя. " + res.error, "top-right", "#FF5B5B", "error");
+                                    }
+                                }
+                            }
+                        );
+                    } catch
+                        (err) {
+                    }
+                }
+            } else {
+                $.NotificationApp.send("Безопасность", "Неверный ответ.", "top-right", "#FF5B5B", "error");
+            }
+        }
+
+    </script>
+
+{% endblock %}

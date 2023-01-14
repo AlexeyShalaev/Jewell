@@ -8,20 +8,26 @@ from flask_login import *
 from flask_toastr import *
 
 from ManagementSystem.ext import trip_date
+from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
     get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
-    check_course_by_name
+    check_course_by_name, get_courses_by_teacher, update_course_teachers
+from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
-from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer
-from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order
+from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
+from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order, delete_orders_by_product_id, \
+    delete_orders_by_user_id
 from ManagementSystem.ext.database.products import get_products, get_product_by_id, add_product, update_product, \
     delete_product
 from ManagementSystem.ext.database.records import get_records_by_author, get_records_by_type, RecordType, add_record, \
-    update_record_news, delete_record
+    update_record_news, delete_record, delete_records_by_user_id
+from ManagementSystem.ext.database.recover_pw import get_recovers, delete_recover, delete_recovers_by_user_id
+from ManagementSystem.ext.database.relationships import get_relationships_by_sender, delete_relationship, \
+    get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
-    update_new_user
+    update_new_user, update_user, get_users
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
@@ -575,6 +581,7 @@ def admin_products():
                     logger.error(ex)
 
                 delete_product(prod_id)
+                delete_orders_by_product_id(prod_id)
                 flash('Вы удалили товар.', 'success')
             elif request.form['btn_products'] == 'delete_order':
                 order_id = request.form.get("order_id")
@@ -908,10 +915,217 @@ def users_registered():
     for i in get_users_by_role(Role.REGISTERED).data:
         registered.append({
             "id": str(i.id),
-            "phone_number": str(i.phone_number),
-            "first_name": str(i.first_name),
-            "last_name": str(i.last_name),
-            "birthday": str(i.birthday)
+            "phone_number": i.phone_number,
+            "first_name": i.first_name,
+            "last_name": i.last_name,
+            "birthday": i.birthday
         })
 
     return render_template("admin/users/registered.html", registered=registered)
+
+
+# security block
+
+# Уровень:              security/users
+# База данных:          Users
+# HTML:                 users
+@admin.route('/security/users', methods=['POST', 'GET'])
+@login_required
+def security_users():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    users = []
+    for i in get_users().data:
+        users.append({
+            "id": str(i.id),
+            "phone_number": i.phone_number,
+            "first_name": i.first_name,
+            "last_name": i.last_name,
+            "birthday": i.birthday
+        })
+
+    return render_template("admin/security/users.html", users=users)
+
+
+# Уровень:              /security/users/auth
+# База данных:          User
+# HTML:                 -
+@admin.route('/security/users/auth', methods=['POST'])
+def security_users_auth():
+    try:
+        user_id = request.form['user_id']
+        user = get_user_by_id(user_id)
+        if user.success:
+            update_user(user.data.id, 'access_token', '')
+            login_user(user.data)
+            return json.dumps({'success': True, 'url': request.host_url + 'login'}), 200, {
+                'ContentType': 'application/json'}
+    except Exception:
+        pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              /security/users/delete
+# База данных:          User
+# HTML:                 -
+@admin.route('/security/users/delete', methods=['POST'])
+def security_users_delete():
+    try:
+        user_id = request.form['user_id']
+        delete_flask_sessions(user_id)
+        delete_offers_by_user_id(user_id)
+        delete_orders_by_user_id(user_id)
+        delete_records_by_user_id(user_id)
+        try:
+            recs = []
+            for rec in get_records_by_author(user_id).data:
+                resp_status, data = encrypt_id_with_no_digits(str(user_id))
+                if resp_status:
+                    recs.append(data)
+            directory = 'storage/records/'
+            files = os.listdir(directory)
+            for file in files:
+                if file.split('.')[0] in recs:
+                    os.remove(directory + file)
+        except Exception as ex:
+            logger.error(ex)
+        delete_recovers_by_user_id(user_id)
+        for i in get_relationships_by_sender(user_id).data:
+            delete_relationship(i.id)
+        for i in get_relationships_by_receiver(user_id).data:
+            delete_relationship(i.id)
+        for i in get_courses_by_teacher(user_id).data:
+            teachers = []
+            for teacher in i.teachers:
+                if str(teacher.id) != user_id:
+                    teachers.append(str(teacher.id))
+            update_course_teachers(teachers)
+        delete_user(user_id)
+        try:
+            resp_status, data = encrypt_id_with_no_digits(str(user_id))
+            if resp_status:
+                filename = ''
+                directory = 'storage/avatars/'
+                files = os.listdir(directory)
+                for file in files:
+                    if data == file.split('.')[0]:
+                        filename = file
+                        break
+                if filename != '':
+                    os.remove(directory + filename)
+        except Exception as ex:
+            logger.error(ex)
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              security/recovers
+# База данных:          recovers
+# HTML:                 recovers
+@admin.route('/security/recovers', methods=['POST', 'GET'])
+@login_required
+def security_recovers():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_recovers'] == 'delete_recover':
+                recover_id = request.form.get("recover_id")
+                delete_recover(recover_id)
+                flash('Вы удалили запрос.', 'success')
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("admin/security/recovers.html", recovers=get_recovers().data)
+
+
+# Уровень:              /security/recovers/link
+# База данных:          User
+# HTML:                 -
+@admin.route('/security/recovers/link', methods=['POST'])
+def security_recover_link():
+    try:
+        recover_id = request.form['recover_id']
+        user_id = request.form['user_id']
+        status, token = create_token()
+        if status:
+            update_user(user_id, 'access_token', token)
+            recover_url = request.host_url + 'login/' + token
+            delete_recover(recover_id)
+            return json.dumps({'success': True, 'url': recover_url}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              security/sessions
+# База данных:          flask_sessions
+# HTML:                 sessions
+@admin.route('/security/sessions', methods=['POST', 'GET'])
+@login_required
+def security_sessions():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("admin/security/sessions.html")
+
+
+# Уровень:              security/database
+# База данных:          Any
+# HTML:                 database
+@admin.route('/security/database', methods=['POST', 'GET'])
+@login_required
+def security_database():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash('Произошла какая-то ошибка', 'error')
+
+    return render_template("admin/security/database.html")

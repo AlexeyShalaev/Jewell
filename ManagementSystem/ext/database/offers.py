@@ -80,6 +80,16 @@ def update_offer(id, key, value):
     db.offers.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
 
 
+# удаление оферов по user_id
+def delete_offers_by_user_id(user_id):
+    try:
+        db.offers.delete_many({
+            'author': ObjectId(user_id)
+        })
+    except Exception as ex:
+        print(ex)
+
+
 # удаление офера по ID
 def delete_offer(id):
     db.offers.delete_one({

@@ -401,6 +401,46 @@
                 </li>
 
                 <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#safety" aria-expanded="false" aria-controls="other"
+                       class="side-nav-link collapsed">
+                        <i class="fa-solid fa-shield-halved"></i>
+                        <span> Безопасность </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="safety" style="">
+                        <ul class="side-nav-second-level">
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.security_users') }}" class="side-nav-link">
+                                    <span class="badge bg-dark float-end" id="security_users_cnt"></span>
+                                    <i class="fa-solid fa-user-shield"></i>
+                                    <span> Пользователи </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.security_recovers') }}" class="side-nav-link">
+                                    <span class="badge bg-dark float-end" id="security_recovers_cnt"></span>
+                                    <i class="fa-solid fa-key"></i>
+                                    <span> Пароли </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.security_sessions') }}" class="side-nav-link">
+                                    <span class="badge bg-dark float-end" id="security_sessions_cnt"></span>
+                                    <i class="fa-solid fa-desktop"></i>
+                                    <span> Сессии </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.security_database') }}" class="side-nav-link">
+                                    <i class="fa-solid fa-database"></i>
+                                    <span> База данных </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarLinks" aria-expanded="false" aria-controls="sidebarLinks"
                        class="side-nav-link collapsed">
                         <i class="fa-solid fa-compass"></i>
@@ -422,8 +462,6 @@
                 </li>
 
                 <li class="side-nav-title side-nav-item">Telegram BOT</li>
-
-                <li class="side-nav-title side-nav-item">Безопасность</li>
 
             </ul>
             <!--- End Sidemenu -->
@@ -1002,6 +1040,7 @@
     set_offers_cnt();
     set_orders_cnt();
     set_records_cnt();
+    set_security_cnt();
 
 
     function set_avatars(source) {
@@ -1052,6 +1091,26 @@
                     if (res.success) {
                         if (res.news > 0) document.getElementById("news_cnt").innerText = res.news;
                         if (res.notifications > 0) document.getElementById("notifications_cnt").innerText = res.notifications;
+                    }
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+     function set_security_cnt() {
+        try {
+            const link = "{{url_for('api.security_count')}}";
+            $.ajax({
+                type: 'POST',
+                url: link,
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success) {
+                        if (res.users > 0) document.getElementById("security_users_cnt").innerText = res.users;
+                        if (res.recovers > 0) document.getElementById("security_recovers_cnt").innerText = res.recovers;
+                        if (res.sessions > 0) document.getElementById("security_sessions_cnt").innerText = res.sessions;
                     }
                 }
             });

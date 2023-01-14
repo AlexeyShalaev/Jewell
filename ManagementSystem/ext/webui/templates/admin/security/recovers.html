@@ -1,0 +1,93 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Recovers
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Безопасность</li>
+                        <li class="breadcrumb-item active">Пароли</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Восстановления паролей</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped table-centered mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>User ID</th>
+                        <th>Номер телефона</th>
+                        <th>Действие</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for i in recovers %}
+                        <tr>
+                            <td><a href="{{ url_for('networking.profile', user_id=i.user_id) }}" target="_blank">{{ i.user_id }}</a></td>
+                            <td>{{ i.phone_number }}</td>
+                            <td class="table-action">
+                                <a onclick="get_auth_link('{{ i.id }}', '{{ i.user_id }}', '{{ i.phone_number }}');"
+                                   class="action-icon"> <i
+                                        class="mdi mdi-cellphone-key"></i></a>
+                                <form method="post" class="action-icon">
+                                    <input type="hidden" name="recover_id" value="{{ i.id }}">
+                                    <button onclick="return confirm('Вы точно хотите удалить запрос?')"
+                                            type="submit"
+                                            name="btn_recovers" value="delete_recover"
+                                            class="dropdown-item"><i class="mdi mdi-delete me-1"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+
+            </div> <!-- end card body-->
+        </div>
+    </div>
+
+    <script>
+        function get_auth_link(recover_id, user_id, phone_number) {
+            try {
+                $.ajax({
+                        type: 'POST',
+                        url: '{{ url_for('admin.security_recover_link')}}',
+                        data: {
+                            'recover_id': recover_id,
+                            'user_id': user_id
+                        },
+                        success: function (result) {
+                            const res = JSON.parse(result);
+                            if (res.success === true) {
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Восстановление пароля',
+                                    text: `Отправьте данную ссылку для временного доступа к аккаунту на номер телефона: ${phone_number}`,
+                                    footer: res.url
+                                });
+                            } else {
+                                $.NotificationApp.send("Безопасность", "Не удалось создать ссылку.", "top-right", "#FF5B5B", "error");
+                            }
+                        }
+                    }
+                );
+            } catch
+                (err) {
+            }
+        }
+    </script>
+
+{% endblock %}

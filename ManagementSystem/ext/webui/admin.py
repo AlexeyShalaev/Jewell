@@ -14,7 +14,7 @@ from ManagementSystem.ext.database.attendances import delete_attendance, add_att
     get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name, get_courses_by_teacher, update_course_teachers
-from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions
+from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions, delete_flask_session, add_flask_session
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
 from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order, delete_orders_by_product_id, \
@@ -29,6 +29,7 @@ from ManagementSystem.ext.database.relationships import get_relationships_by_sen
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
     update_new_user, update_user, get_users
 from ManagementSystem.ext.logistics import auto_redirect, check_session
+from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
@@ -913,12 +914,13 @@ def users_registered():
 
     registered = []
     for i in get_users_by_role(Role.REGISTERED).data:
+        # str необходим для избежания исключений с None
         registered.append({
             "id": str(i.id),
-            "phone_number": i.phone_number,
-            "first_name": i.first_name,
-            "last_name": i.last_name,
-            "birthday": i.birthday
+            "phone_number": str(i.phone_number),
+            "first_name": str(i.first_name),
+            "last_name": str(i.last_name),
+            "birthday": str(i.birthday)
         })
 
     return render_template("admin/users/registered.html", registered=registered)
@@ -950,12 +952,14 @@ def security_users():
 
     users = []
     for i in get_users().data:
+        # str необходим для избежания исключений с None
         users.append({
-            "id": str(i.id),
-            "phone_number": i.phone_number,
-            "first_name": i.first_name,
-            "last_name": i.last_name,
-            "birthday": i.birthday
+            "id": f'<a href="{url_for("networking.profile", user_id=i.id)}" target="_blank">{i.id}</a>',
+            "user_id": str(i.id),
+            "phone_number": str(i.phone_number),
+            "first_name": str(i.first_name),
+            "last_name": str(i.last_name),
+            "birthday": str(i.birthday)
         })
 
     return render_template("admin/security/users.html", users=users)
@@ -970,12 +974,19 @@ def security_users_auth():
         user_id = request.form['user_id']
         user = get_user_by_id(user_id)
         if user.success:
-            update_user(user.data.id, 'access_token', '')
+            delete_flask_session(session.get('_id'))
+            logout_user()
             login_user(user.data)
+            add_flask_session(id=session.get('_id'),
+                              user_id=session.get('_user_id'),
+                              user_agent=request.user_agent,
+                              fresh=session.get('_fresh'),
+                              ip=get_info_by_ip(request.remote_addr))
+            update_user(user.data.id, 'access_token', '')
             return json.dumps({'success': True, 'url': request.host_url + 'login'}), 200, {
                 'ContentType': 'application/json'}
-    except Exception:
-        pass
+    except Exception as ex:
+        logger.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 

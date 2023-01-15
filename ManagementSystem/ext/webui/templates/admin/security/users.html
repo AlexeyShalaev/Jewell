@@ -162,7 +162,7 @@
             }
             document.getElementById("validation_lbl").innerText = expression;
             document.getElementById("modal_user_name").innerText = `${data.first_name} ${data.last_name}`;
-            document.getElementById("user_id").value = data.id;
+            document.getElementById("user_id").value = data.user_id;
         }
 
         function getRandomInt(max) {
@@ -172,7 +172,11 @@
         function admin_auth() {
             const user_id = document.getElementById("user_id").value;
             const user_answer = document.getElementById("validation").value;
-            if (answer != null && Number(user_answer) === answer) {
+            if (user_id === '{{ current_user.id}}') {
+                $.NotificationApp.send("Безопасность", "Вы уже авторизованы в данный аккаунт.", "top-right", "#FF5B5B", "info");
+                return;
+            }
+            if (answer != null && user_answer.length>0 && Number(user_answer) === answer) {
                 try {
                     $.ajax({
                             type: 'POST',

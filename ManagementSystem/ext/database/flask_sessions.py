@@ -74,7 +74,7 @@ def delete_flask_session(id):
 
 
 # удаление сессий по user_id
-def delete_flask_sessions(user_id):
+def delete_flask_sessions_by_user_id(user_id):
     try:
         db.flask_sessions.delete_many({
             'user_id': ObjectId(user_id)

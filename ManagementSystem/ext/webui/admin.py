@@ -14,7 +14,9 @@ from ManagementSystem.ext.database.attendances import delete_attendance, add_att
     get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name, get_courses_by_teacher, update_course_teachers
-from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions, delete_flask_session, add_flask_session
+from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
+    add_flask_session, \
+    get_flask_sessions
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
 from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order, delete_orders_by_product_id, \
@@ -27,7 +29,7 @@ from ManagementSystem.ext.database.recover_pw import get_recovers, delete_recove
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender, delete_relationship, \
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
-    update_new_user, update_user, get_users
+    update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.userModel import Role, Reward
@@ -748,6 +750,14 @@ def users_student_profile(user_id):
                 phone_number = normal_phone_number(request.form.get("phone_number"))
                 birthday = request.form.get("birthday")
                 reward = request.form.get("reward")
+
+                r = get_user_by_phone_number(phone_number)
+                if r.success:
+                    if str(r.data.id) != user_id:
+                        # пользователь уже существует
+                        flash('Аккаунт с таким номером телефона уже существует!', 'warning')
+                        return redirect(url_for('admin.users_student_profile', user_id=user_id))
+
                 update_main_data(user_id, first_name, last_name, phone_number, birthday, reward)
                 flash('Вы успешно изменили данные пользователя', 'success')
                 return redirect(url_for('admin.users_student_profile', user_id=user_id))
@@ -997,7 +1007,7 @@ def security_users_auth():
 def security_users_delete():
     try:
         user_id = request.form['user_id']
-        delete_flask_sessions(user_id)
+        delete_flask_sessions_by_user_id(user_id)
         delete_offers_by_user_id(user_id)
         delete_orders_by_user_id(user_id)
         delete_records_by_user_id(user_id)
@@ -1114,7 +1124,31 @@ def security_sessions():
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
-    return render_template("admin/security/sessions.html")
+    sessions = []
+    for i in get_flask_sessions().data:
+        # str необходим для избежания исключений с None
+        sessions.append({
+            "id": str(i.id),
+            "short_id": f'{i.id[:10]}...',
+            "user_id": f'<a href="{url_for("networking.profile", user_id=i.user_id)}" target="_blank">{i.user_id}</a>',
+            "user_agent": i.user_agent,
+            "ip": i.ip,
+        })
+
+    return render_template("admin/security/sessions.html", sessions=sessions)
+
+
+# Уровень:              /security/session/delete
+# База данных:          flask-sessions
+# HTML:                 -
+@admin.route('/security/session/delete', methods=['POST'])
+def security_session_delete():
+    try:
+        session_id = request.form['id']
+        delete_flask_session(session_id)
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
 
 # Уровень:              security/database
@@ -1134,9 +1168,35 @@ def security_database():
 
     if request.method == "POST":
         try:
-            pass
+            if request.form['database'] == 'users':
+                id = request.form.get("id_user")
+                key = request.form.get("field_user")
+                value = request.form.get("value_user")
+
+                if key == 'phone_number':
+                    if check_user_by_phone(value):
+                        # пользователь уже существует
+                        flash('Аккаунт с таким номером телефона уже существует!', 'warning')
+                        return redirect(url_for('admin.security_database'))
+                    npn = normal_phone_number(value)
+                    if len(npn) != 11 or not npn.startswith('8'):
+                        flash('Номер телефона не соответствует формату!', 'warning')
+                        return redirect(url_for('admin.security_database'))
+                elif key == 'role':
+                    if value not in ['student', 'admin', 'teacher', 'registered', 'null']:
+                        flash(
+                            "Роль должна быть одним из след. значений: 'student', 'admin', 'teacher', 'registered', 'null'",
+                            'warning')
+                        return redirect(url_for('admin.security_database'))
+                elif key == 'reward':
+                    if value not in ['trip', 'grant', 'null']:
+                        flash("Награда должна быть одним из след. значений: 'trip', 'grant', 'null'", 'warning')
+                        return redirect(url_for('admin.security_database'))
+                update_user(id, key, value)
+                flash('Данные пользователя обновлены', 'success')
+
         except Exception as ex:
             logger.error(ex)
-            flash('Произошла какая-то ошибка', 'error')
+            flash(str(ex), 'error')
 
     return render_template("admin/security/database.html")

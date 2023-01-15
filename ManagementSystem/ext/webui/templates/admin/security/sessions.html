@@ -21,5 +21,141 @@
         </div>
     </div>
 
+    <div class="row">
+        <table id="sessions_table" class="table table-striped">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>USER ID</th>
+                <th>USER AGENT</th>
+                <th>IP</th>
+                <th>Удаление</th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th>ID</th>
+                <th>USER ID</th>
+                <th>USER AGENT</th>
+                <th>IP</th>
+                <th>Удаление</th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script>
+
+        $(document).ready(function () {
+            render();
+        });
+
+        function render() {
+            $('#sessions_table').DataTable().destroy();
+            let table = $('#sessions_table').DataTable({
+                data: {{ sessions | safe }},
+                columns: [
+                    {data: "short_id"},
+                    {data: "user_id"},
+                    {data: "user_agent"},
+                    {
+                        targets: -1,
+                        data: null,
+                        defaultContent: '<a type="button" class="btn btn-outline-info"><i class="mdi mdi-information"></i></a>',
+                    },
+                    {
+                        targets: -1,
+                        data: null,
+                        defaultContent: '<button type="button" class="btn btn-outline-danger"><i class="mdi mdi-delete"></i></button>',
+                    }
+                ],
+                autofill: true,
+                responsive: true,
+                lengthMenu: [10, 25, 50, 100, 300],
+                buttons: true,
+                /*exporting */
+                dom: 'Blfrtip',
+                order: [[1, 'asc']],
+                buttons: [
+                    'copy', 'print'
+                ],
+                language: {
+                    "lengthMenu": "Показывать _MENU_ записей",
+                    "zeroRecords": "Ничего не найдено",
+                    "info": "Показано _PAGE_ из _PAGES_",
+                    "infoEmpty": "Нет доступных записей",
+                    "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                    "paginate": {
+                        "first": "Первый",
+                        "last": "Последний",
+                        "next": "Следующий",
+                        "previous": "Предыдущий"
+                    },
+                    "loadingRecords": "Загрузка...",
+                    "processing": "",
+                    "search": "Искать:",
+                    "zeroRecords": "Совпадающих записей не найдено"
+                }
+            });
+            document.getElementsByClassName("dt-buttons btn-group flex-wrap")[0].classList.add("mb-3");
+
+            $('#sessions_table tbody').on('click', 'a', function (e) {
+                let data = table.row($(this).parents('tr')).data();
+                let html_rows = "";
+                for (const [key, value] of Object.entries(data.ip)) {
+                    html_rows += `<tr>
+                                <td>${key}</td>
+                                <td>${value}</td>
+                            </tr>`;
+                }
+                let ip_html = `<table class="table table-sm table-centered mb-0">
+                        <thead>
+                            <tr>
+                                <th>Ключ</th>
+                                <th>Значение</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${html_rows}
+                        </tbody>
+                    </table>
+             `;
+                Swal.fire({
+                    title: `<strong>Информация об IP адресе</strong>`,
+                    icon: 'info',
+                    html: ip_html
+                })
+            });
+
+            $('#sessions_table tbody').on('click', 'button', function (e) {
+                let data = table.row($(this).parents('tr')).data();
+                let confirmDelete = confirm("Вы точно хотите удалить данную сессию?");
+                if (confirmDelete) {
+                    try {
+                        $.ajax({
+                                type: 'POST',
+                                url: '{{ url_for('admin.security_session_delete')}}',
+                                data: {
+                                    'id': data.id
+                                },
+                                success: function (result) {
+                                    const res = JSON.parse(result);
+                                    if (res.success === true) {
+                                        location.reload();
+                                    } else {
+                                        $.NotificationApp.send("Безопасность", "Не удалось удалить сессию." + res.error, "top-right", "#FF5B5B", "error");
+                                    }
+                                }
+                            }
+                        );
+                    } catch (err) {
+                    }
+                }
+            });
+        }
+
+    </script>
 
 {% endblock %}

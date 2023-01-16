@@ -87,6 +87,15 @@ def get_product_image(product_id):
     return send_file(directory + filename)
 
 
+# Уровень:              storage/<folder>/<filename>
+# База данных:          storage/*
+# HTML:                 -
+@api.route('/storage/<folder>/<filename>', methods=['POST', 'GET'])
+def get_image(folder, filename):
+    print(f'storage/{folder}/{filename}')
+    return send_file(f'storage/{folder}/{filename}')
+
+
 # NET WORKING
 
 

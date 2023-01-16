@@ -24,9 +24,39 @@
     <div class="row">
         <div id="jstree">
             <ul>
-                {% for folder in folders %}
-                    folder
-                {% endfor %}
+                <li data-jstree='{ "icon" : "ri-folder-line text-success font-24" }'>
+                    avatars
+                    <ul>
+                        {% for i in avatars %}
+                            <li data-jstree='{"icon" : "ri-image-line text-success font-24" }'>
+                                <a href="{{ url_for('api.get_image', folder='avatars', filename=i) }}"
+                                   onclick="delete_image('avatars', '{{ i }}');" target="_blank">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li data-jstree='{ "icon" : "ri-folder-line text-success font-24" }'>
+                    products
+                    <ul>
+                        {% for i in products %}
+                            <li data-jstree='{"icon" : "ri-image-line text-success font-24" }'>
+                                <a href="{{ url_for('api.get_image', folder='products', filename=i) }}"
+                                   onclick="delete_image('products', '{{ i }}');" target="_blank">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
+                <li data-jstree='{ "icon" : "ri-folder-line text-success font-24" }'>
+                    records
+                    <ul>
+                        {% for i in records %}
+                            <li data-jstree='{"icon" : "ri-image-line text-success font-24" }'>
+                                <a href="{{ url_for('api.get_image', folder='records', filename=i) }}"
+                                   onclick="delete_image('records', '{{ i }}');" target="_blank">{{ i }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
@@ -35,6 +65,52 @@
         $(document).ready(function () {
             $('#jstree').jstree();
         });
+
+        function delete_image(folder, filename) {
+            let x = getRandomInt(10);
+            let y = getRandomInt(10);
+            let operation = getRandomInt(3);
+            let expression = '';
+            if (operation === 0) {
+                expression = `${x} + ${y} = ?`;
+                answer = x + y;
+            } else if (operation === 1) {
+                expression = `${x} - ${y} = ?`;
+                answer = x - y;
+            } else if (operation === 2) {
+                expression = `${x} * ${y} = ?`;
+                answer = x * y;
+            }
+            const user_answer = prompt("Решите пример, чтобы удалить файл: " + expression, '');
+            if (answer != null && Number(user_answer) === answer) {
+                 try {
+                        $.ajax({
+                                type: 'POST',
+                                url: '{{ url_for('admin.configuration_files')}}',
+                                data: {
+                                    'path': `${folder}/${filename}`
+                                },
+                                success: function (result) {
+                                    const res = JSON.parse(result);
+                                    if (res.success === true) {
+                                        location.reload();
+                                    } else {
+                                        $.NotificationApp.send("Безопасность", "Не удалось удалить файл. " + res.error, "top-right", "#FF5B5B", "error");
+                                    }
+                                }
+                            }
+                        );
+                    } catch
+                        (err) {
+                    }
+            } else {
+                $.NotificationApp.send("Безопасность", "Неверный ответ.", "top-right", "#FF5B5B", "error");
+            }
+        }
+
+        function getRandomInt(max) {
+            return Math.floor(Math.random() * max);
+        }
     </script>
 
 {% endblock %}

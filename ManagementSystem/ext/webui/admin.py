@@ -35,7 +35,7 @@ from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
-    get_month
+    get_month, get_files_from_storage
 
 logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
@@ -1219,23 +1219,18 @@ def configuration_files():
 
     if request.method == "POST":
         try:
-            pass
+            path = request.form['path']
+            if os.path.exists(path):
+                os.remove(path)
+            return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
-            logger.error(ex)
-            flash(str(ex), 'error')
+            return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
-    folders = []
-    try:
-        for file in os.listdir('storage'):
-            if os.path.isdir(file):
-                folders.append({
-                    "name": file,
-                    "files": os.listdir(f'storage/{file}/')
-                })
-    except:
-        pass
+    avatars = get_files_from_storage('avatars', ['undraw_avatar'])
+    products = get_files_from_storage('products')
+    records = get_files_from_storage('records')
 
-    return render_template("admin/configuration/files.html", folders=folders)
+    return render_template("admin/configuration/files.html", avatars=avatars, products=products, records=records)
 
 
 # Уровень:              configuration/

@@ -1,4 +1,5 @@
 import logging
+import os
 import queue
 import random
 import re
@@ -282,3 +283,17 @@ def rus2eng(word: str) -> str:
     except Exception as ex:
         logger.error(ex)
         return word
+
+
+def get_files_from_storage(folder: str, ignoring_files: list = []) -> list:
+    files = []
+    try:
+        path = f'storage/{folder}/'
+        if os.path.isdir(path):
+            for file in os.listdir(path):
+                filename = file.split('.')[0]
+                if filename not in ignoring_files:
+                    files.append(file)
+    except Exception as ex:
+        logger.error(ex)
+    return files

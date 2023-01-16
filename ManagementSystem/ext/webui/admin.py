@@ -1219,7 +1219,7 @@ def configuration_files():
 
     if request.method == "POST":
         try:
-            path = request.form['path']
+            path = 'storage/' + request.form['path']
             if os.path.exists(path):
                 os.remove(path)
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}

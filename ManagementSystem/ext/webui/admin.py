@@ -1200,3 +1200,89 @@ def security_database():
             flash(str(ex), 'error')
 
     return render_template("admin/security/database.html")
+
+
+# Уровень:              configuration/files
+# База данных:
+# HTML:
+@admin.route('/configuration/files', methods=['POST', 'GET'])
+@login_required
+def configuration_files():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    folders = []
+    try:
+        for file in os.listdir('storage'):
+            if os.path.isdir(file):
+                folders.append({
+                    "name": file,
+                    "files": os.listdir(f'storage/{file}/')
+                })
+    except:
+        pass
+
+    return render_template("admin/configuration/files.html", folders=folders)
+
+
+# Уровень:              configuration/
+# База данных:
+# HTML:
+@admin.route('/configuration/variables', methods=['POST', 'GET'])
+@login_required
+def configuration_variables():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    return render_template("admin/configuration/variables.html")
+
+
+# Уровень:              configuration/
+# База данных:
+# HTML:
+@admin.route('/configuration/backup', methods=['POST', 'GET'])
+@login_required
+def configuration_backup():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    return render_template("admin/configuration/backup.html")

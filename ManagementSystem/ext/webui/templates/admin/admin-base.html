@@ -9,6 +9,8 @@
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
     <meta content="Jewell Admin's Dashboard" name="Alex Shalaev"/>
 
+    {% block css %}{% endblock %}
+
     <!-- App favicon -->
     <link rel="shortcut icon" href="../../assets/images/favicon.ico">
 
@@ -29,6 +31,9 @@
     <!-- Theme Config Js -->
     <script src="../../assets/js/hyper-config.js"></script>
 
+    <!-- jstree css -->
+    <link href="../../assets/vendor/jstree/themes/default/style.min.css" rel="stylesheet" type="text/css">
+
     <!-- Toast css -->
     <link href="../../assets/vendor/jquery-toast-plugin/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
 
@@ -43,7 +48,6 @@
     <!-- App css -->
     <link href="../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
 
-    {% block css %}{% endblock %}
     {{ toastr.include_jquery() }}
     {{ toastr.include_toastr_css() }}
     {{ toastr.message() }}
@@ -434,6 +438,40 @@
                                 <a href="{{ url_for('admin.security_database') }}" class="side-nav-link">
                                     <i class="fa-solid fa-database"></i>
                                     <span> База данных </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+
+                <li class="side-nav-item">
+                    <a data-bs-toggle="collapse" href="#configuration" aria-expanded="false" aria-controls="other"
+                       class="side-nav-link collapsed">
+                        <i class="fa-solid fa-gear"></i>
+                        <span> Конфигурация </span>
+                        <span class="menu-arrow"></span>
+                    </a>
+                    <div class="collapse" id="configuration" style="">
+                        <ul class="side-nav-second-level">
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.configuration_files') }}" class="side-nav-link">
+                                    <span class="badge bg-dark float-end" id="security_users_cnt"></span>
+                                    <i class="fa-solid fa-file"></i>
+                                    <span> Файлы </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.configuration_variables') }}" class="side-nav-link">
+                                    <span class="badge bg-dark float-end" id="security_recovers_cnt"></span>
+                                    <i class="fa-solid fa-server"></i>
+                                    <span> Переменные </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.configuration_backup') }}" class="side-nav-link">
+                                    <span class="badge bg-dark float-end" id="security_sessions_cnt"></span>
+                                    <i class="fa-solid fa-cloud"></i>
+                                    <span> Бекапы </span>
                                 </a>
                             </li>
                         </ul>
@@ -1032,7 +1070,6 @@
 </div>
 
 {{ toastr.include_toastr_js() }}
-{% block js %}{% endblock %}
 
 <script>
     let notifications;
@@ -1204,6 +1241,8 @@
 <!-- Sweet Alert 2 -->
 <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+{% block js %}{% endblock %}
+
 <!-- Vendor js -->
 <script src="../../assets/js/vendor.min.js"></script>
 
@@ -1218,6 +1257,9 @@
 <script src="../../assets/vendor/datatables.net-buttons/js/buttons.html5.min.js"></script>
 <script src="../../assets/vendor/datatables.net-buttons/js/buttons.flash.min.js"></script>
 <script src="../../assets/vendor/datatables.net-buttons/js/buttons.print.min.js"></script>
+
+<!-- jstree js -->
+<script src="../../assets/vendor/jstree/jstree.min.js"></script>
 
 <!-- Input Mask js -->
 <script src="../../assets/vendor/jquery-mask-plugin/jquery.mask.min.js"></script>

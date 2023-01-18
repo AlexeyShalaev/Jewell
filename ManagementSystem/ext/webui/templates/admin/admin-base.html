@@ -89,26 +89,90 @@
 
             <ul class="list-unstyled topbar-menu float-end mb-0">
 
-                <li class="dropdown notification-list" onclick="set_notifications()">
+                <li class="dropdown notification-list">
                     <a class="nav-link dropdown-toggle arrow-none" data-bs-toggle="dropdown" href="#" role="button"
                        aria-haspopup="false" aria-expanded="false">
                         <i class="ri-notification-3-line noti-icon"></i>
-                        <span id="notifications_cnt"
-                              class="top-0 start-100 translate-middle badge rounded-pill bg-danger"></span>
+                        {% if current_user.notifications | length > 0 %}
+                            <span id="notifications_count"
+                                  class="top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ current_user.notifications | length }}</span>
+                        {% endif %}
                     </a>
-                    <div id="pre_notes" class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg py-0">
+                    <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg py-0"
+                         style="position: absolute; inset: 0px 0px auto auto; margin: 0px; transform: translate(-7px, 72px);"
+                         data-popper-placement="bottom-end">
                         <div class="p-2 border-top-0 border-start-0 border-end-0 border-dashed border">
                             <div class="row align-items-center">
                                 <div class="col">
-                                    <h6 class="m-0 font-16 fw-semibold">Уведомления</h6>
+                                    <h6 class="m-0 font-16 fw-semibold"> Уведомления</h6>
+                                </div>
+                                <div class="col-auto">
+                                    <a onclick="clear_notifications();" class="text-dark text-decoration-underline">
+                                        <small>Очистить все</small>
+                                    </a>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="notifications" class="px-3 overflow-auto" data-simplebar data-simplebar-primary
-                             style="max-height: 300px;">
+                        <div class="px-3" style="max-height: 300px;" data-simplebar="init">
 
+                            <div class="simplebar-wrapper" style="margin: 0px -24px;">
+                                <div class="simplebar-height-auto-observer-wrapper">
+                                    <div class="simplebar-height-auto-observer"></div>
+                                </div>
+                                <div class="simplebar-mask">
+                                    <div class="simplebar-offset" style="right: 0px; bottom: 0px;">
+                                        <div class="simplebar-content-wrapper" tabindex="0" role="region"
+                                             aria-label="scrollable content"
+                                             style="height: auto; overflow: hidden scroll;">
+                                            <div id="notifications_content" class="simplebar-content"
+                                                 style="padding: 0px 24px;">
+
+                                                {% for i in current_user.notifications | reverse %}
+                                                    <a id="{{ i.id }}"
+                                                       class="dropdown-item p-0 notify-item card unread-noti shadow-none mb-2">
+                                                        <div class="card-body">
+                                                            <span onclick="delete_notification('{{ i.id }}');"
+                                                                  class="float-end noti-close-btn text-muted"><i
+                                                                    class="mdi mdi-close"></i></span>
+                                                            <div onclick="show_info_about_notification({{ i.to_json() }});"
+                                                                 class="d-flex align-items-center">
+                                                                <div class="flex-shrink-0">
+                                                                    <div class="notify-icon bg-{{ i.color }}">
+                                                                        <i class="{{ i.icon }}"></i>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="flex-grow-1 text-truncate ms-2">
+                                                                    <h5 class="noti-item-title fw-semibold font-14">
+                                                                        {{ i.region }}
+                                                                        <small class="fw-normal text-muted ms-1">{{ i.date }}</small>
+                                                                    </h5>
+                                                                    <small class="noti-item-subtitle text-muted">
+                                                                        {{ i.text }}</small>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </a>
+                                                {% endfor %}
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="simplebar-placeholder" style="width: auto; height: 525px;"></div>
+
+                            </div>
+
+                            <div class="simplebar-track simplebar-horizontal" style="visibility: hidden;">
+                                <div class="simplebar-scrollbar" style="width: 0px; display: none;"></div>
+                            </div>
+                            <div class="simplebar-track simplebar-vertical" style="visibility: visible;">
+                                <div class="simplebar-scrollbar"
+                                     style="height: 171px; display: block; transform: translate3d(0px, 0px, 0px);"></div>
+                            </div>
                         </div>
+
                     </div>
                 </li>
 
@@ -119,22 +183,25 @@
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animated dropdown-lg p-0">
 
-                         <div class="p-2">
+                        <div class="p-2">
                             <div class="row g-0">
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="{{ system_variables['jewellclub'] }}" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['jewellclub'] }}"
+                                       target="_blank">
                                         <img src="../../assets/images/brands/jewell-club.png" alt="jewell-club">
                                         <span>Jewell Club</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="{{ system_variables['yahad'] }}" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['yahad'] }}"
+                                       target="_blank">
                                         <img src="../../assets/images/brands/yahad-logo.png" alt="yahad-logo">
                                         <span>Яхад</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="{{ system_variables['vk_jewellclub'] }}" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['vk_jewellclub'] }}"
+                                       target="_blank">
                                         <img src="../../assets/images/brands/icon-vk.svg" alt="vk">
                                         <span>Группа ВК</span>
                                     </a>
@@ -143,19 +210,22 @@
 
                             <div class="row g-0">
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_yahad'] }}" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_yahad'] }}"
+                                       target="_blank">
                                         <img src="../../assets/images/brands/yahad-jewell.jpg" alt="yahad-jewell">
                                         <span>Яхад Jewell</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_jewellclub'] }}" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_jewellclub'] }}"
+                                       target="_blank">
                                         <img src="../../assets/images/brands/yahad-jewell-dark.jpg" alt="7">
                                         <span>на 7ом</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_bot'] }}" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_bot'] }}"
+                                       target="_blank">
                                         <img src="../../assets/images/brands/telegram.png" alt="telegram">
                                         <span>Telegram Bot</span>
                                     </a>
@@ -488,8 +558,9 @@
                     <div class="collapse" id="sidebarLinks" style="">
                         <ul class="side-nav-second-level">
                             <li>
-                                <a href="{{ system_variables['new_season_yahad'] }}" target="_blank">Новый сезон Яхад <span
-                                        class="badge rounded-pill bg-light text-dark font-10 float-end">New</span></a>
+                                <a href="{{ system_variables['new_season_yahad'] }}" target="_blank">Новый сезон Яхад
+                                    <span
+                                            class="badge rounded-pill bg-light text-dark font-10 float-end">New</span></a>
                             </li>
                             <li>
                                 <a href="{{ system_variables['program_rules'] }}" target="_blank">Правила программы</a>
@@ -1072,7 +1143,6 @@
 {{ toastr.include_toastr_js() }}
 
 <script>
-    let notifications;
     set_avatars("{{url_for('api.get_avatar', user_id=current_user.id)}}");
     set_offers_cnt();
     set_orders_cnt();
@@ -1127,7 +1197,6 @@
                     const res = JSON.parse(result);
                     if (res.success) {
                         if (res.news > 0) document.getElementById("news_cnt").innerText = res.news;
-                        if (res.notifications > 0) document.getElementById("notifications_cnt").innerText = res.notifications;
                     }
                 }
             });
@@ -1136,7 +1205,7 @@
         }
     }
 
-     function set_security_cnt() {
+    function set_security_cnt() {
         try {
             const link = "{{url_for('api.security_count')}}";
             $.ajax({
@@ -1156,63 +1225,20 @@
         }
     }
 
-    function hide_img(id) {
-        document.getElementById("img_" + id).remove();
-    }
-
-    function set_notifications() {
-        let html_notifications = document.getElementById("notifications");
-        html_notifications.innerHTML = "";
+    function clear_notifications() {
         try {
-            const link = "{{url_for('api.get_notifications')}}";
+            const link = "{{url_for('api.clear_notifications')}}";
             $.ajax({
                 type: 'POST',
                 url: link,
+                data: {
+                    'user_id': '{{ current_user.id }}'
+                },
                 success: function (result) {
                     const res = JSON.parse(result);
                     if (res.success) {
-                        notifications = res.notifications;
-                        for (const i in notifications) {
-                            const n = notifications[i];
-                            var note = document.createElement("a");
-                            var card = document.createElement("div");
-                            var d1 = document.createElement("div");
-                            var d11 = document.createElement("div");
-                            var d12 = document.createElement("div");
-                            var img = document.createElement("img");
-                            var h5 = document.createElement("h5");
-                            var small = document.createElement("small");
-                            small.setAttribute('class', 'noti-item-subtitle text-muted');
-                            let str = "";
-                            for (let char of n.text) {
-                                if (char !== '\r' && char !== '\n') str += char;
-                            }
-                            small.innerText = str;
-                            h5.setAttribute('class', 'noti-item-title fw-semibold font-14');
-                            h5.innerHTML = n.author + " <small class=\"fw-normal text-muted ms-1\">" + n.time + "</small>";
-                            d12.appendChild(h5);
-                            d12.appendChild(small);
-                            img.setAttribute('class', 'rounded');
-                            img.setAttribute('src', '/api/avatar/' + n.user_id);
-                            img.setAttribute('alt', 'avatar');
-                            img.setAttribute('height', '32');
-                            d11.appendChild(img);
-                            d12.setAttribute('class', 'flex-grow-1 text-truncate ms-2');
-                            d11.setAttribute('class', 'flex-shrink-0');
-                            d1.appendChild(d11);
-                            d1.appendChild(d12);
-                            d1.setAttribute('class', 'd-flex align-items-center');
-                            card.appendChild(d1);
-                            card.setAttribute('class', 'card-body');
-                            note.appendChild(card);
-                            note.setAttribute('class', "dropdown-item p-0 notify-item card shadow-none mb-2");
-                            note.setAttribute('onclick', "show_info_about_notification('" + i + "')");
-                            html_notifications.appendChild(note);
-                        }
-                    } else {
-                        html_notifications.innerHTML = "<div class=\"alert alert-info\" role=\"alert\">\n" +
-                            "    <i class=\"ri-information-line me-2\"></i> Не удалось загрузить уведомления." +
-                            "</div>";
+                        document.getElementById("notifications_content").innerHTML = "";
+                        document.getElementById("notifications_count").innerHTML = "";
                     }
                 }
             });
@@ -1221,21 +1247,62 @@
         }
     }
 
-    function show_info_about_notification(index) {
-        const note = notifications[index];
-        let note_html = `<strong>${note.time}</strong><br><div class="mt-3" style="white-space:pre-wrap">${note.text}</div>`;
+    function show_info_about_notification(notification) {
+        let nHTML = `
+                     <i class="font-36 ${notification.icon}"></i>
+                     <h5 class="card-title mt-2">${notification.date}</h5>
+                     <p class="card-text mt-2">${notification.text}</p> `;
         Swal.fire({
-            title: `<a href="/networking/profile/${note.user_id}">${note.author}</a>`,
-            icon: 'info',
-            html: note_html,
-            showCloseButton: true
+            title: `<strong><a href="${notification.link}">${notification.region}</a></strong>`,
+            html: nHTML,
+            showCloseButton: true,
+            focusConfirm: false,
+            confirmButtonText: '<i class="fa-solid fa-trash pe-2"></i>Прочитано',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                delete_notification(notification.id);
+            }
         })
+    }
+
+    function delete_notification(id) {
+        try {
+            const link = "{{url_for('api.delete_notification')}}";
+            $.ajax({
+                type: 'POST',
+                url: link,
+                data: {
+                    'user_id': '{{ current_user.id }}',
+                    'notification_id': id
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success) {
+                        document.getElementById(id).remove();
+                        let cnt = Number(document.getElementById("notifications_count").innerHTML) - 1;
+                        if (cnt > 0) {
+                            document.getElementById("notifications_count").innerHTML = cnt.toString();
+                        } else {
+                            document.getElementById("notifications_count").innerHTML = "";
+                        }
+                    }
+                }
+            });
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
+    function hide_img(id) {
+        document.getElementById("img_" + id).remove();
     }
 
     function call_down(id, milliseconds = 1000) {
         document.getElementById(id).disabled = true;
         setTimeout(() => document.getElementById(id).disabled = false, milliseconds);
     }
+
+
 </script>
 
 <!-- Sweet Alert 2 -->

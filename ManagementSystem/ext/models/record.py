@@ -11,7 +11,6 @@ from ManagementSystem.ext.database.users import get_user_by_id
 class RecordType(Enum):
     NEWS = 'news'  # новости (только учителя и админы)
     POST = 'post'  # пост (все)
-    NOTIFICATION = 'notification'  # уведомления (только админы)
     NULL = 'null'  # ничего
 
 

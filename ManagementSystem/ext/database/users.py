@@ -99,7 +99,8 @@ def add_user(phone_number: str, password: str):
         "university": None,
         "languages": None,
         "location": None,
-        "tags": None
+        "tags": None,
+        "notifications": []
     })
 
 
@@ -111,6 +112,11 @@ def add_users(users):
 # обновление данных пользователя по ID
 def update_user(id, key, value):
     db.users.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
+
+
+# обновление уведомлений пользователя
+def update_notifications(id, notifications):
+    db.users.update_one({'_id': ObjectId(id)}, {"$set": {'notifications': [i.to_json() for i in notifications]}})
 
 
 def update_registered_user(id, first_name, last_name, birthday):

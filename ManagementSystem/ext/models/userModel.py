@@ -5,6 +5,8 @@ from bson import ObjectId
 from flask import url_for
 from flask_login import UserMixin
 
+from ManagementSystem.ext.models.notification import Notification
+
 
 class Reward(Enum):
     TRIP = 'trip'  # поездка
@@ -45,6 +47,7 @@ class User(UserMixin):
     languages: list  # языки
     location: str  # местонахождение
     tags: list  # теги
+    notifications: list  # уведомления
 
     def __init__(self, data):
         self.id = data['_id']
@@ -65,6 +68,7 @@ class User(UserMixin):
         self.languages = data['languages']
         self.location = data['location']
         self.tags = data['tags']
+        self.notifications = [Notification(i) for i in data['notifications']]
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),
@@ -84,7 +88,8 @@ class User(UserMixin):
                            "university": self.university,
                            "languages": self.languages,
                            "location": self.location,
-                           "tags": self.tags
+                           "tags": self.tags,
+                           "notifications": [i.to_json() for i in self.notifications]
                            })
 
     def to_document(self):
@@ -95,7 +100,8 @@ class User(UserMixin):
                     f' {" ".join(self.languages)} {" ".join(self.tags)}'}
 
     def to_net(self):
-        return {"id": str(self.id), "name": f'<a href=\"{self.get_page()}\" target="_blank">{self.first_name} {self.last_name}</a>',
+        return {"id": str(self.id),
+                "name": f'<a href=\"{self.get_page()}\" target="_blank">{self.first_name} {self.last_name}</a>',
                 "telegram": f'<a href=\"https://t.me/{self.telegram_username}\" target="_blank">@{self.telegram_username}</a>' if self.telegram_username else "-",
                 }
 

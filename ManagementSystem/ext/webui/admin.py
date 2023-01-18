@@ -28,9 +28,10 @@ from ManagementSystem.ext.database.recover_pw import get_recovers, delete_recove
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender, delete_relationship, \
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
-    update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
+    update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number, update_notifications
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
+from ManagementSystem.ext.models.notification import Notification
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \

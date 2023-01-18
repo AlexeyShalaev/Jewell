@@ -14,7 +14,8 @@ from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
-from ManagementSystem.ext.database.users import get_users, get_user_by_id, Reward, Role
+from ManagementSystem.ext.database.users import get_users, get_user_by_id, Reward, Role, update_user, \
+    update_notifications
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, set_records, \
     rus2eng
@@ -39,7 +40,7 @@ def get_avatar(user_id):
                     filename = file
                     break
         except Exception as ex:
-            logger.error(ex)
+            logger.error(f'get_avatar: {ex}')
     return send_file(directory + filename)
 
 
@@ -59,7 +60,7 @@ def get_record_image(record_id):
                     filename = file
                     break
         except Exception as ex:
-            logger.error(ex)
+            logger.error(f'get_record_image: {ex}')
     if filename == '':
         return json.dumps({'info': 'image not found'}), 200, {
             'ContentType': 'application/json'}
@@ -80,7 +81,7 @@ def get_product_image(product_id):
                 filename = file
                 break
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'get_product_image: {ex}')
     if filename == '':
         return json.dumps({'info': 'image not found'}), 200, {
             'ContentType': 'application/json'}
@@ -92,7 +93,6 @@ def get_product_image(product_id):
 # HTML:                 -
 @api.route('/storage/<folder>/<filename>', methods=['POST', 'GET'])
 def get_image(folder, filename):
-    print(f'storage/{folder}/{filename}')
     return send_file(f'storage/{folder}/{filename}')
 
 
@@ -126,7 +126,7 @@ def networking_dataset():
             return json.dumps({'success': True, 'nodes': nodes, 'edges': edges}), 200, {
                 'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'networking_dataset: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -147,7 +147,7 @@ def networking_way():
             return json.dumps({'success': True, 'way': way}), 200, {
                 'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'networking_way: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -167,7 +167,7 @@ def networking_search():
         return json.dumps({'success': True, 'users': [user.to_net() for user in users]}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'networking_search: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -211,7 +211,7 @@ def get_schedule():
                  'colors': colors}), 200, {
                        'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'get_schedule: {ex}')
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -225,7 +225,7 @@ def offers_count():
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'offers_count: {ex}')
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
@@ -239,7 +239,7 @@ def products_count():
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'products_count: {ex}')
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
@@ -253,7 +253,7 @@ def orders_count():
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'orders_count: {ex}')
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
@@ -264,11 +264,10 @@ def orders_count():
 def records_count():
     try:
         news = len(get_records_by_type(RecordType.NEWS).data)
-        notifications = len(get_records_by_type(RecordType.NOTIFICATION).data)
-        return json.dumps({'success': True, 'news': news, 'notifications': notifications}), 200, {
+        return json.dumps({'success': True, 'news': news}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'records_count: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -284,7 +283,7 @@ def security_count():
         return json.dumps({'success': True, 'users': users, 'recovers': recovers, 'sessions': sessions}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'security_count: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -300,7 +299,7 @@ def attendance_count(user_id):
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'attendance_count: {ex}')
     return json.dumps({'data': ''}), 200, {'ContentType': 'application/json'}
 
 
@@ -378,7 +377,7 @@ def get_attendance():
                            'users_with_bad_attendance': users_with_bad_attendance}), 200, {
                    'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'get_attendance: {ex}')
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -426,19 +425,44 @@ def get_user_attendance():
         return json.dumps({'success': True, 'data': d}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'get_user_attendance: {ex}')
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
-# Уровень:              api/notifications
-# База данных:          Records
+# Уровень:              notifications/clear/all
+# База данных:          users
 # HTML:                 -
-@api.route('/notifications', methods=['POST'])
-def get_notifications():
+@api.route('/notifications/clear/all', methods=['POST'])
+def clear_notifications():
     try:
-        return json.dumps(
-            {'success': True, 'notifications': set_records(get_records_by_type(RecordType.NOTIFICATION))}), 200, {
-                   'ContentType': 'application/json'}
+        user_id = request.form['user_id']
+        update_notifications(user_id, [])
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logger.error(f'clear_notifications: {ex}')
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              notifications/delete
+# База данных:          users
+# HTML:                 -
+@api.route('/notifications/delete', methods=['POST'])
+def delete_notification():
+    try:
+        user_id = request.form['user_id']
+        notification_id = request.form['notification_id']
+        r = get_user_by_id(user_id)
+        if r.success:
+            notification = None
+            notifications = r.data.notifications
+            for i in notifications:
+                if notification_id == i.id:
+                    notification = i
+                    break
+            if notification is not None:
+                notifications.remove(notification)
+                update_notifications(user_id, notifications)
+            return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logger.error(f'delete_notification: {ex}')
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

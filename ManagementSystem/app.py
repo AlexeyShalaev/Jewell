@@ -14,6 +14,7 @@ from ManagementSystem.ext.webui.other import other
 from ManagementSystem.ext.webui.student import student
 from ManagementSystem.ext.webui.teacher import teacher
 from ManagementSystem.ext.webui.view import view
+from ManagementSystem.ext import system_variables
 from config import load_config
 
 config = load_config()  # config
@@ -31,6 +32,8 @@ app.register_blueprint(student)
 app.register_blueprint(teacher)
 app.register_blueprint(admin)
 app.config['SECRET_KEY'] = config.flask.secret_key
+
+app.jinja_env.globals['system_variables'] = system_variables
 
 toastr = Toastr(app)
 

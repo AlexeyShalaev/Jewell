@@ -4,7 +4,7 @@ from logging import getLogger
 
 from flask import *
 
-from ManagementSystem.ext import trip_date
+from ManagementSystem.ext import system_variables
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
@@ -324,6 +324,7 @@ def get_attendance():
         users = list()
         users_with_bad_attendance = list()
         now = datetime.now()
+        trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
         days_remaining = (trip_date - now).days
         weeks_remaining = int(days_remaining / 7)
 

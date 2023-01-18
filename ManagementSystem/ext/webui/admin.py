@@ -7,7 +7,6 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from ManagementSystem.ext import trip_date
 from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
@@ -36,6 +35,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
+from ManagementSystem.ext import system_variables
 
 logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
@@ -813,6 +813,7 @@ def users_student_profile(user_id):
                     'x': f'{get_month(m)} {y}',
                     'y': int(v * 4)
                 })
+            trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
             if now < trip_date:
                 days_remaining = (trip_date - now).days
                 weeks_remaining = int(days_remaining / 7)
@@ -1233,9 +1234,9 @@ def configuration_files():
     return render_template("admin/configuration/files.html", avatars=avatars, products=products, records=records)
 
 
-# Уровень:              configuration/
-# База данных:
-# HTML:
+# Уровень:              configuration/variables
+# База данных:          system_variables.ini
+# HTML:                 variables
 @admin.route('/configuration/variables', methods=['POST', 'GET'])
 @login_required
 def configuration_variables():
@@ -1250,7 +1251,11 @@ def configuration_variables():
 
     if request.method == "POST":
         try:
-            pass
+            key = request.form['btn_save']
+            value = request.form[key]
+            system_variables.update_variable(key, value)
+            system_variables.write_variables()
+            flash(f'Вы обновили переменную {key}', 'success')
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')

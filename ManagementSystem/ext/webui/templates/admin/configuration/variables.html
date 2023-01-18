@@ -21,4 +21,123 @@
         </div>
     </div>
 
+    <div class="row">
+        <form method="post">
+            <table class="table table-bordered border-primary table-centered mb-0">
+                <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Значение</th>
+                    <th class="text-center">Обновить</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>Дата поездки</td>
+                    <td><input name="yahad_trip" value="{{ system_variables['yahad_trip'] }}" type="text"
+                               class="form-control" data-provide="datepicker" data-date-autoclose="true" data-date-format="dd.mm.yyyy">
+                    </td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="yahad_trip" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['program_rules'] }}" target="_blank">Правила программы</a></td>
+                    <td><input type="url" name="program_rules" class="form-control"
+                               value="{{ system_variables['program_rules'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="program_rules" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['new_season_yahad'] }}" target="_blank">Новый сезон яхад</a>
+                    </td>
+                    <td><input type="url" name="new_season_yahad" class="form-control"
+                               value="{{ system_variables['new_season_yahad'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="new_season_yahad" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['jewellclub'] }}" target="_blank">Сайт Jewell Club</a></td>
+                    <td><input type="url" name="jewellclub" class="form-control"
+                               value="{{ system_variables['jewellclub'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="jewellclub" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['yahad'] }}" target="_blank">Сайт YAHAD</a></td>
+                    <td><input type="url" name="yahad" class="form-control"
+                               value="{{ system_variables['yahad'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="yahad" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['vk_jewellclub'] }}" target="_blank">Группа VK Jewell Club</a>
+                    </td>
+                    <td><input type="url" name="vk_jewellclub" class="form-control"
+                               value="{{ system_variables['vk_jewellclub'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="vk_jewellclub" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['tg_yahad'] }}" target="_blank">Telegram Yahad Jewell</a></td>
+                    <td><input type="url" name="tg_yahad" class="form-control"
+                               value="{{ system_variables['tg_yahad'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="tg_yahad" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['tg_jewellclub'] }}" target="_blank">Telegram Подслушано на
+                        7</a></td>
+                    <td><input type="url" name="tg_jewellclub" class="form-control"
+                               value="{{ system_variables['tg_jewellclub'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="tg_jewellclub" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['tg_bot'] }}" target="_blank">Telegram Bot</a></td>
+                    <td><input type="url" name="tg_bot" class="form-control"
+                               value="{{ system_variables['tg_bot'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="tg_bot" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['support'] }}" target="_blank">Поддержка</a></td>
+                    <td><input type="url" name="support" class="form-control"
+                               value="{{ system_variables['support'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="support" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><a href="{{ system_variables['donation'] }}" target="_blank">Помощь клубу</a></td>
+                    <td><input type="url" name="donation" class="form-control"
+                               value="{{ system_variables['donation'] }}"></td>
+                    <td class="table-action text-center">
+                        <button type="submit" name="btn_save" value="donation" class="btn btn-dark"><i
+                                class="mdi mdi-pencil"></i></button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
+    </div>
+
 {% endblock %}

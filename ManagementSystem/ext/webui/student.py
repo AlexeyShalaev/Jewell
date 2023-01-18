@@ -6,7 +6,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from ManagementSystem.ext import trip_date
+from ManagementSystem.ext import system_variables
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.maps import get_map_by_name
@@ -149,6 +149,7 @@ def student_attendance():
                 'x': f'{get_month(m)} {y}',
                 'y': int(v * 4)
             })
+        trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
         if now < trip_date:
             days_remaining = (trip_date - now).days
             weeks_remaining = int(days_remaining / 7)

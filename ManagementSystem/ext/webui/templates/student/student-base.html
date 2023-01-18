@@ -110,19 +110,19 @@
                         <div class="p-2">
                             <div class="row g-0">
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://jewellclub.ru/" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['jewellclub'] }}" target="_blank">
                                         <img src="../../assets/images/brands/jewell-club.png" alt="jewell-club">
                                         <span>Jewell Club</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://yahad.ru/" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['yahad'] }}" target="_blank">
                                         <img src="../../assets/images/brands/yahad-logo.png" alt="yahad-logo">
                                         <span>Яхад</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://vk.com/jewellclub" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['vk_jewellclub'] }}" target="_blank">
                                         <img src="../../assets/images/brands/icon-vk.svg" alt="vk">
                                         <span>Группа ВК</span>
                                     </a>
@@ -131,19 +131,19 @@
 
                             <div class="row g-0">
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://t.me/yahad_jewell" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_yahad'] }}" target="_blank">
                                         <img src="../../assets/images/brands/yahad-jewell.jpg" alt="yahad-jewell">
                                         <span>Яхад Jewell</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://t.me/+zaW_-KwesrU4Mjgy" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_jewellclub'] }}" target="_blank">
                                         <img src="../../assets/images/brands/yahad-jewell-dark.jpg" alt="7">
                                         <span>на 7ом</span>
                                     </a>
                                 </div>
                                 <div class="col">
-                                    <a class="dropdown-icon-item" href="https://t.me/JewellClub_bot" target="_blank">
+                                    <a class="dropdown-icon-item" href="{{ system_variables['tg_bot'] }}" target="_blank">
                                         <img src="../../assets/images/brands/telegram.png" alt="telegram">
                                         <span>Telegram Bot</span>
                                     </a>
@@ -198,7 +198,7 @@
                         </a>
 
                         <!-- item-->
-                        <a href="javascript:void(0);" class="dropdown-item notify-item">
+                        <a href="{{ system_variables['support'] }}" class="dropdown-item notify-item">
                             <i class="fa-solid fa-question me-1"></i>
                             <span>Помощь</span>
                         </a>
@@ -332,11 +332,11 @@
                     <div class="collapse" id="sidebarLinks" style="">
                         <ul class="side-nav-second-level">
                             <li>
-                                <a href="https://jewellclub.ru/new-season/" target="_blank">Новый сезон Яхад <span
+                                <a href="{{ system_variables['new_season_yahad'] }}" target="_blank">Новый сезон Яхад <span
                                         class="badge rounded-pill bg-light text-dark font-10 float-end">New</span></a>
                             </li>
                             <li>
-                                <a href="https://bit.ly/3dX5iMT" target="_blank">Правила программы</a>
+                                <a href="{{ system_variables['program_rules'] }}" target="_blank">Правила программы</a>
                             </li>
 
                         </ul>
@@ -351,7 +351,7 @@
                 <img src="../../assets/images/brands/yahad-jewell.jpg" height="90" alt="Helper Icon Image"/>
                 <h5 class="mt-3">Yahad Jewell</h5>
                 <p class="mb-3">Хочешь помочь клубу?</p>
-                <a href="https://jewellclub.ru/help/" class="btn btn-soft-dark btn-sm">Вперед</a>
+                <a href="{{ system_variables['donation'] }}" class="btn btn-soft-dark btn-sm">Вперед</a>
             </div>
             <!-- end Help Box -->
 

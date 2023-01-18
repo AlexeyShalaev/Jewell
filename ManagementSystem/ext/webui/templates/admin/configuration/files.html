@@ -29,8 +29,10 @@
                     <ul>
                         {% for i in avatars %}
                             <li data-jstree='{"icon" : "ri-image-line text-success font-24" }'>
+
                                 <a href="{{ url_for('api.get_image', folder='avatars', filename=i) }}"
                                    onclick="delete_image('avatars', '{{ i }}');" target="_blank">{{ i }}</a>
+
                             </li>
                         {% endfor %}
                     </ul>
@@ -82,27 +84,27 @@
                 answer = x * y;
             }
             const user_answer = prompt("Решите пример, чтобы удалить файл: " + expression, '');
-            if (answer != null && Number(user_answer) === answer) {
-                 try {
-                        $.ajax({
-                                type: 'POST',
-                                url: '{{ url_for('admin.configuration_files')}}',
-                                data: {
-                                    'path': `${folder}/${filename}`
-                                },
-                                success: function (result) {
-                                    const res = JSON.parse(result);
-                                    if (res.success === true) {
-                                        location.reload();
-                                    } else {
-                                        $.NotificationApp.send("Безопасность", "Не удалось удалить файл. " + res.error, "top-right", "#FF5B5B", "error");
-                                    }
+            if (answer != null && Number(user_answer) === answer && user_answer.length > 0) {
+                try {
+                    $.ajax({
+                            type: 'POST',
+                            url: '{{ url_for('admin.configuration_files')}}',
+                            data: {
+                                'path': `${folder}/${filename}`
+                            },
+                            success: function (result) {
+                                const res = JSON.parse(result);
+                                if (res.success === true) {
+                                    location.reload();
+                                } else {
+                                    $.NotificationApp.send("Безопасность", "Не удалось удалить файл. " + res.error, "top-right", "#FF5B5B", "error");
                                 }
                             }
-                        );
-                    } catch
-                        (err) {
-                    }
+                        }
+                    );
+                } catch
+                    (err) {
+                }
             } else {
                 $.NotificationApp.send("Безопасность", "Неверный ответ.", "top-right", "#FF5B5B", "error");
             }

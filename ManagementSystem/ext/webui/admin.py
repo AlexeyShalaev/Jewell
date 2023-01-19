@@ -1287,3 +1287,53 @@ def configuration_backup():
             flash(str(ex), 'error')
 
     return render_template("admin/configuration/backup.html")
+
+
+# Уровень:              forms/constructor
+# База данных:          forms
+# HTML:                 constructor
+@admin.route('/forms/constructor', methods=['POST', 'GET'])
+@login_required
+def forms_constructor():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    return render_template("admin/forms/constructor.html")
+
+
+# Уровень:              forms/overview
+# База данных:          forms
+# HTML:                 overview
+@admin.route('/forms/overview', methods=['POST', 'GET'])
+@login_required
+def forms_overview():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    return render_template("admin/forms/overview.html")

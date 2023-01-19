@@ -1,0 +1,137 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Constructor
+{% endblock %}
+
+{% block js %}
+    <script src="../../assets/vendor/dragula/dragula.min.js"></script>
+    <script src="../../assets/js/ui/component.dragula.js"></script>
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Формы</li>
+                        <li class="breadcrumb-item active">Конструктор</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Создание форм</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" data-plugin="dragula" data-containers='["form-constructor", "bucket"]'>
+
+        <div class="col-lg-6">
+
+            <div class="row">
+                <div class="bg-dragula p-2 p-lg-4">
+                    <div id="bucket" onmouseleave="clear_trash();" class="dropzone py-2">
+
+                        <div class="dz-message needsclick">
+                            <i class="h1 text-muted uil-trash"></i>
+                            <h3>Перетащите сюда объекты, которые хотите удалить.</h3>
+                        </div>
+
+                    </div> <!-- end company-list-1 -->
+                </div> <!-- end div.bg-light-->
+            </div> <!-- end row -->
+
+            <div class="row p-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="accordion" id="accordionForms">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputPhone"
+                                            aria-expanded="true" aria-controls="inputPhone">
+                                        Номер телефона
+                                    </button>
+                                </h2>
+                                <div id="inputPhone" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+                                        <div class="mb-2">
+                                            <label for="phonenumber" class="form-label">Номер телефона</label>
+                                            <input class="form-control" placeholder="Введите номер" disabled>
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="phoneRequired">
+                                                <label class="form-check-label" for="phoneRequired">Обязательный
+                                                    вопрос</label>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onclick="add_phone_input();" class="btn btn-primary">
+                                            Добавить
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div> <!-- end card-body-->
+                </div> <!-- end card-->
+            </div>
+
+
+        </div>
+
+        <div class="col-lg-6">
+            <form>
+                <div class="card">
+                    <div class="card-body">
+                        <input type="text" id="form-name" class="form-control font-18" required
+                               placeholder="Название формы">
+                        <textarea class="form-control mt-2" id="form-description" rows="3" placeholder="Описание"
+                                  required></textarea>
+
+                        <hr>
+
+                        <div id="form-constructor" class="py-2">
+
+
+                        </div> <!-- end company-list-1-->
+
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-outline-primary"><i class="uil-clipboard-notes"></i> Создать</button>
+                        </div>
+
+                    </div> <!-- end card-body-->
+                </div> <!-- end card-->
+            </form>
+        </div>
+
+
+    </div>
+
+    <script>
+
+        function add_phone_input() {
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+                                <label for="phonenumber" class="form-label">Номер телефона</label>
+                                <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
+                                       pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                       placeholder="Введите номер">
+                                <hr>
+                            </div>`;
+        }
+
+        function clear_trash() {
+            document.getElementById("bucket").innerHTML = `<div class="dz-message needsclick">
+                            <i class="h1 text-muted uil-trash"></i>
+                            <h3>Перетащите сюда объекты, которые хотите удалить.</h3>
+                        </div>`;
+        }
+
+    </script>
+
+{% endblock %}

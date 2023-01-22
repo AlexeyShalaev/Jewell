@@ -32,9 +32,9 @@
 
             <div class="row">
                 <div class="bg-dragula p-2 p-lg-4">
-                    <div id="bucket" onmouseleave="clear_trash();" class="dropzone py-2">
+                    <div id="bucket" class="dropzone py-2">
 
-                        <div class="dz-message needsclick">
+                        <div class="dz-message needsclick" onclick="clear_trash();">
                             <i class="h1 text-muted uil-trash"></i>
                             <h3>Перетащите сюда объекты, которые хотите удалить.</h3>
                         </div>
@@ -59,7 +59,7 @@
                                      data-bs-parent="#accordionForms">
                                     <div class="accordion-body">
                                         <div class="mb-2">
-                                            <label for="phonenumber" class="form-label">Номер телефона</label>
+                                            <label class="form-label">Номер телефона</label>
                                             <input class="form-control" placeholder="Введите номер" disabled>
                                         </div>
                                         <div class="mb-2">
@@ -77,11 +77,321 @@
                                     </div>
                                 </div>
                             </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputEmail"
+                                            aria-expanded="true" aria-controls="inputEmail">
+                                        Почта
+                                    </button>
+                                </h2>
+                                <div id="inputEmail" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+                                        <div class="mb-2">
+                                            <label class="form-label">Почта</label>
+                                            <input class="form-control" placeholder="Введите почту" disabled>
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="emailRequired">
+                                                <label class="form-check-label" for="emailRequired">Обязательный
+                                                    вопрос</label>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onclick="add_email_input();" class="btn btn-primary">
+                                            Добавить
+                                        </button>
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputText"
+                                            aria-expanded="true" aria-controls="inputText">
+                                        Текст
+                                    </button>
+                                </h2>
+                                <div id="inputText" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+                                        <div class="mb-2">
+                                            <input id="textLabel" class="form-label w-100"
+                                                   value="Ваш вопрос">
+                                            <input id="textExample" class="form-control" placeholder="Подсказка"
+                                                   disabled>
+                                        </div>
+                                        <hr>
+                                        <div class="mb-2">
+                                            <label for="textPlaceholder" class="form-label">Подсказка</label>
+                                            <input type="text" id="textPlaceholder" oninput="change_field('text');"
+                                                   class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       id="textMulti" onchange="change_text_type();">
+                                                <label class="form-check-label" for="textMulti">Многострочный
+                                                    режим</label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       id="textRequired">
+                                                <label class="form-check-label" for="textRequired">Обязательный
+                                                    вопрос</label>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onclick="add_text_input();"
+                                                class="btn btn-primary">
+                                            Добавить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputNumber"
+                                            aria-expanded="true" aria-controls="inputNumber">
+                                        Число
+                                    </button>
+                                </h2>
+                                <div id="inputNumber" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+                                        <div class="mb-2">
+                                            <input id="numberLabel" class="form-label w-100"
+                                                   value="Ваш вопрос">
+                                            <input id="numberExample" class="form-control" placeholder="Подсказка"
+                                                   disabled>
+                                        </div>
+                                        <hr>
+                                        <div class="mb-2">
+                                            <label for="numberPlaceholder" class="form-label">Подсказка</label>
+                                            <input type="text" id="numberPlaceholder" oninput="change_field('number');"
+                                                   class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="numberMinValue" class="form-label">Минимальное значение</label>
+                                            <input type="number" id="numberMinValue"
+                                                   class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="numberMaxValue" class="form-label">Максимальное значение</label>
+                                            <input type="number" id="numberMaxValue"
+                                                   class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input"
+                                                       id="numberRequired">
+                                                <label class="form-check-label" for="numberRequired">Обязательный
+                                                    вопрос</label>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onclick="add_number_input();"
+                                                class="btn btn-primary">
+                                            Добавить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputChoice"
+                                            aria-expanded="true" aria-controls="inputChoice">
+                                        Выбор
+                                    </button>
+                                </h2>
+                                <div id="inputChoice" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+
+                                        <ul class="nav nav-pills bg-nav-pills nav-justified mb-3">
+                                            <li class="nav-item">
+                                                <a href="#selectSettings" data-bs-toggle="tab" aria-expanded="false"
+                                                   class="nav-link rounded-0 active">
+                                                    <i class="mdi mdi mdi-settings-outline d-md-none d-block"></i>
+                                                    <span class="d-none d-md-block">Настройка</span>
+                                                </a>
+                                            </li>
+                                            <li class="nav-item">
+                                                <a href="#selectData" data-bs-toggle="tab" aria-expanded="true"
+                                                   class="nav-link rounded-0">
+                                                    <i class="mdi mdi-format-list-checks d-md-none d-block"></i>
+                                                    <span class="d-none d-md-block">Значения</span>
+                                                </a>
+                                            </li>
+                                        </ul>
+
+                                        <div class="tab-content">
+                                            <div class="tab-pane show active" id="selectSettings">
+                                                <div class="mb-3">
+                                                    <label for="choiceLabel" class="form-label">Ваш вопрос</label>
+                                                    <input type="text" id="choiceLabel"
+                                                           class="form-control form-control-sm">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="row">
+                                                        <div class="col">
+                                                            <div class="row text-center justify-content-center">
+                                                                <label class="form-label">Множественный выбор</label>
+                                                                <!-- Bool Switch-->
+                                                                <input type="checkbox" id="multiSelect"
+                                                                       data-switch="bool"/>
+                                                                <label for="multiSelect" data-on-label="On"
+                                                                       data-off-label="Off"></label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col">
+                                                            <div class="row text-center justify-content-center">
+                                                                <label class="form-label">Сделать списком</label>
+                                                                <!-- Bool Switch-->
+                                                                <input type="checkbox" id="selectableType"
+                                                                       data-switch="bool"/>
+                                                                <label for="selectableType" data-on-label="On"
+                                                                       data-off-label="Off"></label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input type="checkbox" class="form-check-input"
+                                                               id="choiceRequired">
+                                                        <label class="form-check-label" for="datetimeRequired">Обязательный
+                                                            вопрос</label>
+                                                    </div>
+                                                </div>
+                                                <button type="button" onclick="add_choice_input();"
+                                                        class="btn btn-primary">
+                                                    Добавить
+                                                </button>
+                                            </div>
+                                            <div class="tab-pane" id="selectData">
+                                                <div class="d-grid mb-3">
+                                                    <div class="input-group">
+                                                        <input type="text" id="field_data" class="form-control"
+                                                               placeholder="Введите значение">
+                                                        <button class="btn btn-dark" onclick="add_data_2_list()"
+                                                                type="button">Добавить
+                                                        </button>
+                                                    </div>
+                                                </div>
+
+                                                <div class="row" data-plugin="dragula" data-containers='["data-list"]'>
+                                                    <div id="data-list">
+
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputDateTime"
+                                            aria-expanded="true" aria-controls="inputDateTime">
+                                        Дата и время
+                                    </button>
+                                </h2>
+                                <div id="inputDateTime" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+                                        <div class="mb-3">
+                                            <label for="datetimeLabel" class="form-label">Ваш вопрос</label>
+                                            <input type="text" id="datetimeLabel" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check mb-1">
+                                                <input type="radio" id="dateRadio" name="datetimeRadio" value="date"
+                                                       class="form-check-input" checked>
+                                                <label class="form-check-label" for="dateRadio">Дата
+                                                    (ДД.ММ.ГГГГ)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input type="radio" id="timeRadio" name="datetimeRadio" value="time"
+                                                       class="form-check-input">
+                                                <label class="form-check-label" for="timeRadio">Время (ЧЧ:ММ)</label>
+                                            </div>
+                                            <div class="form-check mb-1">
+                                                <input type="radio" id="monthRadio" name="datetimeRadio" value="month"
+                                                       class="form-check-input">
+                                                <label class="form-check-label" for="monthRadio">Месяц (Май
+                                                    2004)</label>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="datetimeRequired">
+                                                <label class="form-check-label" for="datetimeRequired">Обязательный
+                                                    вопрос</label>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onclick="add_datetime_input();" class="btn btn-primary">
+                                            Добавить
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                            data-bs-target="#inputRating"
+                                            aria-expanded="true" aria-controls="inputRating">
+                                        Рейтинг
+                                    </button>
+                                </h2>
+                                <div id="inputRating" class="accordion-collapse collapse"
+                                     data-bs-parent="#accordionForms">
+                                    <div class="accordion-body">
+                                        <div class="mb-2">
+                                            <label for="ratingLabel" class="form-label">Ваш вопрос</label>
+                                            <input type="text" id="ratingLabel" class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="ratingMaxValue" class="form-label">Максимальное значение</label>
+                                            <input type="number" id="ratingMaxValue" value="5"
+                                                   class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label for="ratingStepValue" class="form-label">Шаг</label>
+                                            <input type="number" id="ratingStepValue" value="0.5"
+                                                   class="form-control form-control-sm">
+                                        </div>
+                                        <div class="mb-2">
+                                            <div class="form-check">
+                                                <input type="checkbox" class="form-check-input" id="ratingRequired">
+                                                <label class="form-check-label" for="ratingRequired">Обязательный
+                                                    вопрос</label>
+                                            </div>
+                                        </div>
+
+                                        <button type="button" onclick="add_rating_input();"
+                                                class="btn btn-primary">
+                                            Добавить
+                                        </button>
+                                        Данное поле может не отображаться при конструировании!
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div> <!-- end card-body-->
                 </div> <!-- end card-->
             </div>
-
 
         </div>
 
@@ -90,9 +400,9 @@
                 <div class="card">
                     <div class="card-body">
                         <input type="text" id="form-name" class="form-control font-18" required
-                               placeholder="Название формы">
+                               placeholder="Название формы" maxlength="64">
                         <textarea class="form-control mt-2" id="form-description" rows="3" placeholder="Описание"
-                                  required></textarea>
+                                  required maxlength="1024" data-toggle="maxlength"></textarea>
 
                         <hr>
 
@@ -102,7 +412,14 @@
                         </div> <!-- end company-list-1-->
 
                         <div class="mt-2">
-                            <button type="button" class="btn btn-outline-primary"><i class="uil-clipboard-notes"></i> Создать</button>
+                            <button type="button" onclick="create_form();" class="btn btn-outline-primary"><i
+                                    class="uil-clipboard-notes"></i>
+                                Создать
+                            </button>
+                            <button type="button" onclick="clear_form();" class="btn btn-outline-danger ms-2"><i
+                                    class="fa-solid fa-broom"></i>
+                                Очистить
+                            </button>
                         </div>
 
                     </div> <!-- end card-body-->
@@ -115,21 +432,245 @@
 
     <script>
 
+        let id_counter = 0;
+
+        function change_field(field) {
+            document.getElementById(`${field}Example`).placeholder = document.getElementById(`${field}Placeholder`).value;
+        }
+
+        function change_text_type() {
+            if (document.getElementById(`textMulti`).checked) {
+                document.getElementById("textExample").outerHTML = `<textarea id="textExample" class="form-control" placeholder="${document.getElementById(`textPlaceholder`).value}" disabled rows="3"></textarea>`;
+            } else {
+                document.getElementById("textExample").outerHTML = `<input id="textExample" class="form-control" placeholder="${document.getElementById(`textPlaceholder`).value}" disabled>`;
+            }
+        }
+
         function add_phone_input() {
+            ++id_counter;
             document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
-                                <label for="phonenumber" class="form-label">Номер телефона</label>
-                                <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
+                                <label for="phonenumber_${id_counter}" class="form-label">Номер телефона${document.getElementById("phoneRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                <input class="form-control" type="phone" id="phonenumber_${id_counter}" name="phonenumber"
                                        pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                        ${document.getElementById("phoneRequired").checked ? "required" : ""}
                                        placeholder="Введите номер">
-                                <hr>
                             </div>`;
+            document.getElementById("phoneRequired").checked = false;
+        }
+
+        function add_email_input() {
+            ++id_counter;
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+                                <label for="email_${id_counter}" class="form-label">Почта${document.getElementById("emailRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                <input class="form-control" type="email" id="email_${id_counter}" name="email"
+                                    ${document.getElementById("emailRequired").checked ? "required" : ""}
+                                       placeholder="Введите почту" maxlength="64">
+                            </div>`;
+            document.getElementById("emailRequired").checked = false;
+        }
+
+        function add_text_input() {
+            ++id_counter;
+            let textHtml = document.getElementById("textExample").outerHTML.replace("textExample", "text_" + id_counter);
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+                                <label for="text_${id_counter}" class="form-label">${document.getElementById("textLabel").value}${document.getElementById("textRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                ${textHtml}
+                            </div>`;
+            document.getElementById(`text_${id_counter}`).disabled = false;
+            document.getElementById(`text_${id_counter}`).required = document.getElementById("textRequired").checked;
+            document.getElementById(`text_${id_counter}`).placeholder = document.getElementById("textPlaceholder").value;
+            document.getElementById(`text_${id_counter}`).setAttribute('data-toggle', 'maxlength');
+            document.getElementById(`text_${id_counter}`).maxLength = 1024;
+
+            //Base
+            document.getElementById("textLabel").value = "Ваш вопрос";
+            document.getElementById("textExample").placeholder = "Подсказка";
+            document.getElementById("textPlaceholder").value = "";
+            document.getElementById("textMulti").checked = false;
+            document.getElementById("textRequired").checked = false;
+        }
+
+        function add_number_input() {
+            ++id_counter;
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+                                <label for="number_${id_counter}" class="form-label">${document.getElementById("numberLabel").value}${document.getElementById("numberRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                <input class="form-control" type="number" id="number_${id_counter}" name="number"
+                                        ${document.getElementById("numberRequired").checked ? "required" : ""}
+                                       placeholder="${document.getElementById("numberPlaceholder").value}"
+                                    min="${document.getElementById("numberMinValue").value}"
+                                    max="${document.getElementById("numberMaxValue").value}"
+                                 >
+                            </div>`;
+
+            //Base
+            document.getElementById("numberLabel").value = "Ваш вопрос";
+            document.getElementById("numberExample").placeholder = "Подсказка";
+            document.getElementById("numberPlaceholder").value = "";
+            document.getElementById("numberMinValue").value = "";
+            document.getElementById("numberMaxValue").value = "";
+            document.getElementById("numberRequired").checked = false;
+        }
+
+        function add_datetime_input() {
+            if (document.getElementById("datetimeLabel").value.length === 0) {
+                $.NotificationApp.send("Формы", "Введите заголовок для вопроса.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            ++id_counter;
+            const radioType = $("input[type='radio'][name='datetimeRadio']:checked").val();
+            let datetimeInput = `<input class="form-control" id="datetime_${id_counter}" type="${radioType}" name="datetime" ${document.getElementById("datetimeRequired").checked ? "required" : ""} >`;
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+                                <label for="datetime_${id_counter}" class="form-label">${document.getElementById("datetimeLabel").value}${document.getElementById("datetimeRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                ${datetimeInput}
+                            </div>`;
+
+            //Base
+            document.getElementById("datetimeLabel").value = "";
+            let radios = document.getElementsByName("datetimeRadio");
+            for (let i of radios) {
+                i.checked = false;
+            }
+            radios[0].checked = true;
+            document.getElementById("datetimeRequired").checked = false;
+        }
+
+        function add_choice_input() {
+            if (document.getElementById("choiceLabel").value.length === 0) {
+                $.NotificationApp.send("Формы", "Введите заголовок для вопроса.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            ++id_counter;
+
+            let choiceData = [];
+            for (let i of document.getElementsByName("choiceData")) {
+                choiceData.push(i.innerText);
+            }
+            if (choiceData.length === 0) {
+                $.NotificationApp.send("Формы", "Добавьте поля.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+
+            let choiceHTML;
+
+            if (document.getElementById("selectableType").checked) {
+                let options = "";
+                for (i of choiceData) {
+                    options += `<option>${i}</option>`;
+                }
+                choiceHTML = `<div class="mb-3">
+                                <label for="choice_${id_counter}" class="form-label">${document.getElementById("choiceLabel").value}${document.getElementById("choiceRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                <select class="form-select" id="choice_${id_counter}"
+                                    ${document.getElementById("multiSelect").checked ? "multiple" : ""}
+                                    ${document.getElementById("choiceRequired").checked ? "required" : ""}>
+                                    ${options}
+                                </select>
+                            </div>`;
+            } else {
+                let options = "";
+                for (i of choiceData) {
+                    options += `<div class="form-check">
+                                    <input type="${document.getElementById("multiSelect").checked ? 'checkbox' : 'radio'}" name="choice_${id_counter}" class="form-check-input">
+                                    <label class="form-check-label">${i}</label>
+                                </div>`;
+                }
+                choiceHTML = `<div class="mb-3">
+                                <div class="checkbox-group" ${document.getElementById("choiceRequired").checked ? "required" : ""}>
+                                    <label class="form-label">${document.getElementById("choiceLabel").value}${document.getElementById("choiceRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                                    ${options}
+                                </div>
+                            </div>`;
+            }
+
+            document.getElementById("form-constructor").innerHTML += choiceHTML;
+
+
+            //Base
+            document.getElementById("choiceLabel").value = "";
+            document.getElementById("multiSelect").checked = false;
+            document.getElementById("selectableType").checked = false;
+            document.getElementById("field_data").value = "";
+            document.getElementById("data-list").innerHTML = "";
+            document.getElementById("choiceRequired").checked = false;
+        }
+
+        function add_data_2_list() {
+            const data = document.getElementById("field_data").value;
+            if (data.length === 0) {
+                $.NotificationApp.send("Формы", "Введите значение.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            document.getElementById("data-list").innerHTML += `<div name="choiceData" class="shadow-lg p-2 mb-2 rounded">${data}<div class="card-widgets"><a onclick="this.parentNode.parentNode.remove();"><i class="mdi mdi-close"></i></a></div></div>`;
+            document.getElementById("field_data").value = "";
+        }
+
+        function add_rating_input() {
+            ++id_counter;
+            let max = document.getElementById("ratingMaxValue").value;
+            let step = document.getElementById("ratingStepValue").value;
+            if (document.getElementById("ratingLabel").value.length === 0) {
+                $.NotificationApp.send("Формы", "Заполните вопрос.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            if (max.length === 0) {
+                $.NotificationApp.send("Формы", "Заполните максимальное значение.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            if (step.length === 0) {
+                $.NotificationApp.send("Формы", "Заполните шаг.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+                                <label for="rating_${id_counter}" class="form-label">${document.getElementById("ratingLabel").value}${document.getElementById("ratingRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
+                               <div class="rateit rateit-mdi" data-rateit-mode="font" data-rateit-icon="󰓒" id="rating_${id_counter}">
+                                </div>
+                            </div>`;
+            document.getElementById(`rating_${id_counter}`).rateit('max', parseFloat(max));
+            document.getElementById(`rating_${id_counter}`).rateit('step', parseFloat(step));
+
+            //Base
+            document.getElementById("ratingLabel").value = "Ваш вопрос";
+            document.getElementById("ratingStepValue").value = "0.5";
+            document.getElementById("ratingMaxValue").value = "5";
+            document.getElementById("ratingRequired").checked = false;
         }
 
         function clear_trash() {
-            document.getElementById("bucket").innerHTML = `<div class="dz-message needsclick">
+            document.getElementById("bucket").innerHTML = `<div class="dz-message needsclick" onclick="clear_trash();">
                             <i class="h1 text-muted uil-trash"></i>
                             <h3>Перетащите сюда объекты, которые хотите удалить.</h3>
                         </div>`;
+        }
+
+        function clear_form() {
+            document.getElementById("form-name").value = "";
+            document.getElementById("form-description").value = "";
+            document.getElementById("form-constructor").innerHTML = "";
+            id_counter = 0;
+        }
+
+        function create_form() {
+
+            const formName = document.getElementById("form-name").value;
+            const formDescription = document.getElementById("form-description").value;
+            const formContent = document.getElementById("form-constructor").innerHTML;
+            if (formName.length === 0) {
+                $.NotificationApp.send("Формы", "Заполните название формы.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            if (formDescription.length === 0) {
+                $.NotificationApp.send("Формы", "Заполните описание формы.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            if (document.getElementById("form-constructor").children.length === 0) {
+                $.NotificationApp.send("Формы", "Заполните содержимое формы.", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+
+            clear_form();
+
+            //TODO send form to database
+
         }
 
     </script>

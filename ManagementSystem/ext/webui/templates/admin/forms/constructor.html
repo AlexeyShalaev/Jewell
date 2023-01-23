@@ -669,7 +669,28 @@
 
             clear_form();
 
-            //TODO send form to database
+            try {
+                $.ajax({
+                        type: 'POST',
+                        url: '{{ url_for('admin.forms_constructor')}}',
+                        data: {
+                            'name': formName,
+                            'description': formDescription,
+                            'content': formContent,
+                        },
+                        success: function (result) {
+                            const res = JSON.parse(result);
+                            if (res.success === true) {
+                                location.reload();
+                            } else {
+                                $.NotificationApp.send("Формы", "Не удалось создать форму. " + res.error, "top-right", "#FF5B5B", "error");
+                            }
+                        }
+                    }
+                );
+            } catch
+                (err) {
+            }
 
         }
 

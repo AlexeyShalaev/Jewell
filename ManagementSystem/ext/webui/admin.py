@@ -7,6 +7,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
+from ManagementSystem.ext import system_variables
 from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
@@ -16,6 +17,8 @@ from ManagementSystem.ext.database.courses import get_courses, add_course, delet
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
     add_flask_session, \
     get_flask_sessions
+from ManagementSystem.ext.database.forms import add_form, get_forms
+from ManagementSystem.ext.database.forms_answers import get_form_answers_by_id
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
 from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order, delete_orders_by_product_id, \
@@ -28,15 +31,13 @@ from ManagementSystem.ext.database.recover_pw import get_recovers, delete_recove
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender, delete_relationship, \
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
-    update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number, update_notifications
+    update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
-from ManagementSystem.ext.models.notification import Notification
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
-from ManagementSystem.ext import system_variables
 
 logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
@@ -1306,10 +1307,13 @@ def forms_constructor():
 
     if request.method == "POST":
         try:
-            pass
+            name = request.form['name']
+            description = request.form['description']
+            content = request.form['content']
+            add_form(name, description, content)
+            return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
-            logger.error(ex)
-            flash(str(ex), 'error')
+            return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
     return render_template("admin/forms/constructor.html")
 
@@ -1336,4 +1340,17 @@ def forms_overview():
             logger.error(ex)
             flash(str(ex), 'error')
 
-    return render_template("admin/forms/overview.html")
+    forms = []
+    for i in get_forms().data:
+        forms.append({
+            "id": str(i.id),
+            "name": i.name,
+            "status": i.status,
+            "timestamp": i.timestamp,
+            "answers": len(get_form_answers_by_id(str(i.id)).data)
+        })
+
+    if len(forms) > 0:
+        forms.sort(key=lambda form: form['timestamp'], reverse=True)
+
+    return render_template("admin/forms/overview.html", forms=forms)

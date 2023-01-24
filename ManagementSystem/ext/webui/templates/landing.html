@@ -21,6 +21,10 @@
     <!-- App css -->
     <link href="../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
 
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
+
 </head>
 
 <body>
@@ -78,7 +82,7 @@
                     <p class="mb-4 font-16 text-white-50">Данный сайт поможет вам в управлении своими еврейскими
                         делами.</p>
 
-                    <a href="{{url_for('view.login')}}" class="btn btn-success">Вперед<i
+                    <a href="{{ url_for('view.login') }}" class="btn btn-success">Вперед<i
                             class="mdi mdi-arrow-right ms-1"></i></a>
                 </div>
             </div>
@@ -203,7 +207,7 @@
                     <p class="text-muted mt-4 text-center mb-0">© 2022 -
                         <script>document.write(new Date().getFullYear())</script>
                         Jewell Club. Designed and coded by
-                         <a href="https://vk.com/rhekszksskebekewllw">
+                        <a href="https://vk.com/rhekszksskebekewllw">
                             Alex Shalaev
                         </a>
                     </p>
@@ -213,6 +217,9 @@
     </div>
 </footer>
 <!-- END FOOTER -->
+
+{{ toastr.include_toastr_js() }}
+
 <!-- Vendor js -->
 <script src="../assets/js/vendor.min.js"></script>
 

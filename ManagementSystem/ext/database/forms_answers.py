@@ -30,7 +30,7 @@ def get_form_answer_by_id(id) -> MongoDBResult:
 
 # получение по form ID
 def get_form_answers_by_id(form_id) -> MongoDBResult:
-    res = db.forms_answers.find_many({'form': ObjectId(form_id)})
+    res = db.forms_answers.find({'form': ObjectId(form_id)})
     if res:
         forms_answers = []
         for i in list(res):
@@ -42,7 +42,7 @@ def get_form_answers_by_id(form_id) -> MongoDBResult:
 
 # получение по form ID
 def get_forms_answers_by_author_id(author_id) -> MongoDBResult:
-    res = db.forms_answers.find_many({'author': ObjectId(author_id)})
+    res = db.forms_answers.find({'author': ObjectId(author_id)})
     if res:
         forms_answers = []
         for i in list(res):
@@ -56,7 +56,8 @@ def get_forms_answers_by_author_id(author_id) -> MongoDBResult:
 def add_form_answer(form, author, content):
     db.forms_answers.insert_one({
         "form": ObjectId(form),
-        "author": ObjectId(author),
+        #"author": ObjectId(author),
+        #"status": FormAnswerStatus.ACTIVE,
         "content": content,
         "timestamp": datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     })

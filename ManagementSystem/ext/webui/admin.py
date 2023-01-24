@@ -17,7 +17,7 @@ from ManagementSystem.ext.database.courses import get_courses, add_course, delet
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
     add_flask_session, \
     get_flask_sessions
-from ManagementSystem.ext.database.forms import add_form, get_forms
+from ManagementSystem.ext.database.forms import add_form, get_forms, get_form_by_id
 from ManagementSystem.ext.database.forms_answers import get_form_answers_by_id
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
@@ -1347,6 +1347,7 @@ def forms_overview():
             "name": i.name,
             "status": i.status,
             "timestamp": i.timestamp,
+            "datetime": i.get_timestamp(),
             "answers": len(get_form_answers_by_id(str(i.id)).data)
         })
 
@@ -1354,3 +1355,37 @@ def forms_overview():
         forms.sort(key=lambda form: form['timestamp'], reverse=True)
 
     return render_template("admin/forms/overview.html", forms=forms)
+
+
+# Уровень:              forms/analyze
+# База данных:          forms
+# HTML:                 analyze
+@admin.route('/forms/analyze/<form_id>', methods=['POST', 'GET'])
+@login_required
+def forms_analyze(form_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    resp = get_form_by_id(form_id)
+    if not resp.success:
+        flash('Форма не найдена!', 'error')
+        return redirect(url_for('admin.forms_overview'))
+
+    form = resp.data
+    print(form)
+    #TODO analyze
+
+    return render_template("admin/forms/analyze.html")

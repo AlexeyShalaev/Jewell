@@ -12,6 +12,13 @@ class FormStatus(Enum):
     NULL = 'null'  # ничего
 
 
+# unused
+class FormAnswerStatus(Enum):
+    ACTIVE = 'active'  # активен
+    SUBMITTED = 'submitted'  # отправлен
+    NULL = 'null'  # ничего
+
+
 @dataclass
 class Form:
     id: ObjectId  # ID формы
@@ -46,23 +53,26 @@ class Form:
 class FormAnswer:
     id: ObjectId  # ID ответа на форму
     form: ObjectId
-    author: ObjectId
+    # author: ObjectId
+    # status: FormAnswerStatus
     timestamp: datetime
     content: str
 
     def __init__(self, data):
         self.id = data['_id']
         self.form = data['form']
-        self.author = data['author']
+        # self.author = data['author']
+        # self.status = FormAnswerStatus(data['status'])
         self.timestamp = datetime.strptime(data['timestamp'], "%d.%m.%Y %H:%M:%S")
         self.content = data['content']
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),
                            "form": str(self.form),
-                           "author": str(self.author),
+                           # "author": str(self.author),
+                           # "status": self.status.value,
                            "content": self.content,
-                           "timestamp": self.timestamp.strftime("%d.%m.%Y %H:%M"),
+                           "timestamp": self.timestamp.strftime("%d.%m.%Y %H:%M")
                            })
 
     def get_timestamp(self):

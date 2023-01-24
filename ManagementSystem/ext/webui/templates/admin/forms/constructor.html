@@ -450,7 +450,7 @@
             ++id_counter;
             document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
                                 <label for="phonenumber_${id_counter}" class="form-label">Номер телефона${document.getElementById("phoneRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
-                                <input class="form-control" type="phone" id="phonenumber_${id_counter}" name="phonenumber"
+                                <input class="form-control" type="phone" id="phonenumber_${id_counter}" name="form_${id_counter}"
                                        pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
                                         ${document.getElementById("phoneRequired").checked ? "required" : ""}
                                        placeholder="Введите номер">
@@ -462,7 +462,7 @@
             ++id_counter;
             document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
                                 <label for="email_${id_counter}" class="form-label">Почта${document.getElementById("emailRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
-                                <input class="form-control" type="email" id="email_${id_counter}" name="email"
+                                <input class="form-control" type="email" id="email_${id_counter}" name="form_${id_counter}"
                                     ${document.getElementById("emailRequired").checked ? "required" : ""}
                                        placeholder="Введите почту" maxlength="64">
                             </div>`;
@@ -480,6 +480,7 @@
             document.getElementById(`text_${id_counter}`).required = document.getElementById("textRequired").checked;
             document.getElementById(`text_${id_counter}`).placeholder = document.getElementById("textPlaceholder").value;
             document.getElementById(`text_${id_counter}`).setAttribute('data-toggle', 'maxlength');
+            document.getElementById(`text_${id_counter}`).setAttribute('name', `form_${id_counter}`);
             document.getElementById(`text_${id_counter}`).maxLength = 1024;
 
             //Base
@@ -494,7 +495,7 @@
             ++id_counter;
             document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
                                 <label for="number_${id_counter}" class="form-label">${document.getElementById("numberLabel").value}${document.getElementById("numberRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
-                                <input class="form-control" type="number" id="number_${id_counter}" name="number"
+                                <input class="form-control" type="number" id="number_${id_counter}" name="form_${id_counter}"
                                         ${document.getElementById("numberRequired").checked ? "required" : ""}
                                        placeholder="${document.getElementById("numberPlaceholder").value}"
                                     min="${document.getElementById("numberMinValue").value}"
@@ -518,7 +519,7 @@
             }
             ++id_counter;
             const radioType = $("input[type='radio'][name='datetimeRadio']:checked").val();
-            let datetimeInput = `<input class="form-control" id="datetime_${id_counter}" type="${radioType}" name="datetime" ${document.getElementById("datetimeRequired").checked ? "required" : ""} >`;
+            let datetimeInput = `<input class="form-control" id="datetime_${id_counter}" type="${radioType}" name="form_${id_counter}" ${document.getElementById("datetimeRequired").checked ? "required" : ""} >`;
             document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
                                 <label for="datetime_${id_counter}" class="form-label">${document.getElementById("datetimeLabel").value}${document.getElementById("datetimeRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
                                 ${datetimeInput}
@@ -559,7 +560,7 @@
                 }
                 choiceHTML = `<div class="mb-3">
                                 <label for="choice_${id_counter}" class="form-label">${document.getElementById("choiceLabel").value}${document.getElementById("choiceRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
-                                <select class="form-select" id="choice_${id_counter}"
+                                <select class="form-select" id="choice_${id_counter}" name="form_${id_counter}"
                                     ${document.getElementById("multiSelect").checked ? "multiple" : ""}
                                     ${document.getElementById("choiceRequired").checked ? "required" : ""}>
                                     ${options}
@@ -569,7 +570,7 @@
                 let options = "";
                 for (i of choiceData) {
                     options += `<div class="form-check">
-                                    <input type="${document.getElementById("multiSelect").checked ? 'checkbox' : 'radio'}" name="choice_${id_counter}" class="form-check-input">
+                                    <input type="${document.getElementById("multiSelect").checked ? 'checkbox' : 'radio'}" name="form_${id_counter}" class="form-check-input">
                                     <label class="form-check-label">${i}</label>
                                 </div>`;
                 }
@@ -620,10 +621,9 @@
                 return;
             }
 
-            document.getElementById("form-constructor").innerHTML += `<div class="mb-3">
+            document.getElementById("form-constructor").innerHTML += `<div class="mb-3" xmlns="http://www.w3.org/1999/html">
                                 <label for="rating_${id_counter}" class="form-label">${document.getElementById("ratingLabel").value}${document.getElementById("ratingRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
-                               <div class="rateit rateit-mdi" data-rateit-mode="font" data-rateit-icon="󰓒" id="rating_${id_counter}">
-                                </div>
+                               <br><div class="rateit rateit-mdi" data-rateit-mode="font" data-rateit-icon="󰓒" id="rating_${id_counter}" name="form_${id_counter}"></div>
                             </div>`;
             document.getElementById(`rating_${id_counter}`).rateit('max', parseFloat(max));
             document.getElementById(`rating_${id_counter}`).rateit('step', parseFloat(step));

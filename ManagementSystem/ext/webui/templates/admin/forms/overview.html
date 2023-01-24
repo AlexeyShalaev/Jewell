@@ -21,8 +21,35 @@
         </div>
     </div>
 
-    <div class="row mt-3">
-
+    <div class="card row mt-3">
+        <table class="table table-centered mb-0 font-16">
+            <thead class="table-dark">
+            <tr>
+                <th>Название</th>
+                <th>Статус</th>
+                <th>Дата создания</th>
+                <th>Кол-во ответов</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for i in forms %}
+                <tr>
+                    <td><a href="{{ url_for('admin.forms_analyze', form_id=i.id) }}">{{ i.name }}</a></td>
+                    <td>
+                        {% if i.status.value == 'opened'  %}
+                        <i class="mdi mdi-lock-open-check font-24" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Открыта"></i>
+                        {% elif i.status.value == 'closed' %}
+                            <i class="mdi mdi-lock font-24" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Закрыта"></i>
+                        {% else %}
+                            <i class="mdi mdi-lock-question font-24" data-bs-toggle="popover" data-bs-trigger="hover" data-bs-content="Неизвестный тип"></i>
+                        {% endif %}
+                    </td>
+                    <td>{{ i.datetime }}</td>
+                    <td>{{ i.answers }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
     </div>
 
 {% endblock %}

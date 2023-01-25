@@ -47,13 +47,13 @@
                             <p class="text-muted mb-4">{{ form.description }}</p>
                         </div>
 
-                        <form>
+                        <form id="form_content" onsubmit="return send_form();">
 
-                            {{ form.content | safe}}
+                            {{ form.content | safe }}
 
 
                             <div class="mt-3 text-center">
-                                <button class="btn btn-primary" type="button">Отправить</button>
+                                <button class="btn btn-primary" type="submit">Отправить</button>
                             </div>
 
                         </form>
@@ -84,13 +84,145 @@
         Alex Shalaev
     </a>
 </footer>
-<!-- Vendor js -->
-<script src="../../assets/js/vendor.min.js"></script>
 
-<script src="../../assets/vendor/jquery.rateit/scripts/jquery.rateit.min.js"></script>
+<script>
+
+    $( document ).ready(function() {
+        for(let rating of $("[id^='rating_']")){
+            const id = rating.id;
+            const max = rating.getAttribute('rating-max');
+            const step = rating.getAttribute('rating-step');
+            $(`#${id}`).rateit({
+                min: 0,
+                max: parseFloat(max),
+                step: parseFloat(step),
+                mode: 'font',
+                icon: '★'
+            });
+        }
+    });
+
+    function send_form() {
+        try{
+            let answers = {};
+            for (let child of document.getElementById("form_content").children) {
+                 const labels = child.getElementsByTagName("label");
+                if (labels.length > 0) {
+                    let form_id = labels[0].getAttribute('for');
+                    if (form_id === null) {
+                        let selected_options = [];
+                        let form_key = '';
+                        for(let ch of labels[0].parentNode.children){
+                            if(ch.tagName.toLowerCase() === 'div' && ch.classList.contains('form-check')){
+                                let input = ch.getElementsByTagName("input")[0];
+                                form_key = input.name;
+                                if(input.checked){
+                                    selected_options.push(ch.getElementsByTagName("label")[0].innerText);
+                                }
+                            }
+                        }
+                        if(form_key.length > 0){
+                           answers[form_key] = selected_options;
+                        }
+
+                    } else {
+                        let tmp = form_id.split('_');
+                        if (tmp.length === 2) {
+                            const localType = tmp[0];
+                            const number = tmp[1];
+                            let form = document.getElementById(form_id);
+                            if (localType === 'rating') {
+                                answers[form_id] = $(`#${form_id}`).rateit('value');
+                            } else {
+                                if(form.tagName.toLowerCase() === 'select' && form.hasAttribute('multiple')){
+                                    let selected_options = [];
+                                    for (let opt of form.options) {
+                                        if (opt.selected) {
+                                          selected_options.push(opt.value || opt.text);
+                                        }
+                                    }
+                                    answers[form_id] = selected_options;
+                                } else {
+                                    if(localType === 'datetime'){
+                                         if(form.type === 'date'){
+                                            if(form.value){
+                                                let date = new Date(form.value);
+                                                answers[form_id] = format(date);
+                                            } else {
+                                                answers[form_id] = "";
+                                            }
+                                        } else if(form.type === 'month'){
+                                             if(form.value){
+                                                answers[form_id] = get_month(new Date(form.value).getMonth());
+                                            } else {
+                                                answers[form_id] = "";
+                                            }
+                                        } else{
+                                             answers[form_id] = form.value;
+                                        }
+                                    } else {
+                                        answers[form_id] = form.value;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ url_for('forms.submitting_form', form_id=form.id)}}',
+                data: {
+                    'answers': JSON.stringify(answers)
+                },
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    if (res.success === true) {
+                        location.reload();
+                    } else {
+                        return false;
+                    }
+                }
+            });
+
+        } catch (err){
+            return false;
+        }
+    }
+
+    function format(inputDate) {
+      let date, month, year;
+
+      date = inputDate.getDate();
+      month = inputDate.getMonth() + 1;
+      year = inputDate.getFullYear();
+
+        date = date
+            .toString()
+            .padStart(2, '0');
+
+        month = month
+            .toString()
+            .padStart(2, '0');
+
+      return `${date}.${month}.${year}`;
+    }
+
+    function get_month(month){
+        const months = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь']
+        return months[month];
+    }
+
+</script>
+
+<!-- Vendor js -->
+<script src="../assets/js/vendor.min.js"></script>
+
+<script src="../assets/vendor/jquery.rateit/scripts/jquery.rateit.min.js"></script>
 
 <!-- App js -->
-<script src="../../assets/js/app.min.js"></script>
+<script src="../assets/js/app.min.js"></script>
 
 </body>
 </html>

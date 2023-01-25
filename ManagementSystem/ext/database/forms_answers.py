@@ -53,12 +53,12 @@ def get_forms_answers_by_author_id(author_id) -> MongoDBResult:
 
 
 # добавление формы
-def add_form_answer(form, author, content):
+def add_form_answer(form, answers):
     db.forms_answers.insert_one({
         "form": ObjectId(form),
         #"author": ObjectId(author),
         #"status": FormAnswerStatus.ACTIVE,
-        "content": content,
+        "answers": answers,
         "timestamp": datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     })
 

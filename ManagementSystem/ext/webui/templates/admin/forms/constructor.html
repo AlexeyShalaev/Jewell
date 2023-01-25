@@ -384,7 +384,6 @@
                                                 class="btn btn-primary">
                                             Добавить
                                         </button>
-                                        Данное поле может не отображаться при конструировании!
                                     </div>
                                 </div>
                             </div>
@@ -623,10 +622,15 @@
 
             document.getElementById("form-constructor").innerHTML += `<div class="mb-3" xmlns="http://www.w3.org/1999/html">
                                 <label for="rating_${id_counter}" class="form-label">${document.getElementById("ratingLabel").value}${document.getElementById("ratingRequired").checked ? '<span class="ms-2 text-danger">*</span>' : ''}</label>
-                               <br><div class="rateit rateit-mdi" data-rateit-mode="font" data-rateit-icon="󰓒" id="rating_${id_counter}" name="form_${id_counter}"></div>
+                               <br><div rating-max="${parseFloat(max)}" rating-step="${parseFloat(step)}" class="rateit rateit-mdi" id="rating_${id_counter}" name="form_${id_counter}"></div>
                             </div>`;
-            document.getElementById(`rating_${id_counter}`).rateit('max', parseFloat(max));
-            document.getElementById(`rating_${id_counter}`).rateit('step', parseFloat(step));
+            $(`#rating_${id_counter}`).rateit({
+                min: 0,
+                max: parseFloat(max),
+                step: parseFloat(step),
+                mode: 'font',
+                icon: '★'
+            });
 
             //Base
             document.getElementById("ratingLabel").value = "Ваш вопрос";

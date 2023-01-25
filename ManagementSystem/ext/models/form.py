@@ -56,7 +56,7 @@ class FormAnswer:
     # author: ObjectId
     # status: FormAnswerStatus
     timestamp: datetime
-    content: str
+    answers: dict
 
     def __init__(self, data):
         self.id = data['_id']
@@ -64,14 +64,14 @@ class FormAnswer:
         # self.author = data['author']
         # self.status = FormAnswerStatus(data['status'])
         self.timestamp = datetime.strptime(data['timestamp'], "%d.%m.%Y %H:%M:%S")
-        self.content = data['content']
+        self.answers = data['answers']
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),
                            "form": str(self.form),
                            # "author": str(self.author),
                            # "status": self.status.value,
-                           "content": self.content,
+                           "answers": self.answers,
                            "timestamp": self.timestamp.strftime("%d.%m.%Y %H:%M")
                            })
 

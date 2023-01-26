@@ -22,7 +22,99 @@
     </div>
 
     <div class="row">
+        <div class="col-4">
+            <div class="row">
+                <form method="post">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title mt-0 mb-3">{{ form.name }}</h4>
+                            <p class="text-muted font-13">
+                                {{ form.description }}
+                            </p>
 
+                            <hr>
+
+                            <div class="text-start">
+                                <p class="text-muted"><strong>Дата создания :</strong> <span
+                                        class="ms-2">{{ form.get_timestamp() }}</span></p>
+
+                                <p class="text-muted"><strong>Кол-во ответов :</strong> <span
+                                        class="ms-2">{{ answers | length }}</span></p>
+
+                                <p class="text-muted"><strong>Ссылка на форму :</strong> <span class="ms-2"><a
+                                        href="{{ url_for('forms.submitting_form', form_id=form.id) }}">{{ form.id }}</a> </span>
+                                </p>
+
+                                {% if form.status.value == 'closed' %}
+                                    <p class="text-muted"><strong>Статус (не доступна для отправки ответов) :</strong>
+                                        <button type="submit" name="btn_form" value="open"
+                                                class="btn btn-success btn-sm mb-2">Открыть
+                                        </button>
+                                    </p>
+                                {% else %}
+                                    <p class="text-muted"><strong>Статус (доступна для отправки ответов) :</strong>
+                                        <button type="submit" name="btn_form" value="close"
+                                                class="btn btn-danger btn-sm mb-2">Закрыть
+                                        </button>
+                                    </p>
+                                {% endif %}
+
+                            </div>
+
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="row">
+                <form>
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title mt-0 mb-3">Вопросы</h4>
+
+
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-8">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title mt-0 mb-3">Анализ</h4>
+                    <table class="table table-sm table-centered mb-0">
+                        <thead>
+                        <tr>
+                            <th>Вопрос</th>
+                            <th>Мин</th>
+                            <th>Чаще всего</th>
+                            <th>Макс</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for i in analyze %}
+                            <tr>
+                                <td>{{ i }}</td>
+                                <td>{{ analyze[i] | min }}</td>
+                                <td>{{ modes[i] }}</td>
+                                <td>{{ analyze[i] | max }}</td>
+                            </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for result in results %}
+            {% for i in result.answers %}
+                {{ result.answers[i].question }} {{ result.answers[i].value }}
+            {% endfor %}
+        {% endfor %}
     </div>
 
 {% endblock %}

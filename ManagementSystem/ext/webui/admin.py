@@ -17,7 +17,7 @@ from ManagementSystem.ext.database.courses import get_courses, add_course, delet
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
     add_flask_session, \
     get_flask_sessions
-from ManagementSystem.ext.database.forms import add_form, get_forms, get_form_by_id
+from ManagementSystem.ext.database.forms import add_form, get_forms, get_form_by_id, update_form
 from ManagementSystem.ext.database.forms_answers import get_form_answers_by_id
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
@@ -34,6 +34,7 @@ from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_i
     update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
+from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.telegram_bot.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
@@ -1360,7 +1361,7 @@ def forms_overview():
 # Уровень:              forms/analyze
 # База данных:          forms
 # HTML:                 analyze
-@admin.route('/forms/analyze/<form_id>', methods=['POST', 'GET'])
+@admin.route('/forms/<form_id>', methods=['POST', 'GET'])
 @login_required
 def forms_analyze(form_id):
     # auto redirect
@@ -1374,7 +1375,12 @@ def forms_analyze(form_id):
 
     if request.method == "POST":
         try:
-            pass
+            if request.form['btn_form'] == 'open':
+                update_form(form_id, 'status', FormStatus.OPENED.value)
+                flash('Форма успешно открыта!', 'success')
+            elif request.form['btn_form'] == 'close':
+                update_form(form_id, 'status', FormStatus.CLOSED.value)
+                flash('Форма успешно закрыта!', 'success')
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')
@@ -1385,7 +1391,31 @@ def forms_analyze(form_id):
         return redirect(url_for('admin.forms_overview'))
 
     form = resp.data
-    print(form)
-    #TODO analyze
+    results = get_form_answers_by_id(form_id).data
+    analyze = dict()
+    modes = dict()
+    for result in results:
+        answers = result.answers
+        for key in answers:
+            answer = answers[key]
+            q = answer['question']
+            v = answer['value']
+            if q not in analyze.keys():
+                analyze[q] = list()
+            analyze[q].append(v)
+            if q not in modes.keys():
+                modes[q] = dict()
+            if str(v) not in modes[q].keys():
+                modes[q][str(v)] = 0
+            modes[q][str(v)] += 1
 
-    return render_template("admin/forms/analyze.html")
+    for mode in modes:
+        r = ''
+        mx = 0
+        for k, v in modes[mode].items():
+            if v > mx:
+                mx = v
+                r = k
+        modes[mode] = r
+
+    return render_template("admin/forms/analyze.html", form=form, results=results, analyze=analyze, modes=modes)

@@ -108,8 +108,9 @@
             for (let child of document.getElementById("form_content").children) {
                  const labels = child.getElementsByTagName("label");
                 if (labels.length > 0) {
+                     const question = labels[0].innerText;
                     let form_id = labels[0].getAttribute('for');
-                    if (form_id === null) {
+                      if (form_id === null) {
                         let selected_options = [];
                         let form_key = '';
                         for(let ch of labels[0].parentNode.children){
@@ -122,7 +123,7 @@
                             }
                         }
                         if(form_key.length > 0){
-                           answers[form_key] = selected_options;
+                           answers[form_key] = {"question": question, "value": selected_options};
                         }
 
                     } else {
@@ -132,7 +133,7 @@
                             const number = tmp[1];
                             let form = document.getElementById(form_id);
                             if (localType === 'rating') {
-                                answers[form_id] = $(`#${form_id}`).rateit('value');
+                                answers[form_id] = {"question": question, "value": $(`#${form_id}`).rateit('value')};
                             } else {
                                 if(form.tagName.toLowerCase() === 'select' && form.hasAttribute('multiple')){
                                     let selected_options = [];
@@ -141,27 +142,27 @@
                                           selected_options.push(opt.value || opt.text);
                                         }
                                     }
-                                    answers[form_id] = selected_options;
+                                    answers[form_id] = {"question": question, "value": selected_options};
                                 } else {
                                     if(localType === 'datetime'){
                                          if(form.type === 'date'){
                                             if(form.value){
                                                 let date = new Date(form.value);
-                                                answers[form_id] = format(date);
+                                                answers[form_id] = {"question": question, "value": format(date)};
                                             } else {
-                                                answers[form_id] = "";
+                                                answers[form_id] = {"question": question, "value": ""};
                                             }
                                         } else if(form.type === 'month'){
                                              if(form.value){
-                                                answers[form_id] = get_month(new Date(form.value).getMonth());
+                                                answers[form_id] = {"question": question, "value": get_month(new Date(form.value).getMonth())};
                                             } else {
-                                                answers[form_id] = "";
+                                                answers[form_id] = {"question": question, "value": ""};
                                             }
                                         } else{
-                                             answers[form_id] = form.value;
+                                             answers[form_id] = {"question": question, "value": form.value};
                                         }
                                     } else {
-                                        answers[form_id] = form.value;
+                                        answers[form_id] = {"question": question, "value": form.value};
                                     }
                                 }
                             }
@@ -169,7 +170,6 @@
                     }
                 }
             }
-
             $.ajax({
                 type: 'POST',
                 url: '{{ url_for('forms.submitting_form', form_id=form.id)}}',
@@ -187,6 +187,7 @@
             });
 
         } catch (err){
+            //console.log(err);
             return false;
         }
     }

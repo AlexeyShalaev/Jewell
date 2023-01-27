@@ -17,8 +17,8 @@ from ManagementSystem.ext.database.courses import get_courses, add_course, delet
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
     add_flask_session, \
     get_flask_sessions
-from ManagementSystem.ext.database.forms import add_form, get_forms, get_form_by_id, update_form
-from ManagementSystem.ext.database.forms_answers import get_form_answers_by_id
+from ManagementSystem.ext.database.forms import add_form, get_forms, get_form_by_id, update_form, delete_form
+from ManagementSystem.ext.database.forms_answers import get_form_answers_by_id, delete_form_answers
 from ManagementSystem.ext.database.maps import get_map_by_name, update_trips
 from ManagementSystem.ext.database.offers import get_offers, delete_offer, add_offer, delete_offers_by_user_id
 from ManagementSystem.ext.database.orders import get_orders, delete_order, update_order, delete_orders_by_product_id, \
@@ -1381,6 +1381,11 @@ def forms_analyze(form_id):
             elif request.form['btn_form'] == 'close':
                 update_form(form_id, 'status', FormStatus.CLOSED.value)
                 flash('Форма успешно закрыта!', 'success')
+            elif request.form['btn_form'] == 'delete':
+                delete_form_answers(form_id)
+                delete_form(form_id)
+                flash('Форма успешно удалена!', 'success')
+                return redirect(url_for('admin.forms_overview'))
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')
@@ -1392,30 +1397,38 @@ def forms_analyze(form_id):
 
     form = resp.data
     results = get_form_answers_by_id(form_id).data
+    table_results = []
     analyze = dict()
-    modes = dict()
+    counts = dict()
     for result in results:
+        res = {"timestamp": result.get_timestamp()}
         answers = result.answers
         for key in answers:
             answer = answers[key]
             q = answer['question']
             v = answer['value']
+            res[q] = v
             if q not in analyze.keys():
                 analyze[q] = list()
             analyze[q].append(v)
-            if q not in modes.keys():
-                modes[q] = dict()
-            if str(v) not in modes[q].keys():
-                modes[q][str(v)] = 0
-            modes[q][str(v)] += 1
+            if q not in counts.keys():
+                counts[q] = dict()
+            if str(v) not in counts[q].keys():
+                counts[q][str(v)] = 0
+            counts[q][str(v)] += 1
+        table_results.append(res)
 
-    for mode in modes:
+    modes = dict()
+    questions = [{"data": "timestamp"}]
+    for count in counts:
         r = ''
         mx = 0
-        for k, v in modes[mode].items():
+        for k, v in counts[count].items():
             if v > mx:
                 mx = v
                 r = k
-        modes[mode] = r
+        modes[count] = r
+        questions.append({"data": count})
 
-    return render_template("admin/forms/analyze.html", form=form, results=results, analyze=analyze, modes=modes)
+    return render_template("admin/forms/analyze.html", form=form, table_results=table_results, analyze=analyze,
+                           modes=modes, counts=counts, questions=questions)

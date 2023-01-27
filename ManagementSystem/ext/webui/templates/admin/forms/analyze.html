@@ -39,7 +39,7 @@
                                         class="ms-2">{{ form.get_timestamp() }}</span></p>
 
                                 <p class="text-muted"><strong>Кол-во ответов :</strong> <span
-                                        class="ms-2">{{ answers | length }}</span></p>
+                                        class="ms-2">{{ table_results | length }}</span></p>
 
                                 <p class="text-muted"><strong>Ссылка на форму :</strong> <span class="ms-2"><a
                                         href="{{ url_for('forms.submitting_form', form_id=form.id) }}">{{ form.id }}</a> </span>
@@ -59,6 +59,12 @@
                                     </p>
                                 {% endif %}
 
+                                <p class="text-muted">
+                                    <button type="submit" name="btn_form" value="delete"
+                                            class="btn btn-dark btn-sm mb-2">Удалить форму навсегда
+                                    </button>
+                                </p>
+
                             </div>
 
 
@@ -70,9 +76,19 @@
                 <form>
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="header-title mt-0 mb-3">Вопросы</h4>
+                            <div class="dropdown">
+                                <h4 class="header-title mt-0 mb-3 dropdown-toggle" type="button"
+                                    id="dropdownQuestionsButton"
+                                    data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Вопросы</h4>
+                                <div class="dropdown-menu" aria-labelledby="dropdownQuestionsButton">
+                                    {% for i in counts %}
+                                        <a class="dropdown-item" onclick="renderChart('{{ i }}')">{{ i }}</a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div id="questions-chart">
 
-
+                            </div>
 
                         </div>
                     </div>
@@ -109,12 +125,114 @@
         </div>
     </div>
 
-    <div class="row">
-        {% for result in results %}
-            {% for i in result.answers %}
-                {{ result.answers[i].question }} {{ result.answers[i].value }}
+    <div class="card row p-2">
+        <table id="answers_table" class="table table-striped" style="width:100%">
+            <thead>
+            <tr>
+                <th>Дата</th>
+                {% for i in analyze %}
+                    <th>{{ i }}</th>
+                {% endfor %}
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+            <tfoot>
+            <th>Дата</th>
+            {% for i in analyze %}
+                <th>{{ i }}</th>
             {% endfor %}
-        {% endfor %}
+            </tfoot>
+        </table>
     </div>
+
+    <script>
+        const counts = {{ counts | safe }};
+        let questionChart = null;
+
+        $(document).ready(function () {
+            renderChart(Object.keys(counts)[0]);
+            renderTable();
+        });
+
+        function renderChart(question) {
+            document.getElementById("dropdownQuestionsButton").innerText = question;
+            let series = [];
+            let labels = [];
+            for (const [key, value] of Object.entries(counts[question])) {
+                labels.push(key);
+                series.push(value);
+            }
+            const options = {
+                series: series,
+                labels: labels,
+                chart: {
+                    type: 'donut',
+                },
+                responsive: [{
+                    breakpoint: 480,
+                    options: {
+                        chart: {
+                            width: 200
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }],
+                legend: {
+                    show: !0,
+                    position: "bottom",
+                    horizontalAlign: "center",
+                    verticalAlign: "middle",
+                    floating: !1,
+                    fontSize: "14px",
+                    offsetX: 0,
+                    offsetY: 7
+                }
+            };
+            if (questionChart != null) questionChart.destroy();
+            questionChart = new ApexCharts(document.querySelector("#questions-chart"), options);
+            questionChart.render();
+        }
+
+        function renderTable() {
+            $('#answers_table').DataTable().destroy();
+            let table = $('#answers_table').DataTable({
+                data: {{ table_results | safe }},
+                columns: {{ questions | safe }},
+                autofill: true,
+                responsive: true,
+                lengthMenu: [10, 25, 50, 100, 300],
+                buttons: true,
+                /*exporting */
+                dom: 'Blfrtip',
+                order: [[1, 'asc']],
+                buttons: [
+                    'copy', 'print'
+                ],
+                language: {
+                    "lengthMenu": "Показывать _MENU_ записей",
+                    "zeroRecords": "Ничего не найдено",
+                    "info": "Показано _PAGE_ из _PAGES_",
+                    "infoEmpty": "Нет доступных записей",
+                    "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                    "paginate": {
+                        "first": "Первый",
+                        "last": "Последний",
+                        "next": "Следующий",
+                        "previous": "Предыдущий"
+                    },
+                    "loadingRecords": "Загрузка...",
+                    "processing": "",
+                    "search": "Искать:",
+                    "zeroRecords": "Совпадающих записей не найдено"
+                }
+            });
+            document.getElementsByClassName("dt-buttons btn-group flex-wrap")[0].classList.add("mb-3");
+        }
+
+
+    </script>
 
 {% endblock %}

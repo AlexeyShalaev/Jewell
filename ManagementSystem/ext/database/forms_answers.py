@@ -40,6 +40,7 @@ def get_form_answers_by_id(form_id) -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
+"""
 # получение по form ID
 def get_forms_answers_by_author_id(author_id) -> MongoDBResult:
     res = db.forms_answers.find({'author': ObjectId(author_id)})
@@ -50,33 +51,36 @@ def get_forms_answers_by_author_id(author_id) -> MongoDBResult:
         return MongoDBResult(True, forms_answers)
     else:
         return MongoDBResult(False, [])
+"""
 
 
 # добавление формы
 def add_form_answer(form, answers):
     db.forms_answers.insert_one({
         "form": ObjectId(form),
-        #"author": ObjectId(author),
-        #"status": FormAnswerStatus.ACTIVE,
+        # "author": ObjectId(author),
+        # "status": FormAnswerStatus.ACTIVE,
         "answers": answers,
         "timestamp": datetime.now().strftime("%d.%m.%Y %H:%M:%S")
     })
 
 
-# добавление форм
-def add_forms(forms):
+# добавление ответов к форме
+def add_forms_answers(forms):
     db.forms_answers.insert_many(forms)
 
 
-# обновление данных формы по ID
-def update_form(id, key, value):
-    db.forms_answers.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
-
-
-# удаление формы по ID
-def delete_form(id):
+# удаление
+def delete_form_answer(id):
     db.forms_answers.delete_one({
         '_id': ObjectId(id)
+    })
+
+
+# удаление
+def delete_form_answers(id):
+    db.forms_answers.delete_many({
+        'form': ObjectId(id)
     })
 
 

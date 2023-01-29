@@ -10,6 +10,7 @@ from ManagementSystem.ext.webui.api import api
 from ManagementSystem.ext.webui.error import error
 from ManagementSystem.ext.webui.networking import networking
 from ManagementSystem.ext.webui.forms import forms
+from ManagementSystem.ext.webui.games import games
 from ManagementSystem.ext.webui.other import other
 from ManagementSystem.ext.webui.student import student
 from ManagementSystem.ext.webui.teacher import teacher
@@ -27,6 +28,7 @@ app.register_blueprint(error)
 app.register_blueprint(api)
 app.register_blueprint(networking)
 app.register_blueprint(forms)
+app.register_blueprint(games)
 app.register_blueprint(other)
 app.register_blueprint(student)
 app.register_blueprint(teacher)

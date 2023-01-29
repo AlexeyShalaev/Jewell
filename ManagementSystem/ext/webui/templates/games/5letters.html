@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" data-layout-mode="detached" data-topbar-color="dark" data-sidenav-color="light"
+      data-sidenav-user="true">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>5 letters | Jewell Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description"/>
+    <meta content="Coderthemes" name="author"/>
+
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="../../assets/images/favicon.ico">
+
+    <!-- Theme Config Js -->
+    <script src="../../assets/js/hyper-config.js"></script>
+
+    <!-- Toast css -->
+    <link href="../../assets/vendor/jquery-toast-plugin/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- Icons css -->
+    <link href="../../assets/css/icons.min.css" rel="stylesheet" type="text/css"/>
+
+    <!-- App css -->
+    <link href="../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
+
+    <link href="../../assets/games/5letters/wordle.min.css" rel="stylesheet">
+
+    {{ toastr.include_jquery() }}
+    {{ toastr.include_toastr_css() }}
+    {{ toastr.message() }}
+</head>
+
+<body class="authentication-bg">
+{{ toastr.include_toastr_js() }}
+
+<div class="account-pages pt-lg-5">
+    <div class="container">
+        <div class="App-container">
+            <div class="Game" style="display: block;">
+                <div id="game-wrapper" style="">
+                    <div id="game_field" class="game_rows">
+                        <div class="Row">
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                        </div>
+                        <div class="Row">
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                        </div>
+                        <div class="Row">
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                        </div>
+                        <div class="Row">
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                        </div>
+                        <div class="Row">
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                        </div>
+                        <div class="Row">
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                            <div class="Row-letter" data-animation="none"></div>
+                        </div>
+                    </div>
+                    <div class="Game-keyboard">
+                        <div class="Game-keyboard-row">
+                            <div tabindex="-1" class="Game-keyboard-button">й</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ц</div>
+                            <div tabindex="-1" class="Game-keyboard-button">у</div>
+                            <div tabindex="-1" class="Game-keyboard-button">к</div>
+                            <div tabindex="-1" class="Game-keyboard-button">е</div>
+                            <div tabindex="-1" class="Game-keyboard-button">н</div>
+                            <div tabindex="-1" class="Game-keyboard-button">г</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ш</div>
+                            <div tabindex="-1" class="Game-keyboard-button">щ</div>
+                            <div tabindex="-1" class="Game-keyboard-button">з</div>
+                            <div tabindex="-1" class="Game-keyboard-button">х</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ъ</div>
+                        </div>
+                        <div class="Game-keyboard-row">
+                            <div tabindex="-1" class="Game-keyboard-button">ф</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ы</div>
+                            <div tabindex="-1" class="Game-keyboard-button">в</div>
+                            <div tabindex="-1" class="Game-keyboard-button">а</div>
+                            <div tabindex="-1" class="Game-keyboard-button">п</div>
+                            <div tabindex="-1" class="Game-keyboard-button">р</div>
+                            <div tabindex="-1" class="Game-keyboard-button">о</div>
+                            <div tabindex="-1" class="Game-keyboard-button">л</div>
+                            <div tabindex="-1" class="Game-keyboard-button">д</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ж</div>
+                            <div tabindex="-1" class="Game-keyboard-button">э</div>
+                        </div>
+                        <div class="Game-keyboard-row">
+                            <div tabindex="-1" class="Game-keyboard-button Game-keyboard-button-wide">
+                                <i class="ri-delete-back-2-fill font-20"></i>
+                            </div>
+                            <div tabindex="-1" class="Game-keyboard-button">я</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ч</div>
+                            <div tabindex="-1" class="Game-keyboard-button">с</div>
+                            <div tabindex="-1" class="Game-keyboard-button">м</div>
+                            <div tabindex="-1" class="Game-keyboard-button">и</div>
+                            <div tabindex="-1" class="Game-keyboard-button">т</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ь</div>
+                            <div tabindex="-1" class="Game-keyboard-button">б</div>
+                            <div tabindex="-1" class="Game-keyboard-button">ю</div>
+                            <div tabindex="-1" class="Game-keyboard-button Game-keyboard-button-wide">
+                                Ввод
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let letterGame;
+
+    $(document).ready(function () {
+        letterGame = new LettersGame("{{ encrypted_word }}");
+        let keys = document.getElementsByClassName("Game-keyboard-button");
+        for (let key of keys) {
+            key.onclick = keyboard_click;
+        }
+    });
+
+    class LettersGame {
+        #field
+        #rows = 6
+        #cols = 5
+        #row
+        #col
+        #code
+
+        constructor(code, field = 'game_field') {
+            this.#field = document.getElementById(field);
+            this.#row = 0;
+            this.#col = 0;
+            this.#code = code
+            this.create_table();
+        }
+
+        keyboard_click(key) {
+            if (key === 'Ввод') {
+                if (this.#col === this.#cols) {
+                    let word = "";
+                    for (let col = 0; col < this.#cols; ++col) {
+                        word += document.getElementById(`${this.#row}_${col}`).innerText;
+                    }
+                    this.#check_word(word);
+                } else {
+                    $.NotificationApp.send("5БУКВ", "Слишком короткое слово", "top-center", "#FF5B5B", "info");
+                }
+            } else if (key.length === 0) {
+                if (this.#col !== 0) {
+                    --this.#col;
+                    document.getElementById(`${this.#row}_${this.#col}`).innerText = "";
+                }
+            } else {
+                if (this.#col !== this.#cols) {
+                    document.getElementById(`${this.#row}_${this.#col}`).innerText = key;
+                    ++this.#col;
+                }
+            }
+        }
+
+        #check_word(word) {
+            $.ajax({
+                type: 'POST',
+                url: '/games/5letters/check',
+                data: {"word": word, "code": this.#code},
+                success: function (result) {
+                    const res = JSON.parse(result);
+                    console.log(res);
+                }
+            });
+        }
+
+        create_table() {
+            this.#field.innerHTML = ""
+            for (let row = 0; row < this.#rows; ++row) {
+                let document_row = document.createElement("div");
+                document_row.setAttribute('class', 'Row');
+                for (let col = 0; col < this.#cols; ++col) {
+                    let document_col = document.createElement("div");
+                    document_col.setAttribute('class', 'Row-letter');
+                    document_col.setAttribute('data-animation', 'none');
+                    document_col.setAttribute('id', `${row}_${col}`);
+                    document_row.appendChild(document_col);
+                }
+                this.#field.appendChild(document_row);
+            }
+        }
+    }
+
+    function keyboard_click(e) {
+        let key = e.srcElement.innerText;
+        letterGame.keyboard_click(key);
+    }
+</script>
+
+<footer class="footer footer-alt">
+    © 2022 -
+    <script>document.write(new Date().getFullYear())</script>
+    Jewell Club. Designed and coded by
+    <a href="https://vk.com/rhekszksskebekewllw">
+        Alex Shalaev
+    </a>
+</footer>
+
+
+<!-- Vendor js -->
+<script src="../../assets/js/vendor.min.js"></script>
+
+<!-- Toastr Demo js -->
+<script src="../../assets/vendor/jquery-toast-plugin/jquery.toast.min.js"></script>
+<script src="../../assets/js/pages/demo.toastr.js"></script>
+
+<!-- App js -->
+<script src="../../assets/js/app.min.js"></script>
+
+</body>
+</html>

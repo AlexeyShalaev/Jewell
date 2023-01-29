@@ -58,3 +58,13 @@ def decrypt_id_with_no_digits(code: str) -> (bool, str):
     except Exception as ex:
         logger.error(ex)
         return False, str(ex)
+
+
+def encode_word(word: str) -> (bool, str):
+    # todo
+    return True, word
+
+
+def decode_word(word: str) -> str:
+    # todo
+    return word

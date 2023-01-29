@@ -24,7 +24,7 @@
     <!-- App css -->
     <link href="../../assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-style"/>
 
-    <link href="../../assets/games/5letters/wordle.min.css" rel="stylesheet">
+    <link href="../../assets/games/5letters/5letters.min.css" rel="stylesheet">
 
     {{ toastr.include_jquery() }}
     {{ toastr.include_toastr_css() }}
@@ -34,8 +34,21 @@
 <body class="authentication-bg">
 {{ toastr.include_toastr_js() }}
 
-<div class="account-pages pt-lg-5">
+<div class="account-pages">
     <div class="container">
+        <header class="d-flex justify-content-center py-3 mb-xxl-5">
+            <ul class="nav nav-pills">
+                <li class="nav-item me-2"><a href="{{ url_for('view.login') }}" class="nav-link bg-info-lighten"><i
+                        class="mdi mdi-step-backward"></i></a></li>
+                <li class="nav-item me-2"><a onclick="location.reload();" class="nav-link bg-info-lighten"><i
+                        class="mdi mdi-reload"></i></a></li>
+                <li class="nav-item"><a class="nav-link">{{ current_user.points }}</a></li>
+                <li class="nav-item ms-2"><a onclick="show_rating();" class="nav-link bg-primary-lighten"><i
+                        class="mdi mdi-format-list-numbered"></i></a></li>
+                <li class="nav-item ms-2"><a onclick="show_rules();" class="nav-link bg-info-lighten"><i
+                        class="uil uil-question-circle"></i></a></li>
+            </ul>
+        </header>
         <div class="App-container">
             <div class="Game" style="display: block;">
                 <div id="game-wrapper" style="">
@@ -113,7 +126,7 @@
                         </div>
                         <div class="Game-keyboard-row">
                             <div tabindex="-1" class="Game-keyboard-button Game-keyboard-button-wide">
-                                <i class="ri-delete-back-2-fill font-20"></i>
+                                Ввод
                             </div>
                             <div tabindex="-1" class="Game-keyboard-button">я</div>
                             <div tabindex="-1" class="Game-keyboard-button">ч</div>
@@ -125,7 +138,7 @@
                             <div tabindex="-1" class="Game-keyboard-button">б</div>
                             <div tabindex="-1" class="Game-keyboard-button">ю</div>
                             <div tabindex="-1" class="Game-keyboard-button Game-keyboard-button-wide">
-                                Ввод
+                                <i class="ri-delete-back-2-fill font-20"></i>
                             </div>
                         </div>
                     </div>
@@ -146,157 +159,8 @@
         }
     });
 
-    class LettersGame {
-        #field
-        #rows = 6
-        #cols = 5
-        #row
-        #col
-        #code
-        #user_id
-
-        constructor(user_id, code, field = 'game_field') {
-            this.#field = document.getElementById(field);
-            this.#row = 0;
-            this.#col = 0;
-            this.#code = code
-            this.#user_id = user_id
-            this.create_table();
-        }
-
-        keyboard_click(key) {
-            if (key === 'Ввод') {
-                if (this.#col === this.#cols) {
-                    let word = "";
-                    for (let col = 0; col < this.#cols; ++col) {
-                        word += document.getElementById(`${this.#row}_${col}`).innerText;
-                    }
-                    this.#check_word(word);
-                } else {
-                    $.NotificationApp.send("5БУКВ", "Слишком короткое слово", "top-center", "#FF5B5B", "info");
-                }
-            } else if (key.length === 0) {
-                if (this.#col !== 0) {
-                    --this.#col;
-                    document.getElementById(`${this.#row}_${this.#col}`).innerText = "";
-                }
-            } else {
-                if (this.#col !== this.#cols) {
-                    document.getElementById(`${this.#row}_${this.#col}`).innerText = key;
-                    ++this.#col;
-                }
-            }
-        }
-
-        #check_word(word) {
-            $.ajax({
-                type: 'POST',
-                url: '/games/5letters/check',
-                data: {
-                    "word": word, "code": this.#code, "user_id": this.#user_id
-                },
-                success: function (result) {
-                    check_result(JSON.parse(result), word);
-                }
-            });
-        }
-
-        check_result(res, word) {
-            if (res.status === 'win') {
-                for (let i in word) {
-                    document.getElementById(`${this.#row}_${i}`).classList.add(`bg-success`);
-                }
-                let keys = document.getElementsByClassName("Game-keyboard-button");
-                for (let key of keys) {
-                    key.onclick = null;
-                    key.classList.add(`bg-success-lighten`);
-                }
-                Swal.fire({
-                    title: '<strong>Победа</strong>',
-                    icon: 'success',
-                    html: `<div>Вы заработали:</div><br><strong>${res.extra}</strong>`,
-                    showCloseButton: true,
-                    focusConfirm: false,
-                    confirmButtonText: 'Начать заново?',
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        location.reload();
-                    }
-                })
-            } else if (res.status === 'incorrect') {
-                const extra = res.extra;
-                for (let i in word) {
-                    const r = extra[i];
-                    let color = '';
-                    let del_onclick = false;
-                    if (r === '-') {
-                        del_onclick = true;
-                        color = 'secondary';
-                    } else if (r === '+') {
-                        color = 'success';
-                    } else {
-                        color = 'warning';
-                    }
-                    let keys = document.getElementsByClassName("Game-keyboard-button");
-                    for (let key of keys) {
-                        if (key.innerText.toUpperCase() === word[i]) {
-                            if (del_onclick) key.onclick = null;
-                            key.classList.add(`bg-${color}-lighten`);
-                            break;
-                        }
-                    }
-                    document.getElementById(`${this.#row}_${i}`).classList.add(`bg-${color}`);
-                }
-                ++this.#row;
-                this.#col = 0;
-            } else {
-                $.NotificationApp.send("5БУКВ", "Слова нет в нашем словаре", "top-center", "#FF5B5B", "info");
-            }
-            if (this.#row === this.#rows) {
-                let keys = document.getElementsByClassName("Game-keyboard-button");
-                for (let key of keys) {
-                    key.onclick = null;
-                    key.classList.add(`bg-danger-lighten`);
-                }
-                $.ajax({
-                    type: 'POST',
-                    url: '/games/5letters/decode',
-                    data: {
-                        "code": this.#code, "user_id": this.#user_id
-                    },
-                    success: function (result) {
-                        Swal.fire({
-                            title: '<strong>Проигрыш</strong>',
-                            icon: 'info',
-                            html: `<div>Загаданное слово:</div><br><strong>${JSON.parse(result).riddle}</strong>`,
-                            showCloseButton: true,
-                            focusConfirm: false,
-                            confirmButtonText: 'Начать заново?',
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                location.reload();
-                            }
-                        })
-                    }
-                });
-            }
-        }
-
-        create_table() {
-            this.#field.innerHTML = ""
-            for (let row = 0; row < this.#rows; ++row) {
-                let document_row = document.createElement("div");
-                document_row.setAttribute('class', 'Row');
-                for (let col = 0; col < this.#cols; ++col) {
-                    let document_col = document.createElement("div");
-                    document_col.setAttribute('class', 'Row-letter');
-                    document_col.setAttribute('data-animation', 'none');
-                    document_col.setAttribute('id', `${row}_${col}`);
-                    document_row.appendChild(document_col);
-                }
-                this.#field.appendChild(document_row);
-            }
-        }
+    function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
 
     function check_result(res, word) {
@@ -307,6 +171,75 @@
         let key = e.srcElement.innerText;
         letterGame.keyboard_click(key);
     }
+
+    function show_rules() {
+        Swal.fire({
+            title: 'Правила',
+            icon: 'question',
+            html: `<div style="overflow:  hidden;">
+                        <div class="row">
+                            <div class="Row">
+                                <div class="Row-letter bg-secondary" data-animation="none">Б</div>
+                                <div class="Row-letter bg-secondary" data-animation="none">У</div>
+                                <div class="Row-letter bg-warning" data-animation="none">К</div>
+                                <div class="Row-letter bg-secondary" data-animation="none">В</div>
+                                <div class="Row-letter bg-success" data-animation="none">А</div>
+                            </div>
+                       </div>
+                      <div class="row mt-3">
+                        <div class="text text-tiles">
+                            <b class="grey_text">Б</b> , <b class="grey_text">У</b> , <b class="grey_text">В</b> точно нет в загаданном слове.<br><br>
+                            <b class="yellow_text pb-2">К</b> есть в слове, но не в том месте<br><br>
+                            <b class="green_text">А</b> есть в слове, и в точном месте<br>
+                        </div>
+                      </div>
+                    </div>`,
+            showCloseButton: true,
+            focusConfirm: false,
+            confirmButtonText: 'ОК',
+        })
+    }
+
+    function show_rating(top_limit = 10) {
+        $.ajax({
+            type: 'POST',
+            url: '/games/rating',
+            data: {"user_id": "{{current_user.id}}", "top_limit": top_limit},
+            success: function (result) {
+                const res = JSON.parse(result);
+                let rating_rows = '';
+                for (let i of res.top) {
+                    rating_rows += `<tr>
+                                    <td>${i.number}</td>
+                                    <td>${i.link}</td>
+                                    <td>${i.points}</td>
+                                </tr>`;
+                }
+                Swal.fire({
+                    title: 'Рейтинг',
+                    icon: 'info',
+                    html: `<div style="overflow:  hidden;">
+                            <table class="table table-sm table-centered mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>№</th>
+                                        <th>Игрок</th>
+                                        <th>Очки</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                   ${rating_rows}
+                                </tbody>
+                            </table>
+                          </div>`,
+                    showCloseButton: true,
+                    focusConfirm: false,
+                    confirmButtonText: 'ОК',
+                })
+            }
+        });
+    }
+
 </script>
 
 <footer class="footer footer-alt">
@@ -323,6 +256,9 @@
 
 <!-- Vendor js -->
 <script src="../../assets/js/vendor.min.js"></script>
+
+<!-- 5Letters Game js -->
+<script src="../../assets/games/5letters/5letters.js"></script>
 
 <!-- Toastr Demo js -->
 <script src="../../assets/vendor/jquery-toast-plugin/jquery.toast.min.js"></script>

@@ -108,7 +108,10 @@ class User(UserMixin):
                 "telegram": f'<a href=\"https://t.me/{self.telegram_username}\" target="_blank">@{self.telegram_username}</a>' if self.telegram_username else "-",
                 }
 
+    def to_game_rating(self):
+        return {"link": f'<a href=\"{self.get_page()}\" target="_blank">{self.first_name} {self.last_name}</a>',
+                "points": self.points,
+                }
+
     def get_page(self):
-        if self.role == Role.STUDENT:
-            return url_for('networking.profile', user_id=str(self.id))
-        return ""
+        return url_for('networking.profile', user_id=str(self.id))

@@ -1474,24 +1474,24 @@ html.dark .mini_modal .info .word .letter, html.dark .grey_text {
 }
 
 .grey_text {
-    color: #fff !important;
+    color: #393e4c !important;
     padding: 2px 6px;
     border-radius: 3px;
-    background: #a4aec4
+    background: #6c757d
 }
 
 .yellow_text {
-    color: #fff !important;
+    color: #393e4c !important;
     padding: 2px 6px;
     border-radius: 3px;
-    background: #f3c237
+    background: #f9c851
 }
 
 .green_text {
-    color: #fff !important;
+    color: #393e4c !important;
     padding: 2px 6px;
     border-radius: 3px;
-    background: #79b851
+    background: #10c469
 }
 
 .mini_modal .line_form {

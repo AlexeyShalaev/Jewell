@@ -139,7 +139,7 @@
     let letterGame;
 
     $(document).ready(function () {
-        letterGame = new LettersGame("{{ encrypted_word }}");
+        letterGame = new LettersGame("{{ current_user.id }}", "{{ encrypted_word }}");
         let keys = document.getElementsByClassName("Game-keyboard-button");
         for (let key of keys) {
             key.onclick = keyboard_click;
@@ -153,12 +153,14 @@
         #row
         #col
         #code
+        #user_id
 
-        constructor(code, field = 'game_field') {
+        constructor(user_id, code, field = 'game_field') {
             this.#field = document.getElementById(field);
             this.#row = 0;
             this.#col = 0;
             this.#code = code
+            this.#user_id = user_id
             this.create_table();
         }
 
@@ -190,12 +192,94 @@
             $.ajax({
                 type: 'POST',
                 url: '/games/5letters/check',
-                data: {"word": word, "code": this.#code},
+                data: {
+                    "word": word, "code": this.#code, "user_id": this.#user_id
+                },
                 success: function (result) {
-                    const res = JSON.parse(result);
-                    console.log(res);
+                    check_result(JSON.parse(result), word);
                 }
             });
+        }
+
+        check_result(res, word) {
+            if (res.status === 'win') {
+                for (let i in word) {
+                    document.getElementById(`${this.#row}_${i}`).classList.add(`bg-success`);
+                }
+                let keys = document.getElementsByClassName("Game-keyboard-button");
+                for (let key of keys) {
+                    key.onclick = null;
+                    key.classList.add(`bg-success-lighten`);
+                }
+                Swal.fire({
+                    title: '<strong>Победа</strong>',
+                    icon: 'success',
+                    html: `<div>Вы заработали:</div><br><strong>${res.extra}</strong>`,
+                    showCloseButton: true,
+                    focusConfirm: false,
+                    confirmButtonText: 'Начать заново?',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        location.reload();
+                    }
+                })
+            } else if (res.status === 'incorrect') {
+                const extra = res.extra;
+                for (let i in word) {
+                    const r = extra[i];
+                    let color = '';
+                    let del_onclick = false;
+                    if (r === '-') {
+                        del_onclick = true;
+                        color = 'secondary';
+                    } else if (r === '+') {
+                        color = 'success';
+                    } else {
+                        color = 'warning';
+                    }
+                    let keys = document.getElementsByClassName("Game-keyboard-button");
+                    for (let key of keys) {
+                        if (key.innerText.toUpperCase() === word[i]) {
+                            if (del_onclick) key.onclick = null;
+                            key.classList.add(`bg-${color}-lighten`);
+                            break;
+                        }
+                    }
+                    document.getElementById(`${this.#row}_${i}`).classList.add(`bg-${color}`);
+                }
+                ++this.#row;
+                this.#col = 0;
+            } else {
+                $.NotificationApp.send("5БУКВ", "Слова нет в нашем словаре", "top-center", "#FF5B5B", "info");
+            }
+            if (this.#row === this.#rows) {
+                let keys = document.getElementsByClassName("Game-keyboard-button");
+                for (let key of keys) {
+                    key.onclick = null;
+                    key.classList.add(`bg-danger-lighten`);
+                }
+                $.ajax({
+                    type: 'POST',
+                    url: '/games/5letters/decode',
+                    data: {
+                        "code": this.#code, "user_id": this.#user_id
+                    },
+                    success: function (result) {
+                        Swal.fire({
+                            title: '<strong>Проигрыш</strong>',
+                            icon: 'info',
+                            html: `<div>Загаданное слово:</div><br><strong>${JSON.parse(result).riddle}</strong>`,
+                            showCloseButton: true,
+                            focusConfirm: false,
+                            confirmButtonText: 'Начать заново?',
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                location.reload();
+                            }
+                        })
+                    }
+                });
+            }
         }
 
         create_table() {
@@ -215,6 +299,10 @@
         }
     }
 
+    function check_result(res, word) {
+        letterGame.check_result(res, word);
+    }
+
     function keyboard_click(e) {
         let key = e.srcElement.innerText;
         letterGame.keyboard_click(key);
@@ -230,6 +318,8 @@
     </a>
 </footer>
 
+<!-- Sweet Alert 2 -->
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <!-- Vendor js -->
 <script src="../../assets/js/vendor.min.js"></script>

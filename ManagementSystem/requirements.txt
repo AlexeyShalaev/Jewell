@@ -3,3 +3,4 @@ flask-toastr~=0.5.8
 flask-login~=0.6.2
 pymongo~=4.3.3
 flask-script
+cryptocode

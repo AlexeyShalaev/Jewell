@@ -48,6 +48,7 @@ class User(UserMixin):
     location: str  # местонахождение
     tags: list  # теги
     notifications: list  # уведомления
+    points: int
 
     def __init__(self, data):
         self.id = data['_id']
@@ -69,6 +70,7 @@ class User(UserMixin):
         self.location = data['location']
         self.tags = data['tags']
         self.notifications = [Notification(i) for i in data['notifications']]
+        self.points = data['points']
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),
@@ -89,7 +91,8 @@ class User(UserMixin):
                            "languages": self.languages,
                            "location": self.location,
                            "tags": self.tags,
-                           "notifications": [i.to_json() for i in self.notifications]
+                           "notifications": [i.to_json() for i in self.notifications],
+                           "points": self.points
                            })
 
     def to_document(self):

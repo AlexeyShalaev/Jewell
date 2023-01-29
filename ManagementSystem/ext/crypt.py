@@ -1,6 +1,7 @@
 import logging
 from secrets import token_hex
 
+import cryptocode
 from werkzeug.security import generate_password_hash, check_password_hash
 
 logger = logging.getLogger(__name__)  # logging
@@ -60,11 +61,15 @@ def decrypt_id_with_no_digits(code: str) -> (bool, str):
         return False, str(ex)
 
 
-def encode_word(word: str) -> (bool, str):
-    # todo
-    return True, word
+def encode_word(word: str, password: str) -> (bool, str):
+    try:
+        return True, cryptocode.encrypt(word, password)
+    except:
+        return False, None
 
 
-def decode_word(word: str) -> str:
-    # todo
-    return word
+def decode_word(word: str, password: str) -> str:
+    try:
+        return cryptocode.decrypt(word, password)
+    except:
+        return ''

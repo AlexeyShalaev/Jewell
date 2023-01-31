@@ -6,6 +6,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
+from ManagementSystem.ext import directories, valid_images
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.courses import get_courses_by_teacher
 from ManagementSystem.ext.database.maps import get_map_by_name
@@ -13,7 +14,7 @@ from ManagementSystem.ext.database.records import get_records_by_author, get_rec
     update_record_news, delete_record
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.userModel import Role
-from ManagementSystem.ext.telegram_bot.message import send_news
+from ManagementSystem.ext.telegram.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends
 
 logger = getLogger(__name__)  # logging
@@ -92,20 +93,19 @@ def teacher_news():
                     image = request.files['record_image']
                     img_type = image.filename.split('.')[-1].lower()
                     if img_type != '':
-                        types = ['jpeg', 'jpg', 'png']
-                        if img_type in types:
+                        if img_type in valid_images:
                             resp_status, data = encrypt_id_with_no_digits(str(inserted_record.inserted_id))
                             record_id = data
-                            directory = 'storage/records/'
+                            directory = directories['records']
                             files = os.listdir(directory)
                             for file in files:
                                 if record_id == file.split('.')[0]:
                                     filename = file
                                     break
                             if filename != '':
-                                os.remove(directory + filename)
+                                os.remove(os.path.join(directory, filename))
                             filename = record_id + '.' + img_type
-                            image.save(directory + filename)
+                            image.save(os.path.join(directory, filename))
                         else:
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
@@ -121,7 +121,7 @@ def teacher_news():
                 resp_status, data = encrypt_id_with_no_digits(record_id)
                 record_id = data
                 filename = ''
-                directory = 'storage/records/'
+                directory = directories['records']
                 files = os.listdir(directory)
                 for file in files:
                     if record_id == file.split('.')[0]:
@@ -153,21 +153,20 @@ def teacher_news():
                     image = request.files['record_image']
                     img_type = image.filename.split('.')[-1].lower()
                     if img_type != '':
-                        types = ['jpeg', 'jpg', 'png']
-                        if img_type in types:
+                        if img_type in valid_images:
                             resp_status, data = encrypt_id_with_no_digits(str(record_id))
                             record_id = data
                             filename = ''
-                            directory = 'storage/records/'
+                            directory = directories['records']
                             files = os.listdir(directory)
                             for file in files:
                                 if record_id == file.split('.')[0]:
                                     filename = file
                                     break
                             if filename != '':
-                                os.remove(directory + filename)
+                                os.remove(os.path.join(directory, filename))
                             filename = record_id + '.' + img_type
-                            image.save(directory + filename)
+                            image.save(os.path.join(directory, filename))
                         else:
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
@@ -180,14 +179,14 @@ def teacher_news():
                     resp_status, data = encrypt_id_with_no_digits(str(rec_id))
                     record_id = data
                     filename = ''
-                    directory = 'storage/records/'
+                    directory = directories['records']
                     files = os.listdir(directory)
                     for file in files:
                         if record_id == file.split('.')[0]:
                             filename = file
                             break
                     if filename != '':
-                        os.remove(directory + filename)
+                        os.remove(os.path.join(directory, filename))
                 except Exception as ex:
                     logger.error(ex)
 
@@ -231,8 +230,7 @@ def teacher_account():
     if request.method == "POST":
         avatar = request.files['avatar']
         img_type = avatar.filename.split('.')[-1].lower()
-        types = ['jpeg', 'jpg', 'png']
-        if img_type in types:
+        if img_type in valid_images:
             try:
                 resp_status, data = encrypt_id_with_no_digits(str(current_user.id))
                 if not resp_status:
@@ -241,15 +239,15 @@ def teacher_account():
                 else:
                     user_id = data
                     filename = ''
-                    directory = 'storage/avatars/'
+                    directory = directories['avatars']
                     files = os.listdir(directory)
                     for file in files:
                         if user_id == file.split('.')[0]:
                             filename = file
                             break
                     if filename != '':
-                        os.remove(directory + filename)
-                    avatar.save(directory + user_id + '.' + img_type)
+                        os.remove(os.path.join(directory, filename))
+                    avatar.save(os.path.join(directory, user_id + '.' + img_type))
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')

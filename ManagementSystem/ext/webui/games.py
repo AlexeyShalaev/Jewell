@@ -4,13 +4,14 @@ from logging import getLogger
 from flask import *
 from flask_login import login_required, logout_user, current_user
 
+from ManagementSystem.ext import directories
 from ManagementSystem.ext.crypt import decode_word, encode_word
 from ManagementSystem.ext.database.users import update_user, get_users, get_user_by_id
 from ManagementSystem.ext.logistics import check_session
 
 logger = getLogger(__name__)  # logging
 games = Blueprint('games', __name__, url_prefix='/games', template_folder='templates/games', static_folder='assets')
-game_5letters_path = 'storage/games/5letters/rus2129.txt'
+game_5letters_path = f'{directories["games"]}/5letters/rus2129.txt'
 
 
 # Уровень:              games/rating

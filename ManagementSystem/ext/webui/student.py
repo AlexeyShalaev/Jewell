@@ -6,7 +6,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from ManagementSystem.ext import system_variables
+from ManagementSystem.ext import system_variables, directories, valid_images
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.maps import get_map_by_name
@@ -64,8 +64,7 @@ def student_account():
     if request.method == "POST":
         avatar = request.files['avatar']
         img_type = avatar.filename.split('.')[-1].lower()
-        types = ['jpeg', 'jpg', 'png']
-        if img_type in types:
+        if img_type in valid_images:
             try:
                 resp_status, data = encrypt_id_with_no_digits(str(current_user.id))
                 if not resp_status:
@@ -74,15 +73,15 @@ def student_account():
                 else:
                     user_id = data
                     filename = ''
-                    directory = 'storage/avatars/'
+                    directory = directories['avatars']
                     files = os.listdir(directory)
                     for file in files:
                         if user_id == file.split('.')[0]:
                             filename = file
                             break
                     if filename != '':
-                        os.remove(directory + filename)
-                    avatar.save(directory + user_id + '.' + img_type)
+                        os.remove(os.path.join(directory, filename))
+                    avatar.save(os.path.join(directory, user_id + '.' + img_type))
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')

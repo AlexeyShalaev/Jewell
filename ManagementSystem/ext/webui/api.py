@@ -4,7 +4,7 @@ from logging import getLogger
 
 from flask import *
 
-from ManagementSystem.ext import system_variables
+from ManagementSystem.ext import system_variables, directories
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
@@ -25,12 +25,12 @@ api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates',
 
 
 # Уровень:              avatar/user_id
-# База данных:          storage/avatars
+# База данных:          storage/database/avatars
 # HTML:                 -
 @api.route('/avatar/<user_id>', methods=['POST', 'GET'])
 def get_avatar(user_id):
     filename = 'undraw_avatar.png'
-    directory = 'storage/avatars/'
+    directory = directories['avatars']
     resp_status, data = encrypt_id_with_no_digits(str(user_id))
     if resp_status:
         try:
@@ -41,16 +41,16 @@ def get_avatar(user_id):
                     break
         except Exception as ex:
             logger.error(f'get_avatar: {ex}')
-    return send_file(directory + filename)
+    return send_file(os.path.join(directory, filename))
 
 
 # Уровень:              record/record_id
-# База данных:          storage/records
+# База данных:          storage/database/records
 # HTML:                 -
 @api.route('/record/<record_id>', methods=['POST', 'GET'])
 def get_record_image(record_id):
     filename = ''
-    directory = 'storage/records/'
+    directory = directories['records']
     resp_status, data = encrypt_id_with_no_digits(str(record_id))
     if resp_status:
         try:
@@ -64,16 +64,16 @@ def get_record_image(record_id):
     if filename == '':
         return json.dumps({'info': 'image not found'}), 200, {
             'ContentType': 'application/json'}
-    return send_file(directory + filename)
+    return send_file(os.path.join(directory, filename))
 
 
 # Уровень:              product/product_id
-# База данных:          storage/products
+# База данных:          storage/database/products
 # HTML:                 -
 @api.route('/product/<product_id>', methods=['POST', 'GET'])
 def get_product_image(product_id):
     filename = ''
-    directory = 'storage/products/'
+    directory = directories['products']
     try:
         files = os.listdir(directory)
         for file in files:
@@ -85,15 +85,15 @@ def get_product_image(product_id):
     if filename == '':
         return json.dumps({'info': 'image not found'}), 200, {
             'ContentType': 'application/json'}
-    return send_file(directory + filename)
+    return send_file(os.path.join(directory, filename))
 
 
-# Уровень:              storage/<folder>/<filename>
+# Уровень:              storage/database/<folder>/<filename>
 # База данных:          storage/*
 # HTML:                 -
 @api.route('/storage/<folder>/<filename>', methods=['POST', 'GET'])
 def get_image(folder, filename):
-    return send_file(f'storage/{folder}/{filename}')
+    return send_file(f'storage/database/{folder}/{filename}')
 
 
 # NET WORKING

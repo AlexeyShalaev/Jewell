@@ -288,7 +288,7 @@ def rus2eng(word: str) -> str:
 def get_files_from_storage(folder: str, ignoring_files: list = []) -> list:
     files = []
     try:
-        path = f'storage/{folder}/'
+        path = f'storage/database/{folder}/'
         if os.path.isdir(path):
             for file in os.listdir(path):
                 filename = file.split('.')[0]

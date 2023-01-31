@@ -11,7 +11,7 @@ from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by
 from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, check_user_by_phone, add_user, \
     Role, update_registered_user, get_user_by_access_token
 from ManagementSystem.ext.logistics import auto_redirect, check_session
-from ManagementSystem.ext.telegram_bot.message import send_message
+from ManagementSystem.ext.telegram.message import send_message
 from ManagementSystem.ext.tools import normal_phone_number
 
 logger = getLogger(__name__)  # logging

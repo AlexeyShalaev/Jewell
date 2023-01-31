@@ -7,7 +7,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from ManagementSystem.ext import system_variables
+from ManagementSystem.ext import system_variables, directories, valid_images
 from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
@@ -36,7 +36,7 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
-from ManagementSystem.ext.telegram_bot.message import send_news
+from ManagementSystem.ext.telegram.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
 
@@ -126,21 +126,20 @@ def admin_news():
                     image = request.files['record_image']
                     img_type = image.filename.split('.')[-1].lower()
                     if img_type != '':
-                        types = ['jpeg', 'jpg', 'png']
-                        if img_type in types:
+                        if img_type in valid_images:
                             resp_status, data = encrypt_id_with_no_digits(str(inserted_record.inserted_id))
                             if resp_status:
                                 record_id = data
-                                directory = 'storage/records/'
+                                directory = directories['records']
                                 files = os.listdir(directory)
                                 for file in files:
                                     if record_id == file.split('.')[0]:
                                         filename = file
                                         break
                                 if filename != '':
-                                    os.remove(directory + filename)
+                                    os.remove(os.path.join(directory, filename))
                                 filename = record_id + '.' + img_type
-                                image.save(directory + filename)
+                                image.save(os.path.join(directory, filename))
                             else:
                                 flash('Не удалось обработать данные.', 'warning')
                         else:
@@ -158,7 +157,7 @@ def admin_news():
                 resp_status, data = encrypt_id_with_no_digits(record_id)
                 record_id = data
                 filename = ''
-                directory = 'storage/records/'
+                directory = directories['records']
                 files = os.listdir(directory)
                 for file in files:
                     if record_id == file.split('.')[0]:
@@ -190,22 +189,21 @@ def admin_news():
                     image = request.files['record_image']
                     img_type = image.filename.split('.')[-1].lower()
                     if img_type != '':
-                        types = ['jpeg', 'jpg', 'png']
-                        if img_type in types:
+                        if img_type in valid_images:
                             resp_status, data = encrypt_id_with_no_digits(str(record_id))
                             if resp_status:
                                 record_id = data
                                 filename = ''
-                                directory = 'storage/records/'
+                                directory = directories['records']
                                 files = os.listdir(directory)
                                 for file in files:
                                     if record_id == file.split('.')[0]:
                                         filename = file
                                         break
                                 if filename != '':
-                                    os.remove(directory + filename)
+                                    os.remove(os.path.join(directory, filename))
                                 filename = record_id + '.' + img_type
-                                image.save(directory + filename)
+                                image.save(os.path.join(directory, filename))
                             else:
                                 flash('Не удалось обработать данные.', 'warning')
                         else:
@@ -221,14 +219,14 @@ def admin_news():
                     if resp_status:
                         record_id = data
                         filename = ''
-                        directory = 'storage/records/'
+                        directory = directories['records']
                         files = os.listdir(directory)
                         for file in files:
                             if record_id == file.split('.')[0]:
                                 filename = file
                                 break
                         if filename != '':
-                            os.remove(directory + filename)
+                            os.remove(os.path.join(directory, filename))
                     else:
                         flash('Не удалось обработать данные.', 'warning')
                 except Exception as ex:
@@ -274,8 +272,7 @@ def admin_account():
     if request.method == "POST":
         avatar = request.files['avatar']
         img_type = avatar.filename.split('.')[-1].lower()
-        types = ['jpeg', 'jpg', 'png']
-        if img_type in types:
+        if img_type in valid_images:
             try:
                 resp_status, data = encrypt_id_with_no_digits(str(current_user.id))
                 if not resp_status:
@@ -284,15 +281,15 @@ def admin_account():
                 else:
                     user_id = data
                     filename = ''
-                    directory = 'storage/avatars/'
+                    directory = directories['avatars']
                     files = os.listdir(directory)
                     for file in files:
                         if user_id == file.split('.')[0]:
                             filename = file
                             break
                     if filename != '':
-                        os.remove(directory + filename)
-                    avatar.save(directory + user_id + '.' + img_type)
+                        os.remove(os.path.join(directory, filename))
+                    avatar.save(os.path.join(directory,  user_id + '.' + img_type))
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')
@@ -508,21 +505,20 @@ def admin_products():
                     image = request.files['image']
                     img_type = image.filename.split('.')[-1].lower()
                     if img_type != '':
-                        types = ['jpeg', 'jpg', 'png']
-                        if img_type in types:
+                        if img_type in valid_images:
                             resp_status, data = encrypt_id_with_no_digits(str(inserted_product.inserted_id))
                             if resp_status:
                                 product_id = data
-                                directory = 'storage/products/'
+                                directory = directories['products']
                                 files = os.listdir(directory)
                                 for file in files:
                                     if product_id == file.split('.')[0]:
                                         filename = file
                                         break
                                 if filename != '':
-                                    os.remove(directory + filename)
+                                    os.remove(os.path.join(directory, filename))
                                 filename = product_id + '.' + img_type
-                                image.save(directory + filename)
+                                image.save(os.path.join(directory, filename))
                             else:
                                 flash('Не удалось обработать данные.', 'warning')
                         else:
@@ -543,22 +539,21 @@ def admin_products():
                     image = request.files['image']
                     img_type = image.filename.split('.')[-1].lower()
                     if img_type != '':
-                        types = ['jpeg', 'jpg', 'png']
-                        if img_type in types:
+                        if img_type in valid_images:
                             resp_status, data = encrypt_id_with_no_digits(str(prod_id))
                             if resp_status:
                                 product_id = data
                                 filename = ''
-                                directory = 'storage/products/'
+                                directory = directories['products']
                                 files = os.listdir(directory)
                                 for file in files:
                                     if product_id == file.split('.')[0]:
                                         filename = file
                                         break
                                 if filename != '':
-                                    os.remove(directory + filename)
+                                    os.remove(os.path.join(directory, filename))
                                 filename = product_id + '.' + img_type
-                                image.save(directory + filename)
+                                image.save(os.path.join(directory, filename))
                             else:
                                 flash('Не удалось обработать данные.', 'warning')
                         else:
@@ -573,14 +568,14 @@ def admin_products():
                     if resp_status:
                         product_id = data
                         filename = ''
-                        directory = 'storage/products/'
+                        directory = directories['products']
                         files = os.listdir(directory)
                         for file in files:
                             if product_id == file.split('.')[0]:
                                 filename = file
                                 break
                         if filename != '':
-                            os.remove(directory + filename)
+                            os.remove(os.path.join(directory, filename))
                     else:
                         flash('Не удалось обработать данные.', 'warning')
                 except Exception as ex:
@@ -1021,11 +1016,11 @@ def security_users_delete():
                 resp_status, data = encrypt_id_with_no_digits(str(user_id))
                 if resp_status:
                     recs.append(data)
-            directory = 'storage/records/'
+            directory = directories['records']
             files = os.listdir(directory)
             for file in files:
                 if file.split('.')[0] in recs:
-                    os.remove(directory + file)
+                    os.remove(os.path.join(directory, file))
         except Exception as ex:
             logger.error(ex)
         delete_recovers_by_user_id(user_id)
@@ -1044,14 +1039,14 @@ def security_users_delete():
             resp_status, data = encrypt_id_with_no_digits(str(user_id))
             if resp_status:
                 filename = ''
-                directory = 'storage/avatars/'
+                directory = directories['avatars']
                 files = os.listdir(directory)
                 for file in files:
                     if data == file.split('.')[0]:
                         filename = file
                         break
                 if filename != '':
-                    os.remove(directory + filename)
+                    os.remove(os.path.join(directory, filename))
         except Exception as ex:
             logger.error(ex)
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
@@ -1223,7 +1218,7 @@ def configuration_files():
 
     if request.method == "POST":
         try:
-            path = 'storage/' + request.form['path']
+            path = 'storage/database/' + request.form['path']
             if os.path.exists(path):
                 os.remove(path)
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}

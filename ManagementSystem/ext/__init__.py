@@ -5,3 +5,12 @@ system_variables = SystemVariables()
 config = load_config()  # config
 
 telegram_chat = config.tg_bot.chat
+
+directories = {
+    'avatars': 'storage/database/avatars',
+    'games': 'storage/database/games',
+    'products': 'storage/database/products',
+    'records': 'storage/database/records'
+}
+
+valid_images = ['jpeg', 'jpg', 'png']

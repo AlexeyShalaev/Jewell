@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <title> TimeMachine | Jewell Dashboard</title>
+    <link rel="stylesheet" media="all" href="../../../assets/timemachine/timemachine.css"/>
+    <!-- Toast css -->
+    <link href="../../../assets/vendor/jquery-toast-plugin/jquery.toast.min.css" rel="stylesheet" type="text/css"/>
+    <!-- Icons css -->
+    <link href="../../../assets/icons/css/all.min.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<div class="gallery">
+    <ul class="cards">
+        {% for file in files %}
+            <li>
+                <div class="card" onclick="confirm_backup('{{ file }}');">
+                    {{ get_backup_date(file) }}
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+    <div class="actions">
+        <button class="prev"><i class="fa-solid fa-left-long" style="font-size: 28px;"></i></button>
+        <button class="next"><i class="fa-solid fa-right-long" style="font-size: 28px;"></i></button>
+    </div>
+</div>
+<div class="drag-proxy"></div>
+
+<script>
+    function confirm_backup(file) {
+        let x = getRandomInt(10);
+        let y = getRandomInt(10);
+        let operation = getRandomInt(3);
+        let expression = '';
+        if (operation === 0) {
+            expression = `${x} + ${y} = ?`;
+            answer = x + y;
+        } else if (operation === 1) {
+            expression = `${x} - ${y} = ?`;
+            answer = x - y;
+        } else if (operation === 2) {
+            expression = `${x} * ${y} = ?`;
+            answer = x * y;
+        }
+        const user_answer = prompt("Решите пример, чтобы восстановить данные из резервной копии:\n " + expression, '');
+        if (answer != null && Number(user_answer) === answer && user_answer.length > 0) {
+            try {
+                $.ajax({
+                        type: 'POST',
+                        url: '{{ url_for('admin.configuration_timemachine')}}',
+                        data: {
+                            'file': file
+                        },
+                        success: function (result) {
+                            const res = JSON.parse(result);
+                            if (res.success === true) {
+                                location.replace(res.url);
+                            } else {
+                                $.NotificationApp.send("Time Machine", "Ошибка: " + res.error, "top-right", "#FF5B5B", "error");
+                            }
+                        }
+                    }
+                );
+            } catch
+                (err) {
+                $.NotificationApp.send("Time Machine", err, "top-right", "#FF5B5B", "error");
+            }
+        } else {
+            $.NotificationApp.send("Time Machine", "Неверный ответ.", "top-right", "#FF5B5B", "error");
+        }
+    }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+
+<!-- Toastr Demo js -->
+<script src="../../../assets/vendor/jquery-toast-plugin/jquery.toast.min.js"></script>
+<script src="../../../assets/js/pages/demo.toastr.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/Draggable.min.js"></script>
+
+<script src="../../../assets/timemachine/timemachine.js"></script>
+
+</body>
+</html>

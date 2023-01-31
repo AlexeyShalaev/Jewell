@@ -21,4 +21,37 @@
         </div>
     </div>
 
+    <div class="row mt-lg-5">
+        <div class="row">
+            <div class="col-12">
+                <form method="post">
+                    <div class="timeline" dir="ltr">
+
+                        {% for file in files %}
+
+                            <div class="timeline-lg-item timeline-item-{% if loop.index % 2 == 0 %}right{% else %}left{% endif %}">
+                                <div class="timeline-desk">
+                                    <div class="timeline-box">
+                                        <span class="arrow"></span>
+                                        <span class="timeline-icon"><i class="mdi mdi-adjust"></i></span>
+                                        <h4 class="mt-0 mb-1 font-16">{{ get_backup_date(file) }}</h4>
+                                        <button onclick="return confirm_backup();" type="submit"
+                                                name="backup" value="{{ file }}" class="btn btn-sm btn-dark"><i
+                                                class="fas fa-cloud-upload-alt me-2"></i>Восстановить данные
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+                    <!-- end timeline -->
+                </form>
+
+            </div> <!-- end col -->
+        </div>
+    </div>
+
+
 {% endblock %}

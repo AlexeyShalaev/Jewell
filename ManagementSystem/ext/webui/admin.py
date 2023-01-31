@@ -36,6 +36,7 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
+from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore
 from ManagementSystem.ext.telegram.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
@@ -289,7 +290,7 @@ def admin_account():
                             break
                     if filename != '':
                         os.remove(os.path.join(directory, filename))
-                    avatar.save(os.path.join(directory,  user_id + '.' + img_type))
+                    avatar.save(os.path.join(directory, user_id + '.' + img_type))
             except Exception as ex:
                 logger.error(ex)
             flash('Аватарка успешно обновлена', category='success')
@@ -1261,7 +1262,7 @@ def configuration_variables():
     return render_template("admin/configuration/variables.html")
 
 
-# Уровень:              configuration/
+# Уровень:              configuration/backup
 # База данных:
 # HTML:
 @admin.route('/configuration/backup', methods=['POST', 'GET'])
@@ -1283,7 +1284,47 @@ def configuration_backup():
             logger.error(ex)
             flash(str(ex), 'error')
 
-    return render_template("admin/configuration/backup.html")
+    files = get_sorted_backups()
+
+    return render_template("admin/configuration/backup.html", files=files, get_backup_date=get_backup_date)
+
+
+# Уровень:              configuration/timemachine
+# База данных:
+# HTML:
+@admin.route('/configuration/timemachine', methods=['POST', 'GET'])
+@login_required
+def configuration_timemachine():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            filename = request.form['file']
+            status = restore(filename)
+            if status:
+                flash(f'Вы успешно восстановили данные из резервной копии {filename}', 'success')
+                return json.dumps({'success': True, "url": request.host_url + 'login'}), 200, {
+                    'ContentType': 'application/json'}
+            else:
+                return json.dumps(
+                    {'success': False, "error": 'Не удалось восстановить данные из резервной копии. '}), 200, {
+                           'ContentType': 'application/json'}
+        except Exception as ex:
+            logger.error(ex)
+            return json.dumps({'success': False, "error": str(ex)}), 200, {'ContentType': 'application/json'}
+
+    files = get_sorted_backups()
+    if len(files) < 5:
+        files *= 2
+
+    return render_template("admin/configuration/timemachine.html", files=files, get_backup_date=get_backup_date)
 
 
 # Уровень:              forms/constructor

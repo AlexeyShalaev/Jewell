@@ -27,12 +27,18 @@ def get_backup_date(filename: str) -> datetime:
     return datetime.strptime(timestamp, backup_time_format)
 
 
+def get_sorted_backups() -> list:
+    files = os.listdir(backups_folder)
+    if len(files) > 0:
+        files.sort(key=get_backup_date, reverse=True)
+    return files
+
+
 def get_backup_filename(filename: str) -> (bool, str):
     if filename == 'latest':
-        files = os.listdir(backups_folder)
+        files = get_sorted_backups()
         if len(files) == 0:
             return False, None
-        files.sort(key=get_backup_date, reverse=True)
         filename = files[0]
     else:
         if not filename.endswith('.tar.gz'):

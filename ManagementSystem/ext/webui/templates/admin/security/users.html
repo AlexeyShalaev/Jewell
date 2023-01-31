@@ -187,7 +187,7 @@
                             success: function (result) {
                                 const res = JSON.parse(result);
                                 if (res.success === true) {
-                                    location.reload(res.url);
+                                    location.replace(res.url);
                                 } else {
                                     $.NotificationApp.send("Безопасность", "Не удалось авторизоваться под данным пользователем.", "top-right", "#FF5B5B", "error");
                                 }

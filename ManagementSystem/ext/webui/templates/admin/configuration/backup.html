@@ -21,37 +21,153 @@
         </div>
     </div>
 
-    <div class="row mt-lg-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="card text-white bg-info overflow-hidden">
+                <div class="card-body">
+                    <div class="toll-free-box text-center">
+                        <h4><i class="fa-solid fa-clock-rotate-left"></i> Восстановление данных из резервных копий: <a
+                                href="{{ url_for('admin.configuration_timemachine') }}">Time Machine</a></h4>
+                    </div>
+                </div> <!-- end card-body-->
+            </div>
+        </div>
+    </div>
+    <form method="post">
         <div class="row">
-            <div class="col-12">
-                <form method="post">
-                    <div class="timeline" dir="ltr">
-
-                        {% for file in files %}
-
-                            <div class="timeline-lg-item timeline-item-{% if loop.index % 2 == 0 %}right{% else %}left{% endif %}">
-                                <div class="timeline-desk">
-                                    <div class="timeline-box">
-                                        <span class="arrow"></span>
-                                        <span class="timeline-icon"><i class="mdi mdi-adjust"></i></span>
-                                        <h4 class="mt-0 mb-1 font-16">{{ get_backup_date(file) }}</h4>
-                                        <button onclick="return confirm_backup();" type="submit"
-                                                name="backup" value="{{ file }}" class="btn btn-sm btn-dark"><i
-                                                class="fas fa-cloud-upload-alt me-2"></i>Восстановить данные
-                                        </button>
-                                    </div>
+            <div class="col-6">
+                <div class="card cta-box bg-danger text-white">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="w-100 overflow-hidden">
+                                <h3 class="mt-0"><i class="mdi mdi-bullhorn-outline"></i>Будьте осторожны, удаляя
+                                    резервную
+                                    копию</h3>
+                                <select name="backup" class="form-select form-select-lg mb-3">
+                                    <option value="" selected>Выберите архив, который надо удалить</option>
+                                    {% for file in files %}
+                                        <option value="{{ file }}">{{ get_backup_date(file) }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <button type="submit" name="snapshot" value="delete"
+                                    class="fa-solid fa-dumpster-fire ms-3 font-48 bg-transparent border-0"></button>
+                        </div>
+                    </div>
+                    <!-- end card-body -->
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="card cta-box bg-primary text-white">
+                    <div class="card-body">
+                        <div>
+                            <div class="row">
+                                <div class="col">
+                                    <h3 class="m-0 fw-normal cta-box-title">Создайте резервную копию</h3>
+                                    <br>
+                                    <p>Копии создаются автоматически, однако лучше создавать локальные копии раз в
+                                        несколько месяцев!</p>
+                                </div>
+                                <div class="col">
+                                    <h3 class="m-0 fw-normal cta-box-title">Последняя копия:</h3>
+                                    <br>
+                                    {% if files | length == 0 %}
+                                        <p>Резервных копий нет</p>
+                                    {% else %}
+                                        <p>{{ get_backup_date(files[0]) }}</p>
+                                    {% endif %}
                                 </div>
                             </div>
 
-                        {% endfor %}
-
+                            <div class="row">
+                                <div class="col">
+                                    <div class="form-check pt-1 form-checkbox-dark">
+                                        <input type="checkbox" class="form-check-input" name="download_dump">
+                                        <label class="form-check-label" for="input_telegram">Скачать после
+                                            создания</label>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <button type="submit" name="snapshot" value="dump"
+                                            class="btn btn-sm btn-light rounded-pill">
+                                        Создать <i
+                                            class="fas fa-cloud-upload-alt"></i></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <!-- end timeline -->
-                </form>
-
-            </div> <!-- end col -->
+                    <!-- end card-body -->
+                </div>
+            </div>
         </div>
+    </form>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Загрузка резервной копии</h4>
+                    <p class="text-muted font-14">
+                        Загрузите в систему сюда архив .tar.gz со всеми данными.
+                    </p>
+
+                    <!-- File Upload -->
+                    <form action="{{ url_for('admin.configuration_backup') }}" enctype="multipart/form-data"
+                          method="post" class="dropzone" id="backupDropzone" data-plugin="dropzone"
+                          data-previews-container="#file-previews"
+                          data-upload-preview-template="#uploadPreviewTemplate">
+                        <div class="fallback">
+                            <input id="file_input" name="file" type="file" accept=".tar.gz" multiple/>
+                        </div>
+
+                        <div class="dz-message needsclick">
+                            <i class="h1 text-muted ri-upload-cloud-2-line"></i>
+                            <h3>Поместите архив сюда или нажмите, чтобы загрузить.</h3>
+                            <span class="text-muted font-13">Не волнуйтесь система проверит корректность данных.</span>
+                        </div>
+                    </form>
+
+                    <!-- Preview -->
+                    <div class="dropzone-previews mt-3" id="file-previews"></div>
+
+                    <!-- file preview template -->
+                    <div class="d-none" id="uploadPreviewTemplate">
+                        <div class="card mt-1 mb-0 shadow-none border">
+                            <div class="p-2">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <img data-dz-thumbnail src="#" class="avatar-sm rounded bg-light" alt="">
+                                    </div>
+                                    <div class="col ps-0">
+                                        <a href="javascript:void(0);" class="text-muted fw-bold" data-dz-name></a>
+                                        <p class="mb-0" data-dz-size></p>
+                                    </div>
+                                    <div class="col-auto">
+                                        <!-- Button -->
+                                        <a href="" class="btn btn-link btn-lg text-muted" data-dz-remove>
+                                            <i class="ri-close-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <!-- end card-body -->
+            </div>
+            <!-- end card-->
+        </div>
+        <!-- end col-->
     </div>
 
 
+
+{% endblock %}
+
+{% block js %}
+    <!-- plugin js -->
+    <script src="../../assets/vendor/dropzone/min/dropzone.min.js"></script>
+    <!-- init js -->
+    <script src="../../assets/js/ui/component.fileupload.js"></script>
 {% endblock %}

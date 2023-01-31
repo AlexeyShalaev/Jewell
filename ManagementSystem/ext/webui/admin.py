@@ -1279,7 +1279,9 @@ def configuration_backup():
 
     if request.method == "POST":
         try:
-            pass
+            print(request.files)
+            print(request.values)
+            # todo
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')

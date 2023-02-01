@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 import tarfile
 from datetime import datetime
 
@@ -18,6 +19,32 @@ database_folder = 'storage/database'
 backups_folder = 'storage/backups'
 
 backup_time_format = '%Y-%m-%d-%H-%M-%S'
+
+
+def check_content(file: str) -> bool:
+    try:
+        database_folder_flag = False
+        tar = tarfile.open(file)
+        for name in tar.getnames():
+            if '.' not in name:
+                if name == 'database':
+                    database_folder_flag = True
+            else:
+                if name.endswith('.json'):
+                    index = name.rfind('.')
+                    collection_name = name[:index]
+                    if collection_name not in db.list_collection_names():
+                        tar.close()
+                        return False
+        tar.close()
+        return database_folder_flag
+    except Exception as ex:
+        logger.error(ex)
+        return False
+
+
+def check_filename(filename):
+    return re.fullmatch(r'\w+-\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}\.tar\.gz', filename)
 
 
 def get_backup_date(filename: str) -> datetime:
@@ -48,15 +75,16 @@ def get_backup_filename(filename: str) -> (bool, str):
     return True, filename
 
 
-def backup() -> bool:
+def backup() -> (bool, str):
+    filename = ''
     try:
         export_database_to_json()
-        archive_data()
+        filename = archive_data()
     except Exception as ex:
         logger.error(ex)
-        return False
+        return False, None
     clear_temporary_folder()
-    return True
+    return True, filename
 
 
 def restore(filename: str = 'latest') -> bool:
@@ -73,11 +101,13 @@ def restore(filename: str = 'latest') -> bool:
     return True
 
 
-def archive_data():
+def archive_data() -> str:
     timestamp = datetime.now().strftime(backup_time_format)
-    with tarfile.open(f'{backups_folder}/database-{timestamp}.tar.gz', "w:gz") as tar:
+    filename = f'{backups_folder}/database-{timestamp}.tar.gz'
+    with tarfile.open(filename, "w:gz") as tar:
         tar.add(temporary_folder, arcname="")
         tar.add(database_folder, arcname=database_folder.split('/')[1])
+    return filename
 
 
 def extract_data_from_backup(filename):

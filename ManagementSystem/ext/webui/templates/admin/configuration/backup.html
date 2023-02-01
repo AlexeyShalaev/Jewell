@@ -82,8 +82,10 @@
                             <div class="row">
                                 <div class="col">
                                     <div class="form-check pt-1 form-checkbox-dark">
-                                        <input type="checkbox" class="form-check-input" name="download_dump">
-                                        <label class="form-check-label" for="input_telegram">Скачать после
+                                        <input type="hidden" id="download_dump" name="download_dump" value="false">
+                                        <input type="checkbox" class="form-check-input" onclick='handleDumpClick(this);'
+                                               id="download_dump_input">
+                                        <label class="form-check-label" for="download_dump_input">Скачать после
                                             создания</label>
                                     </div>
                                 </div>
@@ -161,7 +163,11 @@
         <!-- end col-->
     </div>
 
-
+    <script>
+        function handleDumpClick(cb) {
+            document.getElementById("download_dump").value = cb.checked;
+        }
+    </script>
 
 {% endblock %}
 

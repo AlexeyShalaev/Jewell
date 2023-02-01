@@ -36,7 +36,8 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
-from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore
+from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
+    temporary_folder, check_filename, check_content, clear_temporary_folder
 from ManagementSystem.ext.telegram.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
@@ -1279,9 +1280,45 @@ def configuration_backup():
 
     if request.method == "POST":
         try:
-            print(request.files)
-            print(request.values)
-            # todo
+            if 'snapshot' in request.values.keys():
+                if request.form['snapshot'] == 'delete':
+                    filename = request.form['backup']
+                    if not check_filename(filename):
+                        flash('Неверное имя файла', 'error')
+                        return redirect(url_for('admin.configuration_backup'))
+                    file_path = os.path.join(backups_folder, filename)
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        flash('Резервная копия удалена', 'success')
+                    else:
+                        flash('Файл не найден', 'error')
+                elif request.form['snapshot'] == 'dump':
+                    download_dump = request.form['download_dump']
+                    status, file = backup()
+                    if not status:
+                        flash('Не удалось создать резервную копию', 'error')
+                    if len(file) == 0:
+                        flash('Не удалось создать архив с данными', 'error')
+                    flash(f'Вы успешно создали резервную копию: {file}', 'success')
+                    if download_dump == 'true':
+                        return send_file(file)
+                return redirect(url_for('admin.configuration_backup'))
+            else:
+                file = request.files['file']
+                if not check_filename(file.filename):
+                    flash('Недопустимое(-ый) имя/тип файла', 'warning')
+                elif os.path.exists(os.path.join(backups_folder, file.filename)):
+                    flash('Архив с данным именем уже существует', 'warning')
+                else:
+                    path = os.path.join(temporary_folder, file.filename)
+                    file.save(path)
+                    if check_content(path):
+                        os.replace(path, os.path.join(backups_folder, file.filename))
+                        flash('Вы успешно импортировали резервную копию', 'success')
+                    else:
+                        clear_temporary_folder()
+                        flash('Содержимое архива не удовлетворяет образцу', 'warning')
+                    return "importing"
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')

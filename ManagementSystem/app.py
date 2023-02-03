@@ -1,22 +1,27 @@
+import os
+import sys
+
 from logging import getLogger
 
 from flask import *
 from flask_login import *
 from flask_toastr import *
 
-from ManagementSystem.ext.database.users import *
-from ManagementSystem.ext.webui.admin import admin
-from ManagementSystem.ext.webui.api import api
-from ManagementSystem.ext.webui.error import error
-from ManagementSystem.ext.webui.networking import networking
-from ManagementSystem.ext.webui.forms import forms
-from ManagementSystem.ext.webui.games import games
-from ManagementSystem.ext.webui.other import other
-from ManagementSystem.ext.webui.student import student
-from ManagementSystem.ext.webui.teacher import teacher
-from ManagementSystem.ext.webui.view import view
-from ManagementSystem.ext import system_variables
+from ext.database.users import *
+from ext.webui.admin import admin
+from ext.webui.api import api
+from ext.webui.error import error
+from ext.webui.networking import networking
+from ext.webui.forms import forms
+from ext.webui.games import games
+from ext.webui.other import other
+from ext.webui.student import student
+from ext.webui.teacher import teacher
+from ext.webui.view import view
+from ext import system_variables
 from config import load_config
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
 config = load_config()  # config
 logger = getLogger(__name__)  # logging

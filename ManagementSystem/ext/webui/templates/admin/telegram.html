@@ -1,0 +1,65 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Telegram
+{% endblock %}
+
+{% block body %}
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Telegram BOT</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xl-4 col-lg-5">
+            <div class="card text-center">
+                <div class="card-body">
+                    <img src="../../assets/images/brands/telegram.png" class="rounded-circle avatar-lg img-thumbnail"
+                         alt="profile-image">
+                    {% if bot_status %}
+                        <h4 class="page-title">Бот запущен
+                            <div class="spinner-grow text-success" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </h4>
+                    {% else %}
+                        <h4 class="page-title">Бот остановлен
+                            <div class="spinner-grow text-danger" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                        </h4>
+                    {% endif %}
+                    <p class="text-muted font-14"><a href="{{ system_variables['tg_bot'] }}" target="_blank">Перейти</a>
+                    </p>
+
+                    <form method="post">
+                        {% if bot_status %}
+                            <button type="submit" name="btn_telegram_bot" value="stop"
+                                    class="btn btn-danger btn-sm mb-2">
+                                Остановить
+                            </button>
+                        {% else %}
+                            <button type="submit" name="btn_telegram_bot" value="run"
+                                    class="btn btn-success btn-sm mb-2">
+                                Запустить
+                            </button>
+                        {% endif %}
+                    </form>
+                </div> <!-- end card-body -->
+            </div> <!-- end card -->
+        </div> <!-- end col-->
+    </div>
+
+{% endblock %}

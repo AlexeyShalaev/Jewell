@@ -1507,3 +1507,35 @@ def forms_analyze(form_id):
 
     return render_template("admin/forms/analyze.html", form=form, table_results=table_results, analyze=analyze,
                            modes=modes, counts=counts, questions=questions)
+
+
+# Уровень:              telegram
+# База данных:
+# HTML:
+@admin.route('/telegram', methods=['POST', 'GET'])
+@login_required
+def admin_telegram():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_telegram_bot'] == 'stop':
+                # todo stop bot
+                flash('Бот запущен!', 'success')
+            elif request.form['btn_telegram_bot'] == 'run':
+                # todo run bot
+                flash('Бот остановлен!', 'success')
+        except Exception as ex:
+            logger.error(ex)
+            flash(str(ex), 'error')
+
+    bot_status = True  # todo get bot status
+
+    return render_template("admin/telegram.html", bot_status=bot_status)

@@ -11,7 +11,7 @@ from ManagementSystem.ext.logistics import check_session
 
 logger = getLogger(__name__)  # logging
 games = Blueprint('games', __name__, url_prefix='/games', template_folder='templates/games', static_folder='assets')
-game_5letters_path = f'{directories["games"]}/5letters/rus2129.txt'
+game_5letters_path = f'{directories["games"]}/5letters/rus2130.txt'
 
 
 # Уровень:              games/rating

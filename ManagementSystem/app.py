@@ -1,6 +1,8 @@
 import os
 import sys
 
+sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 from logging import getLogger
 
 from flask import *
@@ -21,7 +23,7 @@ from ext.webui.view import view
 from ext import system_variables
 from config import load_config
 
-sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
+
 
 config = load_config()  # config
 logger = getLogger(__name__)  # logging

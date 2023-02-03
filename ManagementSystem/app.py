@@ -23,8 +23,6 @@ from ext.webui.view import view
 from ext import system_variables
 from config import load_config
 
-
-
 config = load_config()  # config
 logger = getLogger(__name__)  # logging
 

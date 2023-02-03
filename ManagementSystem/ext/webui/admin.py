@@ -39,6 +39,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
 from ManagementSystem.ext.telegram.message import send_news
+from ManagementSystem.ext.terminal import get_telegram_bot_status
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
 
@@ -1536,6 +1537,7 @@ def admin_telegram():
             logger.error(ex)
             flash(str(ex), 'error')
 
+    get_telegram_bot_status()
     bot_status = True  # todo get bot status
 
     return render_template("admin/telegram.html", bot_status=bot_status)

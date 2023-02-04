@@ -39,7 +39,8 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
 from ManagementSystem.ext.telegram.message import send_news
-from ManagementSystem.ext.terminal import get_telegram_bot_status
+from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot, \
+    restart_telegram_bot
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage
 
@@ -1528,16 +1529,15 @@ def admin_telegram():
     if request.method == "POST":
         try:
             if request.form['btn_telegram_bot'] == 'stop':
-                # todo stop bot
-                flash('Бот запущен!', 'success')
-            elif request.form['btn_telegram_bot'] == 'run':
-                # todo run bot
+                stop_telegram_bot()
                 flash('Бот остановлен!', 'success')
+            elif request.form['btn_telegram_bot'] == 'run':
+                start_telegram_bot()
+                flash('Бот запущен!', 'success')
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')
 
-    get_telegram_bot_status()
-    bot_status = True  # todo get bot status
+    bot_status = get_telegram_bot_status()
 
     return render_template("admin/telegram.html", bot_status=bot_status)

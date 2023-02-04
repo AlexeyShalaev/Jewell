@@ -4,6 +4,17 @@
     Analyze
 {% endblock %}
 
+{% block css %}
+    <!-- Datatables css -->
+
+    <link href="../../../assets/vendor/datatables.net-bs5/css/dataTables.bootstrap5.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="../../../assets/vendor/datatables.net-responsive-bs5/css/responsive.bootstrap5.min.css" rel="stylesheet"
+          type="text/css"/>
+    <link href="../../../assets/vendor/datatables.net-buttons-bs5/css/buttons.bootstrap5.min.css" rel="stylesheet"
+          type="text/css"/>
+{% endblock %}
+
 {% block body %}
 
     <div class="row">
@@ -209,7 +220,16 @@
                 dom: 'Blfrtip',
                 order: [[1, 'asc']],
                 buttons: [
-                    'copy', 'print'
+                    'copy', 'csv', 'pdf', 'print',
+                    {
+                        text: 'EXCEL',
+                        action: function (e, dt, node, config) {
+                            var data = document.getElementById('answers_table');
+                            var excelFile = XLSX.utils.table_to_book(data, {sheet: "sheet1"});
+                            XLSX.write(excelFile, {bookType: "xlsx", bookSST: true, type: 'base64'});
+                            XLSX.writeFile(excelFile, '{{ form.name }}' + ".xlsx");
+                        }
+                    }
                 ],
                 language: {
                     "lengthMenu": "Показывать _MENU_ записей",
@@ -235,4 +255,10 @@
 
     </script>
 
+{% endblock %}
+
+{% block js %}
+    <script type="text/javascript" src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.32/vfs_fonts.js"></script>
 {% endblock %}

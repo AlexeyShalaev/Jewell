@@ -25,7 +25,7 @@ class Notification:
         self.date = data['date']
 
     @staticmethod
-    def create_notification(region, link, icon, color, text, date=datetime.now()):
+    def create_notification(region, link, icon, color, text, date):
         status, data = create_token(4)
         return Notification(
             {

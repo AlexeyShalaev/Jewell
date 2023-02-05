@@ -1,5 +1,6 @@
 import os
 import re
+import time
 from datetime import datetime
 from logging import getLogger
 
@@ -38,11 +39,10 @@ from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.telegram.message import send_news
-from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot, \
-    restart_telegram_bot
+from ManagementSystem.ext.telegram.message import send_news, send_message
+from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
-    get_month, get_files_from_storage
+    get_month, get_files_from_storage, convert_markdown_to_html
 
 logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
@@ -1281,6 +1281,7 @@ def configuration_backup():
         return redirect(url_for("view.landing"))
 
     if request.method == "POST":
+        clear_temporary_folder()
         try:
             if 'snapshot' in request.values.keys():
                 if request.form['snapshot'] == 'delete':
@@ -1346,6 +1347,7 @@ def configuration_timemachine():
         return redirect(url_for("view.landing"))
 
     if request.method == "POST":
+        clear_temporary_folder()
         try:
             filename = request.form['file']
             status = restore(filename)
@@ -1534,6 +1536,17 @@ def admin_telegram():
             elif request.form['btn_telegram_bot'] == 'run':
                 start_telegram_bot()
                 flash('Бот запущен!', 'success')
+            elif request.form['btn_telegram_bot'] == 'send_message':
+                text = convert_markdown_to_html(request.form['text'])
+                counter = 0
+                for user in get_users().data:
+                    if user.telegram_id is not None:
+                        send_message(text, user.telegram_id)
+                        counter += 1
+                        if counter % 25 == 0:
+                            time.sleep(2)
+                flash(f'Сообщение отправлено {counter} пользователям', 'success')
+                return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
             logger.error(ex)
             flash(str(ex), 'error')

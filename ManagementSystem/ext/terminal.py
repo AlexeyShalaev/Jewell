@@ -11,23 +11,14 @@ def get_telegram_bot_status():
 
 def stop_telegram_bot():
     cmd = f'systemctl stop {bot_service}'
-    status = os.system(cmd)
-    print('---------------------')
-    print(status)
-    print('---------------------')
+    os.system(cmd)
 
 
 def start_telegram_bot():
     cmd = f'systemctl start {bot_service}'
-    status = os.system(cmd)
-    print('---------------------')
-    print(status)
-    print('---------------------')
+    os.system(cmd)
 
 
 def restart_telegram_bot():
     cmd = f'systemctl restart {bot_service}'
-    status = os.system(cmd)
-    print('---------------------')
-    print(status)
-    print('---------------------')
+    os.system(cmd)

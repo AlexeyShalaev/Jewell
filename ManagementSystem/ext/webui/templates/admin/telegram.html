@@ -4,6 +4,11 @@
     Telegram
 {% endblock %}
 
+{% block css %}
+    <!-- SimpleMDE css -->
+    <link href="../../assets/vendor/simplemde/simplemde.min.css" rel="stylesheet" type="text/css"/>
+{% endblock %}
+
 {% block body %}
 
     <div class="row">
@@ -23,7 +28,7 @@
     </div>
 
     <div class="row">
-        <div class="col-xl-4 col-lg-5">
+        <div class="col-xl-3 col-lg-4">
             <div class="card text-center">
                 <div class="card-body">
                     <img src="../../assets/images/brands/telegram.png" class="rounded-circle avatar-lg img-thumbnail"
@@ -60,6 +65,111 @@
                 </div> <!-- end card-body -->
             </div> <!-- end card -->
         </div> <!-- end col-->
+        <div class="col-xl-9 col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-body p-0">
+                        <div class="row">
+                            <!-- HTML -->
+                            <textarea id="simplemde"></textarea>
+                        </div>
+                        <div class="row">
+                            <button id="btn_send_message" type="button" onclick="send_message_tg();"
+                                    class="btn btn-primary chat-send"><i
+                                    class="uil uil-message">Отправить
+                                рассылку</i></button>
+                        </div>
+                        <!-- end row -->
+                    </div>
+                </div> <!-- end card body -->
+            </div> <!-- end card -->
+        </div>
     </div>
 
+    <script>
+        let simplemde;
+
+        $(document).ready(function () {
+            simplemde = new SimpleMDE({
+                element: $(".simplemde")[0],
+                forceSync: true,
+                spellChecker: false,
+                toolbar: [{
+                    name: "bold",
+                    action: SimpleMDE.toggleBold,
+                    className: "fa fa-bold",
+                    title: "Bold"
+                },
+                    {
+                        name: "italic",
+                        action: SimpleMDE.toggleItalic,
+                        className: "fa fa-italic",
+                        title: "Italic"
+                    },
+                    {
+                        name: "strike",
+                        action: SimpleMDE.toggleStrikethrough,
+                        className: "fa fa-strikethrough",
+                        title: "Strike"
+                    },
+                    {
+                        name: "code",
+                        action: SimpleMDE.toggleCodeBlock,
+                        className: "fa fa-code",
+                        title: "Code"
+                    },
+                    {
+                        name: "preview",
+                        action: SimpleMDE.togglePreview,
+                        className: "fa fa-eye no-disable",
+                        title: "Preview"
+                    }
+                ]
+            });
+        });
+
+        function send_message_tg() {
+            const text = simplemde.value();
+            console.log(text);
+            if (text.length < 8) {
+                $.NotificationApp.send("Рассылка", "Слишком короткое сообщение!", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            if (text.length > 4096) {
+                $.NotificationApp.send("Рассылка", "Слишком длинное сообщение!", "top-right", "#FF5B5B", "warning");
+                return;
+            }
+            document.getElementById("btn_send_message").disabled = true;
+            try {
+                $.ajax({
+                        type: 'POST',
+                        url: '{{ url_for('admin.admin_telegram')}}',
+                        data: {
+                            'btn_telegram_bot': 'send_message',
+                            'text': text
+                        },
+                        success: function (result) {
+                            const res = JSON.parse(result);
+                            if (res.success === true) {
+                                console.log('done');
+                            } else {
+                                $.NotificationApp.send("TG BOT", "Не удалось сделать рассылку.", "top-right", "#FF5B5B", "error");
+                            }
+                            document.getElementById("btn_send_message").disabled = false;
+                        }
+                    }
+                );
+            } catch
+                (err) {
+                console.log(err);
+            }
+        }
+
+    </script>
+
+{% endblock %}
+
+{% block js %}
+    <!-- SimpleMDE js -->
+    <script src="../../assets/vendor/simplemde/simplemde.min.js"></script>
 {% endblock %}

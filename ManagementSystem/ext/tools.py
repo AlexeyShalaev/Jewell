@@ -297,3 +297,19 @@ def get_files_from_storage(folder: str, ignoring_files: list = []) -> list:
     except Exception as ex:
         logger.error(ex)
     return files
+
+
+def convert_markdown_to_html(text: str) -> str:
+    tags = {
+        "```": "code",
+        "**": "b",
+        "~~": "s",
+        "*": "i"
+    }
+    for mark, tag in tags.items():
+        text = text.replace(mark, f'<{tag}>')
+    for tag in tags.values():
+        matches = re.findall(f'<{tag}>' + r'([^<]+)' + f'<{tag}>', text)
+        for match in matches:
+            text = re.sub(f'<{tag}>{match}<{tag}>', f'<{tag}>{match}</{tag}>', text)
+    return text

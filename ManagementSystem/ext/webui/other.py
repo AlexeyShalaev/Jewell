@@ -8,6 +8,7 @@ from ManagementSystem.ext.database.offers import get_offers
 from ManagementSystem.ext.database.orders import get_orders_by_client, add_order, delete_order
 from ManagementSystem.ext.database.products import get_products, check_product_by_id
 from ManagementSystem.ext.logistics import check_session, auto_render
+from ManagementSystem.ext.notifier import notify_admins
 
 logger = getLogger(__name__)  # logging
 other = Blueprint('other', __name__, url_prefix='/other', template_folder='templates', static_folder='assets')
@@ -66,12 +67,16 @@ def products():
                 else:
                     if check_product_by_id(product):
                         add_order(product, current_user.id, address, country, city, zip_postal, comments)
+                        notify_admins('Новый заказ', url_for('admin.admin_products'), 'mdi mdi-basket-plus',
+                                      'primary', f'Новый заказ от пользователя ID={current_user.id}')
                         flash('Ваш заказ принят и передан в обработку', 'success')
                     else:
                         flash('Выбранный товар не существует', 'warning')
             elif request.form['btn_products'] == 'cancel_order':
                 order_id = request.form.get("order_id")
                 delete_order(order_id)
+                notify_admins('Заказ отменен', url_for('admin.admin_products'), 'mdi mdi-basket-off',
+                              'danger', f'Отменен заказ ID={order_id} от пользователя ID={current_user.id}')
                 flash('Ваш заказ отменен', 'success')
         except Exception as ex:
             logger.error(ex)

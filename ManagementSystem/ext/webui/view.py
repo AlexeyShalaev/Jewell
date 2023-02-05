@@ -11,6 +11,7 @@ from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by
 from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, check_user_by_phone, add_user, \
     Role, update_registered_user, get_user_by_access_token
 from ManagementSystem.ext.logistics import auto_redirect, check_session
+from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.telegram.message import send_message
 from ManagementSystem.ext.tools import normal_phone_number
 
@@ -134,6 +135,8 @@ def recoverpw(version):
                     if user.data.telegram_id is None:
                         add_recover(input_phone_number, user.data.id)
                         flash('Ваш запрос передан администрации на рассмотрение!', 'info')
+                        notify_admins('Смена пароля', url_for('admin.security_recovers'), 'mdi mdi-shield-key',
+                                      'warning', f'Пользователь подал заявку на восстановление пароля ID={current_user.id}')
                     else:
                         status, token = create_token()
                         if status:
@@ -211,6 +214,7 @@ def registered():
             update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
                                    birthday=input_birthday)
             flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
+            notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning', f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
             return redirect(url_for('view.registered'))
         except Exception as ex:
             logger.error(ex)

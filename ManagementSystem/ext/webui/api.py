@@ -74,14 +74,16 @@ def get_record_image(record_id):
 def get_product_image(product_id):
     filename = ''
     directory = directories['products']
-    try:
-        files = os.listdir(directory)
-        for file in files:
-            if str(product_id) == file.split('.')[0]:
-                filename = file
-                break
-    except Exception as ex:
-        logger.error(f'get_product_image: {ex}')
+    resp_status, data = encrypt_id_with_no_digits(str(product_id))
+    if resp_status:
+        try:
+            files = os.listdir(directory)
+            for file in files:
+                if data == file.split('.')[0]:
+                    filename = file
+                    break
+        except Exception as ex:
+            logger.error(f'get_product_image: {ex}')
     if filename == '':
         return json.dumps({'info': 'image not found'}), 200, {
             'ContentType': 'application/json'}

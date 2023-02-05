@@ -11,9 +11,10 @@ from ManagementSystem.ext.database.relationships import update_relationship, del
     RelationStatus, add_relationship
 from ManagementSystem.ext.database.users import update_social_data, MongoDBResult, get_user_by_id
 from ManagementSystem.ext.logistics import check_session, auto_render
+from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.text_filter import TextFilter
-from ManagementSystem.ext.tools import set_relations, set_records
+from ManagementSystem.ext.tools import set_relations, set_records, get_friends
 
 logger = getLogger(__name__)  # logging
 networking = Blueprint('networking', __name__, url_prefix='/networking', template_folder='templates',
@@ -45,6 +46,11 @@ def feed():
                 else:
                     add_record(current_user.id, record_text, datetime.now())
                     flash('Вы добавили запись.', 'success')
+                    for friend in get_friends(str(current_user.id)):
+                        notify_user(get_user_by_id(friend).data, 'Новая запись',
+                                    url_for('networking.profile', user_id=current_user.id),
+                                    'mdi mdi-new-box',
+                                    'info', f'{current_user.first_name} выложил новую запись.')
             elif request.form['btn_feed'] == 'edit_record':
                 record_text = request.form.get("record_text")
                 record_id = request.form.get("record_id")
@@ -90,6 +96,10 @@ def feed():
                 else:
                     update_relationship(v, 'status', RelationStatus.ACCEPTED.value)
                     flash('Вы успешно приняли заявку.', 'success')
+                    notify_user(get_user_by_id(request.form.get("sender_id")).data, 'Новая связь',
+                                url_for('networking.profile', user_id=current_user.id),
+                                'mdi mdi-human-greeting-proximity',
+                                'success', f'{current_user.first_name} теперь в связи с вами.')
             elif request.form['btn_feed'] == 'reject_friend':
                 req_id = request.form.get("friend_request_id")
                 s, v = decrypt_id_with_no_digits(str(req_id))
@@ -257,6 +267,10 @@ def profile(user_id):
         try:
             if btn_action == 'add':
                 add_relationship(current_user.id, user_id)
+                notify_user(get_user_by_id(user_id).data, 'Запрос в друзья',
+                            url_for('networking.profile', user_id=current_user.id),
+                            'mdi mdi-human-greeting-variant',
+                            'info', f'{current_user.first_name} хочет быть с вами с связи.')
                 return redirect(url_for('networking.profile', user_id=user_id))
             elif btn_action == 'delete':
                 delete_relationship(relation_id)

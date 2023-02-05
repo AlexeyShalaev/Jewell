@@ -120,6 +120,7 @@ Feed
                          <form action="" method="post">
                              <div class="inbox-item">
                                  <input type="hidden" name="friend_request_id" value="{{req.id}}">
+                                 <input type="hidden" name="sender_id" value="{{req.sender_id}}">
                                  <a href="{{url_for('networking.profile', user_id=req.sender_id)}}">
                                 <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.sender_id)}}"
                                                                  class="rounded-circle"

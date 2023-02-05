@@ -37,6 +37,7 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
+from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
 from ManagementSystem.ext.telegram.message import send_news, send_message
@@ -70,6 +71,10 @@ def admin_home():
                 countries = request.form.getlist('countries')
                 update_trips(countries)
                 flash('Вы успешно обновили карту поездок', 'success')
+                notify_users('Карта поездок',
+                             url_for('admin.admin_home'),
+                             'mdi mdi-map-marker',
+                             'info', f'Обновлена карта поездок.')
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
@@ -155,6 +160,11 @@ def admin_news():
                 if send_in_telegram is not None:
                     send_news(record_text, filename)
                     flash('Вы отправили новость в телеграмм.', 'success')
+
+                notify_users('Новость',
+                             url_for('admin.admin_home'),
+                             'mdi mdi-post',
+                             'primary', f'Новость от администраторов.')
             elif request.form['btn_news'] == 'send_telegram':
                 record_id = request.form.get("record_id")
                 record_text = request.form.get("input_text")
@@ -215,7 +225,6 @@ def admin_news():
                 except Exception as ex:
                     flash('Не удалось изменить изображение.', 'warning')
                     logger.error(ex)
-
             elif request.form['btn_news'] == 'delete_record':
                 rec_id = request.form.get("record_id")
                 try:
@@ -333,6 +342,10 @@ def admin_schedule():
                         timetable[d] = '{"hours": ' + h + ', "minutes": ' + m + '}'
                     add_course(teachers=course_teachers, name=course_name, timetable=timetable)
                     flash('Вы успешно добавили курс', 'success')
+                    notify_users('Курсы',
+                                 '',
+                                 'mdi mdi-book-education',
+                                 'primary', f'Добавлен новый курс {course_name}.')
             elif request.form['btn_schedule'] == 'delete_course':
                 course_id = request.form.get('course_id')
                 delete_course(course_id)
@@ -348,6 +361,10 @@ def admin_schedule():
                     timetable[d] = '{"hours": ' + h + ', "minutes": ' + m + '}'
                 update_course(id=course_id, name=course_name, teachers=course_teachers, timetable=timetable)
                 flash('Вы успешно обновили курс', 'success')
+                notify_users('Курсы',
+                             '',
+                             'mdi mdi-book-education',
+                             'primary', f'Обновлен курс {course_name}.')
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
@@ -417,6 +434,10 @@ def user_attendance(user_id):
                 else:
                     update_attendance(id=attendance_id, date=attendance_date, count=attendance_count)
                     flash('Вы успешно обновили данные', 'success')
+            notify_user(get_user_by_id(user_id).data, 'Посещаемость',
+                        url_for('student.student_attendance'),
+                        'mdi mdi-table-check',
+                        'primary', f'Обновлена ваша посещаемость.')
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
@@ -465,6 +486,10 @@ def admin_offers():
                     add_offer(author=current_user.id, name=name, description=description, start=start_date,
                               finish=finish_date, reward=reward)
                     flash('Вы успешно добавили оффер', 'success')
+                    notify_users('Вакансии и предложения',
+                                 url_for('other.offers'),
+                                 'mdi mdi-offer',
+                                 'primary', f'Добавлен новый оффер {name}.')
                 else:
                     flash('Выберите дату и время', 'warning')
             elif request.form['btn_offers'] == 'delete_offer':
@@ -530,6 +555,11 @@ def admin_products():
                 except Exception as ex:
                     flash('Не удалось прикрепить изображение.', 'warning')
                     logger.error(ex)
+
+                notify_users('Товары',
+                             url_for('other.products'),
+                             'mdi mdi-shopping-search',
+                             'primary', f'Добавлен новый товар {name}.')
             elif request.form['btn_products'] == 'edit_product':
                 prod_id = request.form.get("product_id")
                 name = request.form.get("name")
@@ -565,6 +595,12 @@ def admin_products():
                 except Exception as ex:
                     flash('Не удалось изменить изображение.', 'warning')
                     logger.error(ex)
+
+                notify_users('Товары',
+                             url_for('other.products'),
+                             'mdi mdi-shopping-search',
+                             'primary',
+                             f'Обновлен товар {name}.')
             elif request.form['btn_products'] == 'delete_product':
                 prod_id = request.form.get("product_id")
                 try:
@@ -590,13 +626,47 @@ def admin_products():
                 flash('Вы удалили товар.', 'success')
             elif request.form['btn_products'] == 'delete_order':
                 order_id = request.form.get("order_id")
+                client_id = request.form.get("client_id")
                 delete_order(order_id)
                 flash('Вы удалили заказ.', 'success')
+                notify_user(get_user_by_id(client_id),
+                            'Заказы',
+                            url_for('other.products'),
+                            'mdi mdi-cart-remove',
+                            'danger',
+                            f'Ваш заказ удален ID={order_id}.')
             elif request.form['btn_products'] == 'change_status':
                 order_id = request.form.get("order_id")
                 order_status = request.form.get("order_status")
+                client_id = request.form.get("client_id")
                 update_order(order_id, 'status', order_status)
                 flash('Вы изменили статус заказа.', 'success')
+
+                icon = 'mdi mdi-cart'
+                color = 'info'
+                status = ''
+                if order_status == 'placed':
+                    icon = 'mdi mdi-cart-plus'
+                    color = 'danger'
+                    status = 'создан'
+                elif order_status == 'packed':
+                    icon = 'mdi mdi-cart-arrow-down'
+                    color = 'warning'
+                    status = 'упакован'
+                elif order_status == 'shipped':
+                    icon = 'mdi mdi-cart-arrow-right'
+                    color = 'primary'
+                    status = 'отправлен'
+                elif order_status == 'delivered':
+                    icon = 'mdi mdi-cart-check'
+                    color = 'success'
+                    status = 'доставлен'
+                notify_user(get_user_by_id(client_id).data,
+                            'Заказы',
+                            url_for('other.products'),
+                            icon,
+                            color,
+                            f'Статус вашего заказа обновлен на {status} ID={order_id}.')
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')
@@ -1293,6 +1363,11 @@ def configuration_backup():
                     if os.path.exists(file_path):
                         os.remove(file_path)
                         flash('Резервная копия удалена', 'success')
+                        notify_admins('Резервное копирование',
+                                      url_for('admin.configuration_backup'),
+                                      'mdi mdi-backup-restore',
+                                      'danger',
+                                      f'{current_user.first_name} удалил резервную копию {file_path}.')
                     else:
                         flash('Файл не найден', 'error')
                 elif request.form['snapshot'] == 'dump':
@@ -1303,6 +1378,11 @@ def configuration_backup():
                     if len(file) == 0:
                         flash('Не удалось создать архив с данными', 'error')
                     flash(f'Вы успешно создали резервную копию: {file}', 'success')
+                    notify_admins('Резервное копирование',
+                                  url_for('admin.configuration_backup'),
+                                  'mdi mdi-backup-restore',
+                                  'danger',
+                                  f'{current_user.first_name} создал резервную копию {file}.')
                     if download_dump == 'true':
                         return send_file(file)
                 return redirect(url_for('admin.configuration_backup'))
@@ -1318,6 +1398,11 @@ def configuration_backup():
                     if check_content(path):
                         os.replace(path, os.path.join(backups_folder, file.filename))
                         flash('Вы успешно импортировали резервную копию', 'success')
+                        notify_admins('Резервное копирование',
+                                      url_for('admin.configuration_backup'),
+                                      'mdi mdi-backup-restore',
+                                      'danger',
+                                      f'{current_user.first_name} импортировали резервную копию {file.filename}.')
                     else:
                         clear_temporary_folder()
                         flash('Содержимое архива не удовлетворяет образцу', 'warning')
@@ -1353,6 +1438,11 @@ def configuration_timemachine():
             status = restore(filename)
             if status:
                 flash(f'Вы успешно восстановили данные из резервной копии {filename}', 'success')
+                notify_admins('Резервное копирование',
+                              url_for('admin.configuration_backup'),
+                              'mdi mdi-backup-restore',
+                              'danger',
+                              f'{current_user.first_name} восстановили данные из резервной копии {filename}.')
                 return json.dumps({'success': True, "url": request.host_url + 'login'}), 200, {
                     'ContentType': 'application/json'}
             else:
@@ -1390,7 +1480,12 @@ def forms_constructor():
             name = request.form['name']
             description = request.form['description']
             content = request.form['content']
-            add_form(name, description, content)
+            inserted_form_id = add_form(name, description, content)
+            notify_admins('Формы',
+                          url_for('admin.forms_analyze', form_id=inserted_form_id),
+                          'mdi mdi-frequently-asked-questions',
+                          'primary',
+                          f'{current_user.first_name} создал новую форму {name}.')
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
             return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
@@ -1457,13 +1552,28 @@ def forms_analyze(form_id):
             if request.form['btn_form'] == 'open':
                 update_form(form_id, 'status', FormStatus.OPENED.value)
                 flash('Форма успешно открыта!', 'success')
+                notify_admins('Формы',
+                              url_for('admin.forms_analyze', form_id=form_id),
+                              'mdi mdi-frequently-asked-questions',
+                              'success',
+                              f'{current_user.first_name} открыл форму ID={form_id}')
             elif request.form['btn_form'] == 'close':
                 update_form(form_id, 'status', FormStatus.CLOSED.value)
                 flash('Форма успешно закрыта!', 'success')
+                notify_admins('Формы',
+                              url_for('admin.forms_analyze', form_id=form_id),
+                              'mdi mdi-frequently-asked-questions',
+                              'warning',
+                              f'{current_user.first_name} закрыл форму ID={form_id}')
             elif request.form['btn_form'] == 'delete':
                 delete_form_answers(form_id)
                 delete_form(form_id)
                 flash('Форма успешно удалена!', 'success')
+                notify_admins('Формы',
+                              url_for('admin.forms_overview'),
+                              'mdi mdi-frequently-asked-questions',
+                              'danger',
+                              f'{current_user.first_name} удалил форму ID={form_id}.')
                 return redirect(url_for('admin.forms_overview'))
         except Exception as ex:
             logger.error(ex)
@@ -1533,9 +1643,19 @@ def admin_telegram():
             if request.form['btn_telegram_bot'] == 'stop':
                 stop_telegram_bot()
                 flash('Бот остановлен!', 'success')
+                notify_admins('Telegram BOT',
+                              url_for('admin.admin_telegram'),
+                              'mdi mdi-robot-off',
+                              'danger',
+                              f'{current_user.first_name} остановил Telegram бота.')
             elif request.form['btn_telegram_bot'] == 'run':
                 start_telegram_bot()
                 flash('Бот запущен!', 'success')
+                notify_admins('Telegram BOT',
+                              url_for('admin.admin_telegram'),
+                              'mdi mdi-robot-excited',
+                              'success',
+                              f'{current_user.first_name} запустил Telegram бота.')
             elif request.form['btn_telegram_bot'] == 'send_message':
                 text = convert_markdown_to_html(request.form['text'])
                 counter = 0
@@ -1546,6 +1666,11 @@ def admin_telegram():
                         if counter % 25 == 0:
                             time.sleep(2)
                 flash(f'Сообщение отправлено {counter} пользователям', 'success')
+                notify_admins('Telegram BOT',
+                              url_for('admin.admin_telegram'),
+                              'mdi mdi-rocket-launch',
+                              'info',
+                              f'{current_user.first_name} отправил рассылку Telegram ботом {counter} пользователям.')
                 return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
             logger.error(ex)

@@ -30,7 +30,7 @@ def get_form_by_id(id) -> MongoDBResult:
 
 # добавление формы
 def add_form(name, description, content):
-    db.forms.insert_one({
+    return db.forms.insert_one({
         "name": name,
         "description": description,
         "content": content,

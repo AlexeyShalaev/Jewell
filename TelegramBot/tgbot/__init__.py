@@ -4,5 +4,4 @@ config = load_config()  # config
 
 jewell_token = config.api.jewell
 
-website = config.links.jewell
-chat = config.links.chat
+links = config.links

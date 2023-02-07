@@ -22,6 +22,8 @@ class API:
 class Links:
     jewell: str
     chat: str
+    courses: str
+    courses_image: str
 
 
 @dataclass
@@ -48,6 +50,8 @@ def load_config(path: str = '.env'):
         ),
         links=Links(
             jewell=env.str('URL_JEWELL'),
-            chat=env.str('URL_CHAT')
+            chat=env.str('URL_CHAT'),
+            courses=env.str('URL_COURSES'),
+            courses_image=env.str('URL_COURSES_IMAGES')
         )
     )

@@ -1,5 +1,5 @@
 from aiogram import types, Dispatcher
-from TelegramBot.tgbot import chat
+from TelegramBot.tgbot import links
 from TelegramBot.tgbot.keyboards import menu, account
 from TelegramBot.tgbot.services.MongoDB.users import get_user_by_telegram_id, Role
 
@@ -25,16 +25,16 @@ async def bot_menu_attendance(message: types.Message):
             # todo print attendance
             pass
         else:
-            await message.answer("Данная команда не доступна.")
+            await message.answer("Данная доступна только студентам.")
 
 
 async def bot_menu_schedule(message: types.Message):
-    # todo
-    await message.answer("Расписание")
+    await message.answer_photo(links.courses_image, f'[КУРСЫ ЯХАД JEWELL]({links.courses})',
+                               parse_mode=types.ParseMode.MARKDOWN)
 
 
 async def bot_menu_chat(message: types.Message):
-    await message.answer(f"Переходите по [ссылке]({chat}) и общайся на разные темы со всеми участниками клуба!",
+    await message.answer(f"Переходите по [ссылке]({links.chat}) и общайся на разные темы со всеми участниками клуба!",
                          parse_mode=types.ParseMode.MARKDOWN)
 
 

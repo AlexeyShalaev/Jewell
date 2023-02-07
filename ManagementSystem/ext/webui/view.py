@@ -59,8 +59,7 @@ def login():
                     logger.info(f'авторизован пользователь {input_phone_number}')
                     if user.data.telegram_id is not None:
                         msg = f'Совершен вход в ваш аккаунт. (IP: {request.remote_addr})\n' \
-                              'Если это не вы срочно смените пароль в настройках.'
-                        # TODO: норм безопасность
+                              'Если это не вы срочно смените пароль в настройках и завершите все сессии.'
                         send_message(msg, user.data.telegram_id)
                     return redirect(request.args.get("next") or url_for("view.login"))
                 else:

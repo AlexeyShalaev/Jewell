@@ -1,13 +1,13 @@
 from aiogram import types, Dispatcher
 
-from TelegramBot.tgbot import website
+from TelegramBot.tgbot import links
 from TelegramBot.tgbot.misc.crypt import create_token
 from TelegramBot.tgbot.keyboards.sessions import create_keyboard, create_submit_keyboard
 from TelegramBot.tgbot.services.MongoDB.flask_sessions import get_flask_sessions_by_user_id, \
     delete_flask_sessions_by_user_id, delete_flask_session
 from TelegramBot.tgbot.services.MongoDB.users import get_user_by_telegram_id, update_auth_token
 
-login_url = f'{website}/login'
+login_url = f'{links.jewell}/login'
 
 
 async def bot_account_login(message: types.Message):

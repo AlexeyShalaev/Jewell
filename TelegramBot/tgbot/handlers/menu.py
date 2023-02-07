@@ -9,6 +9,10 @@ async def bot_menu(message: types.Message):
     await message.answer("Выберите категорию", reply_markup=menu.categories)
 
 
+async def bot_admin_menu(message: types.Message):
+    await message.answer("Выберите категорию", reply_markup=menu.admin)
+
+
 async def bot_menu_account(message: types.Message):
     await message.answer("Выберите нужный раздел", reply_markup=account.registered)
 
@@ -55,6 +59,7 @@ async def bot_menu_chat(message: types.Message):
 
 def register_menu(dp: Dispatcher):
     dp.register_message_handler(bot_menu, commands=['menu', 'help', 'info', 'start'])
+    dp.register_message_handler(bot_admin_menu, commands=['admin'], is_group=False, role='admin')
     dp.register_message_handler(bot_menu, text="Назад 🔙")
     dp.register_message_handler(bot_menu_attendance, text="Посещаемость ✅", registered=True)
     dp.register_message_handler(bot_menu_account, text="Аккаунт ⚙", registered=True, is_group=False)

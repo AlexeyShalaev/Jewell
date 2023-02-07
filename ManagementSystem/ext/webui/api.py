@@ -416,7 +416,9 @@ def snapshot_dump():
     token = request.json['token']
     status = False
     if token == api_token:
-        status, _ = backup()
+        status, filename = backup()
+        from ManagementSystem.ext.telegram.message import send_file
+        send_file(filename, request.json['chat_id'])
     return json.dumps({'success': status}), 200, {'ContentType': 'application/json'}
 
 

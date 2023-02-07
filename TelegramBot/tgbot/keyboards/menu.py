@@ -11,4 +11,10 @@ categories = ReplyKeyboardMarkup(resize_keyboard=True). \
     add(btn_schedule). \
     add(btn_chat)
 
+admin = ReplyKeyboardMarkup(resize_keyboard=True). \
+    add(KeyboardButton('Назад 🔙')). \
+    add(KeyboardButton('Перезапустить сайт 🔃')). \
+    add(KeyboardButton('Создать резервную копию 💽️')). \
+    add(KeyboardButton('Восстановить из резервной копии 🗃'))
+
 remove = ReplyKeyboardRemove()

@@ -26,3 +26,10 @@ def send_news(text: str, filename=''):
             resp = requests.post(link, files={'photo': img})
     except Exception as ex:
         pass
+
+
+def send_file(document: str, chat_id: str):
+    try:
+        requests.post(f'{url}sendDocument', data={'chat_id': chat_id}, files={'document': open(document, 'rb')})
+    except Exception as ex:
+        pass

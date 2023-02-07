@@ -3,6 +3,7 @@ import requests
 from TelegramBot.tgbot import links, jewell_token
 
 attendance_url = f'{links.jewell}/api/attendance'
+snapshot_url = f'{links.jewell}/api/snapshot'
 
 
 def get_admin_attendance() -> (bool, ...):
@@ -27,3 +28,14 @@ def get_student_attendance(user_id) -> (bool, ...):
     except:
         pass
     return False, None
+
+
+def snapshot_dump(chat_id: int) -> bool:
+    try:
+        r = requests.post(f'{snapshot_url}/dump', json={"token": jewell_token, "chat_id": chat_id})
+        if r.ok:
+            res = r.json()
+            return res['success']
+    except:
+        pass
+    return False

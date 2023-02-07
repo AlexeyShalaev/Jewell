@@ -19,7 +19,7 @@ def get_flask_sessions() -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
-# получение записей о всех сессиях по роли
+# получение записей о всех сессиях по ID пользователя
 def get_flask_sessions_by_user_id(user_id) -> MongoDBResult:
     res = db.flask_sessions.find({'user_id': ObjectId(user_id)})
     if res:

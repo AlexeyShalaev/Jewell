@@ -77,6 +77,7 @@ def get_backup_filename(filename: str) -> (bool, str):
 
 def backup() -> (bool, str):
     filename = ''
+    clear_temporary_folder()
     try:
         export_database_to_json()
         filename = archive_data()
@@ -88,6 +89,7 @@ def backup() -> (bool, str):
 
 
 def restore(filename: str = 'latest') -> bool:
+    clear_temporary_folder()
     try:
         status, filename = get_backup_filename(filename)
         if not status:

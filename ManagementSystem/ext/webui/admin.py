@@ -1544,7 +1544,6 @@ def configuration_timemachine():
         return redirect(url_for("view.landing"))
 
     if request.method == "POST":
-        clear_temporary_folder()
         try:
             filename = request.form['file']
             status = restore(filename)

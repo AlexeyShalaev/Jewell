@@ -14,15 +14,15 @@ class TgBot:
 
 
 @dataclass
-class Miscellaneous:
-    other_params: str = None
+class API:
+    jewell: str
 
 
 @dataclass
 class Config:
     tg_bot: TgBot
     db: DbConfig
-    misc: Miscellaneous
+    api: API
 
 
 def load_config(path: str = '.env'):
@@ -36,5 +36,7 @@ def load_config(path: str = '.env'):
         db=DbConfig(
             conn=env.str('DB_CONN')
         ),
-        misc=Miscellaneous()
+        api=API(
+            jewell=env.str('API_TOKEN')
+        )
     )

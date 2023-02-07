@@ -4,6 +4,8 @@ from ManagementSystem.ext.configurator import SystemVariables
 system_variables = SystemVariables()
 config = load_config()  # config
 
+api_token = config.flask.api_token
+
 telegram_chat = config.tg_bot.chat
 
 directories = {

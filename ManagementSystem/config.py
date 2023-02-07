@@ -11,6 +11,7 @@ class DbConfig:
 @dataclass
 class FlaskConfig:
     secret_key: str  # app secret key
+    api_token: str  # api secret key
     """
     import secrets
     print(secrets.token_hex(16))
@@ -42,6 +43,7 @@ def load_config(path: str = ".env"):
         ),
         flask=FlaskConfig(
             secret_key=env.str('SECRET_KEY'),
+            api_token=env.str('API_TOKEN'),
             app_name=env.str('APP_NAME'),
             login_manager={
                 'login_view': env.str('LOGIN_VIEW'),

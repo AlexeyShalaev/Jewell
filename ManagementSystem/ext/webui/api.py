@@ -3,7 +3,7 @@ from logging import getLogger
 
 from flask import *
 
-from ManagementSystem.ext import directories, valid_images
+from ManagementSystem.ext import directories, valid_images, api_token
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
@@ -15,6 +15,7 @@ from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
 from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications
 from ManagementSystem.ext.search_engine import search_documents
+from ManagementSystem.ext.snapshotting import backup, restore, get_sorted_backups
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends
 
 logger = getLogger(__name__)  # logging
@@ -398,6 +399,33 @@ def delete_notification():
 # HTML:                 -
 @api.route('/snapshot/dump', methods=['POST'])
 def snapshot_dump():
-    api_token = request.form['token']
-    # todo dump
-    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    token = request.form['token']
+    status = False
+    if token == api_token:
+        status, _ = backup()
+    return json.dumps({'success': status}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              snapshot/restore
+# База данных:          All
+# HTML:                 -
+@api.route('/snapshot/restore', methods=['POST'])
+def snapshot_restore():
+    token = request.form['token']
+    status = False
+    if token == api_token:
+        filename = request.form['file']
+        status = restore(filename)
+    return json.dumps({'success': status}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              snapshot/backups
+# База данных:          All
+# HTML:                 -
+@api.route('/snapshot/backups', methods=['POST'])
+def snapshot_backups():
+    token = request.form['token']
+    if token == api_token:
+        files = get_sorted_backups()
+        return json.dumps({'success': True, 'files': files}), 200, {'ContentType': 'application/json'}
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

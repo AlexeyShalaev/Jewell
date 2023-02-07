@@ -1,7 +1,7 @@
 from aiogram import types, Dispatcher
-
+from TelegramBot.tgbot import chat
 from TelegramBot.tgbot.keyboards import menu, account
-from TelegramBot.tgbot.services.MongoDB.users import get_user_by_telegram_id
+from TelegramBot.tgbot.services.MongoDB.users import get_user_by_telegram_id, Role
 
 
 async def bot_menu(message: types.Message):
@@ -13,8 +13,19 @@ async def bot_menu_account(message: types.Message):
 
 
 async def bot_menu_attendance(message: types.Message):
-    # todo role variants
-    await message.answer("Посещаемость")
+    r = get_user_by_telegram_id(message.from_user.id)
+    if not r.success:
+        await message.answer("Не удалось получить данные.")
+    else:
+        user = r.data
+        if user.role == Role.ADMIN:
+            # todo print some stat about attendance
+            pass
+        elif user.role == Role.STUDENT:
+            # todo print attendance
+            pass
+        else:
+            await message.answer("Данная команда не доступна.")
 
 
 async def bot_menu_schedule(message: types.Message):
@@ -23,8 +34,8 @@ async def bot_menu_schedule(message: types.Message):
 
 
 async def bot_menu_chat(message: types.Message):
-    # todo
-    await message.answer("ССЫЛКА НА ЧАТ НА 7")
+    await message.answer(f"Переходите по [ссылке]({chat}) и общайся на разные темы со всеми участниками клуба!",
+                         parse_mode=types.ParseMode.MARKDOWN)
 
 
 def register_menu(dp: Dispatcher):

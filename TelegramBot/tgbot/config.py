@@ -19,10 +19,17 @@ class API:
 
 
 @dataclass
+class Links:
+    jewell: str
+    chat: str
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     db: DbConfig
     api: API
+    links: Links
 
 
 def load_config(path: str = '.env'):
@@ -38,5 +45,9 @@ def load_config(path: str = '.env'):
         ),
         api=API(
             jewell=env.str('JEWELL_TOKEN')
+        ),
+        links=Links(
+            jewell=env.str('URL_JEWELL'),
+            chat=env.str('URL_CHAT')
         )
     )

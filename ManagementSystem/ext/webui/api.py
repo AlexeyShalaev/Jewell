@@ -16,6 +16,7 @@ from ManagementSystem.ext.database.records import get_records_by_type, RecordTyp
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
 from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications, Reward, Role
+from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.snapshotting import backup, restore, get_sorted_backups
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, get_month
@@ -430,8 +431,13 @@ def snapshot_restore():
     token = request.json['token']
     status = False
     if token == api_token:
-        filename = request.form['file']
+        filename = request.json['file']
         status = restore(filename)
+        notify_admins('Резервное копирование',
+                      url_for('admin.configuration_backup'),
+                      'mdi mdi-backup-restore',
+                      'danger',
+                      f'Восстановлена данные из резервной копии {filename} с помощью телеграм бота.')
     return json.dumps({'success': status}), 200, {'ContentType': 'application/json'}
 
 
@@ -635,7 +641,9 @@ def attendance_student():
             return json.dumps({'success': True,
                                "data": {"visits_count": visits_count, "visits_aim": visits_aim, "percent": percent,
                                         "frequency": frequency, "extra_info": extra_info,
-                                        "visits_dataset": visits_dataset, "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {'ContentType': 'application/json'}
+                                        "visits_dataset": visits_dataset,
+                                        "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {
+                       'ContentType': 'application/json'}
     except:
         pass
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

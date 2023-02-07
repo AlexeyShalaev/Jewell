@@ -39,3 +39,26 @@ def snapshot_dump(chat_id: int) -> bool:
     except:
         pass
     return False
+
+
+def snapshot_restore(filename: str) -> bool:
+    try:
+        r = requests.post(f'{snapshot_url}/restore', json={"token": jewell_token, "file": filename})
+        if r.ok:
+            res = r.json()
+            return res['success']
+    except:
+        pass
+    return False
+
+
+def snapshot_backups() -> (bool, ...):
+    try:
+        r = requests.post(f'{snapshot_url}/backups', json={"token": jewell_token})
+        if r.ok:
+            res = r.json()
+            if res['success']:
+                return True, res['files']
+    except:
+        pass
+    return False, None

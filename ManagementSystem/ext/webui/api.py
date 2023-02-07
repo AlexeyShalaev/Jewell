@@ -2,9 +2,10 @@ import os
 from datetime import datetime
 from logging import getLogger
 
+import requests
 from flask import *
 
-from ManagementSystem.ext import directories, valid_images, api_token
+from ManagementSystem.ext import directories, valid_images, api_token, system_variables
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
@@ -14,10 +15,10 @@ from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
-from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications
+from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications, Reward, Role
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.snapshotting import backup, restore, get_sorted_backups
-from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends
+from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, get_month
 
 logger = getLogger(__name__)  # logging
 api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates', static_folder='assets')
@@ -405,12 +406,14 @@ def delete_notification():
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
+# API with TOKEN
+
 # Уровень:              snapshot/dump
 # База данных:          All
 # HTML:                 -
 @api.route('/snapshot/dump', methods=['POST'])
 def snapshot_dump():
-    token = request.form['token']
+    token = request.json['token']
     status = False
     if token == api_token:
         status, _ = backup()
@@ -422,7 +425,7 @@ def snapshot_dump():
 # HTML:                 -
 @api.route('/snapshot/restore', methods=['POST'])
 def snapshot_restore():
-    token = request.form['token']
+    token = request.json['token']
     status = False
     if token == api_token:
         filename = request.form['file']
@@ -435,8 +438,202 @@ def snapshot_restore():
 # HTML:                 -
 @api.route('/snapshot/backups', methods=['POST'])
 def snapshot_backups():
-    token = request.form['token']
+    token = request.json['token']
     if token == api_token:
         files = get_sorted_backups()
         return json.dumps({'success': True, 'files': files}), 200, {'ContentType': 'application/json'}
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/admin
+# База данных:          Attendance
+# HTML:                 -
+@api.route('/attendance/admin', methods=['POST'])
+def attendance_admin():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            now = datetime.now()
+            current_year = now.year
+            if now.month >= 9:
+                start = current_year
+                end = current_year + 1
+            else:
+                start = current_year - 1
+                end = current_year
+            users_with_bad_attendance = list()
+            trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
+            days_remaining = (trip_date - now).days
+            weeks_remaining = int(days_remaining / 7)
+            months = {
+                9: 'september',
+                10: 'october',
+                11: 'november',
+                12: 'december',
+                1: 'january',
+                2: 'february',
+                3: 'march',
+                4: 'april',
+                5: 'may'
+            }
+            if now >= trip_date:
+                return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+            for user in get_users().data:
+                try:
+                    if user.role == Role.STUDENT and user.reward == Reward.TRIP:
+                        visits_count = 0
+                        for i in get_attendances_by_user_id(user.id).data:
+                            date = i.date
+                            if (date.year == start and date.month >= 9) or (
+                                    date.year == end and date.month < 9):
+                                if date.month in months.keys():
+                                    visits_count += 1
+                        if visits_count + weeks_remaining < 25:
+                            users_with_bad_attendance.append({
+                                "name": f'{user.first_name} {user.last_name}',
+                                "href": f'{request.url_root[:-1]}{url_for("admin.user_attendance", user_id=str(user.id))}',
+                                "visits": visits_count
+                            })
+                except:
+                    pass
+            return json.dumps({'success': True, 'data': users_with_bad_attendance}), 200, {
+                'ContentType': 'application/json'}
+    except:
+        pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/student
+# База данных:          Attendance
+# HTML:                 -
+@api.route('/attendance/student', methods=['POST'])
+def attendance_student():
+    try:
+        token = request.json['token']
+        status = False
+        if token == api_token:
+            user_id = request.json['user_id']
+
+            now = datetime.now()
+            current_year = now.year
+            if now.month >= 9:
+                start = current_year
+                end = current_year + 1
+            else:
+                start = current_year - 1
+                end = current_year
+
+            resp = get_user_by_id(user_id)
+            if not resp.success:
+                return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+            user = resp.data
+            if user.role != Role.STUDENT:
+                return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+            resp = get_attendances_by_user_id(user_id)
+            if not resp.success:
+                return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+            attendance = []
+            for i in resp.data:
+                date = i.date
+                if (date.year == start and date.month >= 9) or (date.year == end and date.month < 9):
+                    attendance.append(i)
+
+            visits_count = len(attendance)
+            # base set up
+            visits_aim = '∞'
+            percent = 0
+            frequency = '∞'
+            extra_info = f'Ваша награда: {user.reward.value}'
+            visits_dataset = []
+            # TRIP set up
+            if user.reward == Reward.TRIP:
+                visits_aim = 30
+                percent = int(visits_count / visits_aim * 100)
+                frequency_data_set = dict()
+                for visit in attendance:
+                    key = f'{visit.date.month} {visit.date.year}'
+                    if key in frequency_data_set.keys():
+                        frequency_data_set[key] += 1 / 4
+                    else:
+                        frequency_data_set[key] = 1 / 4
+                frequency_array = frequency_data_set.values()
+                if len(frequency_array) == 0:
+                    frequency = 0
+                else:
+                    frequency = int(sum(frequency_array) / len(frequency_array) * 1000) / 1000
+                for k, v in frequency_data_set.items():
+                    m, y = map(int, k.split())
+                    visits_dataset.append({
+                        'x': f'{get_month(m)} {y}',
+                        'y': int(v * 4)
+                    })
+                trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
+                if now < trip_date:
+                    days_remaining = (trip_date - now).days
+                    weeks_remaining = int(days_remaining / 7)
+                    extra_info = f'До поездки осталось {days_remaining} дней. '
+                    if visits_count < 25:
+                        extra_info += f'Вам еще нужно минимум {25 - visits_count} посещений. '
+                        if visits_count + weeks_remaining < 25:
+                            extra_info += f'Если вы будете ходить раз в неделю, то НЕ сможете выполнить план, поэтому ходите на отработки/доп занятия. '
+                        else:
+                            extra_info += f'Если вы будете ходить раз в неделю, то сможете с легкостью выполнить план. '
+                    else:
+                        extra_info += f'Ваша посещаемость в норме. '
+                else:
+                    if visits_count < 30:
+                        extra_info = f'Вам еще нужно минимум {30 - visits_count} посещений. '
+                    else:
+                        extra_info = f'Ваша посещаемость в норме. '
+            # GRANT set up
+            elif user.reward == Reward.GRANT:
+                visits_count = 0
+                visits_aim = 4
+                frequency_data_set = dict()
+                for visit in attendance:
+                    if visit.date.month == now.month:
+                        visits_count += 1
+                    key = f'{visit.date.month} {visit.date.year}'
+                    if key in frequency_data_set.keys():
+                        frequency_data_set[key] += 1 / 4
+                    else:
+                        frequency_data_set[key] = 1 / 4
+                frequency_array = frequency_data_set.values()
+                if len(frequency_array) == 0:
+                    frequency = 0
+                else:
+                    frequency = int(sum(frequency_array) / len(frequency_array) * 1000) / 1000
+                for k, v in frequency_data_set.items():
+                    m, y = map(int, k.split())
+                    visits_dataset.append({
+                        'x': f'{get_month(m)} {y}',
+                        'y': int(v * 4),
+                        'goals': [
+                            {
+                                'name': 'Планка',
+                                'value': 8,
+                                'strokeHeight': 5,
+                                'strokeColor': '#775DD0'
+                            }],
+                    })
+                percent = int(visits_count / (visits_aim + 4) * 100)
+                if visits_count < 4:
+                    extra_info = f'Вам необходимо посетить еще {visits_aim - visits_count} занятий для получения стипендии в размере: 65$'
+                elif visits_count < 7:
+                    extra_info = f'Продолжайте ходить на занятия и увеличьте стипендию до {65 + 15 * (visits_count + 1 - 4)}$. На данный момент ваша стипендия составляет целых {65 + 15 * (visits_count - 4)}$'
+                elif visits_count == 7:
+                    extra_info = f'Продолжайте ходить на занятия и увеличьте стипендию до 130$. На данный момент ваша стипендия составляет целых {65 + 15 * (visits_count - 4)}$'
+                elif visits_count == 8:
+                    extra_info = f'Вы молодец! Ваша стипендия составляет целых 130$'
+                else:
+                    extra_info = f'Мы очень гордимся вами. Ваша посещаемость идеальна :)'
+            return json.dumps({'success': True,
+                               "data": {"visits_count": visits_count, "visits_aim": visits_aim, "percent": percent,
+                                        "frequency": frequency, "extra_info": extra_info,
+                                        "visits_dataset": visits_dataset, "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {'ContentType': 'application/json'}
+    except:
+        pass
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

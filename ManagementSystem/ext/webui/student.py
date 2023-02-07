@@ -231,9 +231,6 @@ def student_attendance():
             extra_info = f'Вы молодец! Ваша стипендия составляет целых 130$'
         else:
             extra_info = f'Мы очень гордимся вами. Ваша посещаемость идеальна :)'
-    # No reward
-    else:
-        return render_template("student/courses/no-reward.html")
     return render_template("student/courses/attendance.html", visits_count=visits_count, visits_aim=visits_aim,
                            progress_color=progress_color, percent=percent, frequency=frequency,
                            extra_info=extra_info,

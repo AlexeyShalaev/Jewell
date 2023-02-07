@@ -66,6 +66,6 @@ async def user_sessions(callback_query: types.CallbackQuery):
 
 
 def register_account(dp: Dispatcher):
-    dp.register_message_handler(bot_account_login, text="Войти на сайт 📲", registered=True)
+    dp.register_message_handler(bot_account_login, text="Войти на сайт 📲", registered=True, is_group=False)
     dp.register_message_handler(bot_account_sessions, text="Сессии 🖥", registered=True, is_group=False)
     dp.register_callback_query_handler(user_sessions)

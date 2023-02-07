@@ -37,6 +37,6 @@ def load_config(path: str = '.env'):
             conn=env.str('DB_CONN')
         ),
         api=API(
-            jewell=env.str('API_TOKEN')
+            jewell=env.str('JEWELL_TOKEN')
         )
     )

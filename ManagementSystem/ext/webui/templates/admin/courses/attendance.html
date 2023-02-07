@@ -167,7 +167,7 @@
             const years = document.getElementById("years").value.split("/");
             $.ajax({
                 type: "POST",
-                url: "{{url_for('api.get_attendance')}}",
+                url: "{{url_for('admin.admin_attendance')}}",
                 data: {
                     'reward': rewardsChecked,
                     'start': years[0],

@@ -133,9 +133,9 @@
             const years = document.getElementById("years").value.split("/");
             $.ajax({
                 type: "POST",
-                url: "{{url_for('api.get_user_attendance')}}",
+                url: "{{url_for('admin.user_attendance', user_id=user.id)}}",
                 data: {
-                    'user_id': "{{user.id}}",
+                    'btn_user_attendance': 'get_attendance',
                     'start': years[0],
                     'end': years[1],
                 },

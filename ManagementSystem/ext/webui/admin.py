@@ -43,7 +43,7 @@ from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_dat
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
-    get_month, get_files_from_storage, convert_markdown_to_html
+    get_month, get_files_from_storage, convert_markdown_to_html, rus2eng
 
 logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
@@ -389,6 +389,81 @@ def admin_attendance():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            reward = request.form['reward']
+            start = request.form['start']
+            end = request.form['end']
+            rewards = []
+            if len(reward) == 0:
+                rewards = [Reward.TRIP, Reward.GRANT, Reward.NULL]
+            else:
+                for i in reward.split(';'):
+                    if len(i) > 0:
+                        rewards.append(Reward(i))
+
+            users = list()
+            users_with_bad_attendance = list()
+            now = datetime.now()
+            trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
+            days_remaining = (trip_date - now).days
+            weeks_remaining = int(days_remaining / 7)
+
+            months = {
+                9: 'september',
+                10: 'october',
+                11: 'november',
+                12: 'december',
+                1: 'january',
+                2: 'february',
+                3: 'march',
+                4: 'april',
+                5: 'may'
+            }
+
+            for user in get_users().data:
+                try:
+                    if user.role == Role.STUDENT and user.reward in rewards:
+                        d = {
+                            "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{rus2eng(user.last_name)} {rus2eng(user.first_name)}</a>',
+                            "september": 0,
+                            "october": 0,
+                            "november": 0,
+                            "december": 0,
+                            "january": 0,
+                            "february": 0,
+                            "march": 0,
+                            "april": 0,
+                            "may": 0,
+                            "all": 0
+                        }
+                        for i in get_attendances_by_user_id(user.id).data:
+                            date = i.date
+                            if (str(date.year) == start and date.month >= 9) or (
+                                    str(date.year) == end and date.month < 9):
+                                if date.month in months.keys():
+                                    d[months[date.month]] += i.count
+                                    d['all'] += i.count
+
+                        users.append(d)
+                        if user.reward == Reward.TRIP:
+                            if now < trip_date:
+                                visits_count = d['all']
+                                if visits_count + weeks_remaining < 25:
+                                    users_with_bad_attendance.append({
+                                        "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.first_name} {user.last_name}</a>',
+                                        "visits": visits_count
+                                    })
+                except:
+                    pass
+            return json.dumps({'success': True, 'users': users,
+                               'users_with_bad_attendance': users_with_bad_attendance}), 200, {
+                       'ContentType': 'application/json'}
+        except Exception as ex:
+            logger.error(f'get_attendance: {ex}')
+        return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
     return render_template("admin/courses/attendance.html")
 
 
@@ -434,10 +509,47 @@ def user_attendance(user_id):
                 else:
                     update_attendance(id=attendance_id, date=attendance_date, count=attendance_count)
                     flash('Вы успешно обновили данные', 'success')
-            notify_user(get_user_by_id(user_id).data, 'Посещаемость',
-                        url_for('student.student_attendance'),
-                        'mdi mdi-table-check',
-                        'primary', f'Обновлена ваша посещаемость.')
+            elif request.form['btn_user_attendance'] == 'get_attendance':
+                try:
+                    start = request.form['start']
+                    end = request.form['end']
+
+                    d = {
+                        "september": [],
+                        "october": [],
+                        "november": [],
+                        "december": [],
+                        "january": [],
+                        "february": [],
+                        "march": [],
+                        "april": [],
+                        "may": []
+                    }
+
+                    months = {
+                        9: 'september',
+                        10: 'october',
+                        11: 'november',
+                        12: 'december',
+                        1: 'january',
+                        2: 'february',
+                        3: 'march',
+                        4: 'april',
+                        5: 'may'
+                    }
+
+                    for i in get_attendances_by_user_id(user_id).data:
+                        date = i.date
+                        if (str(date.year) == start and date.month >= 9) or (str(date.year) == end and date.month < 9):
+                            if date.month in months.keys():
+                                d[months[date.month]].append(
+                                    {"id": str(i.id), "date": date.strftime("%d.%m.%Y %H:%M:%S"), "count": i.count})
+
+                    return json.dumps({'success': True, 'data': d}), 200, {
+                        'ContentType': 'application/json'}
+                except Exception as ex:
+                    logger.error(f'get_user_attendance: {ex}')
+                return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
             logger.error(ex)
             flash('Произошла какая-то ошибка', 'error')

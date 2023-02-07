@@ -1,10 +1,9 @@
 import os
-from datetime import datetime
 from logging import getLogger
 
 from flask import *
 
-from ManagementSystem.ext import system_variables, directories
+from ManagementSystem.ext import directories, valid_images
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
@@ -14,11 +13,9 @@ from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
-from ManagementSystem.ext.database.users import get_users, get_user_by_id, Reward, Role, update_user, \
-    update_notifications
+from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications
 from ManagementSystem.ext.search_engine import search_documents
-from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, set_records, \
-    rus2eng
+from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends
 
 logger = getLogger(__name__)  # logging
 api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates', static_folder='assets')
@@ -95,6 +92,10 @@ def get_product_image(product_id):
 # HTML:                 -
 @api.route('/storage/<folder>/<filename>', methods=['POST', 'GET'])
 def get_image(folder, filename):
+    if folder not in directories:
+        return json.dumps({'success': False, "info": "Unknown folder."}), 200, {'ContentType': 'application/json'}
+    if filename.split('.')[-1] not in valid_images:
+        return json.dumps({'success': False, "info": "Invalid file type."}), 200, {'ContentType': 'application/json'}
     return send_file(f'storage/database/{folder}/{filename}')
 
 
@@ -308,84 +309,6 @@ def attendance_count(user_id):
 # Уровень:              attendance/get
 # База данных:          attendances, users
 # HTML:                 -
-@api.route('/attendance/get', methods=['POST'])
-def get_attendance():
-    try:
-        reward = request.form['reward']
-        start = request.form['start']
-        end = request.form['end']
-        rewards = []
-        if len(reward) == 0:
-            rewards = [Reward.TRIP, Reward.GRANT, Reward.NULL]
-        else:
-            for i in reward.split(';'):
-                if len(i) > 0:
-                    rewards.append(Reward(i))
-
-        users = list()
-        users_with_bad_attendance = list()
-        now = datetime.now()
-        trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
-        days_remaining = (trip_date - now).days
-        weeks_remaining = int(days_remaining / 7)
-
-        months = {
-            9: 'september',
-            10: 'october',
-            11: 'november',
-            12: 'december',
-            1: 'january',
-            2: 'february',
-            3: 'march',
-            4: 'april',
-            5: 'may'
-        }
-
-        for user in get_users().data:
-            try:
-                if user.role == Role.STUDENT and user.reward in rewards:
-                    d = {
-                        "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{rus2eng(user.last_name)} {rus2eng(user.first_name)}</a>',
-                        "september": 0,
-                        "october": 0,
-                        "november": 0,
-                        "december": 0,
-                        "january": 0,
-                        "february": 0,
-                        "march": 0,
-                        "april": 0,
-                        "may": 0,
-                        "all": 0
-                    }
-                    for i in get_attendances_by_user_id(user.id).data:
-                        date = i.date
-                        if (str(date.year) == start and date.month >= 9) or (str(date.year) == end and date.month < 9):
-                            if date.month in months.keys():
-                                d[months[date.month]] += i.count
-                                d['all'] += i.count
-
-                    users.append(d)
-                    if user.reward == Reward.TRIP:
-                        if now < trip_date:
-                            visits_count = d['all']
-                            if visits_count + weeks_remaining < 25:
-                                users_with_bad_attendance.append({
-                                    "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.first_name} {user.last_name}</a>',
-                                    "visits": visits_count
-                                })
-            except:
-                pass
-        return json.dumps({'success': True, 'users': users,
-                           'users_with_bad_attendance': users_with_bad_attendance}), 200, {
-                   'ContentType': 'application/json'}
-    except Exception as ex:
-        logger.error(f'get_attendance: {ex}')
-    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
-
-
-# Уровень:              attendance/get
-# База данных:          attendances, users
-# HTML:                 -
 @api.route('/attendance/get/user', methods=['POST'])
 def get_user_attendance():
     try:
@@ -468,3 +391,13 @@ def delete_notification():
     except Exception as ex:
         logger.error(f'delete_notification: {ex}')
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              snapshot/dump
+# База данных:          All
+# HTML:                 -
+@api.route('/snapshot/dump', methods=['POST'])
+def snapshot_dump():
+    api_token = request.form['token']
+    # todo dump
+    return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}

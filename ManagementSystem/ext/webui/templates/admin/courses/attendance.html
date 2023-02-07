@@ -263,11 +263,16 @@
         function set_years(sel_years = []) {
             let sel = document.getElementById("years");
             sel.innerHTML = "";
-            for (let year = new Date().getFullYear(); year > 2020; --year) {
+            let date = new Date();
+            let latest = date.getFullYear();
+            if (date.getMonth() >= 8) {
+                ++latest;
+            }
+            for (let year = latest; year > 2020; --year) {
                 let opt = document.createElement("option");
                 opt.setAttribute("value", `${year - 1}/${year}`);
                 opt.innerText = `${year - 1}/${year}`;
-                if (sel_years.includes(`${year - 1}/${year}`)) {
+                if (sel_years.includes(`${year - 1}/${year}`) || (sel_years.length == 0 && year == latest)) {
                     opt.selected = true;
                 }
                 sel.appendChild(opt);

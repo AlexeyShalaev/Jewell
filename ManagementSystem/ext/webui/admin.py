@@ -393,8 +393,8 @@ def admin_attendance():
     if request.method == "POST":
         try:
             reward = request.form['reward']
-            start = request.form['start']
-            end = request.form['end']
+            start = int(request.form['start'])
+            end = int(request.form['end'])
             rewards = []
             if len(reward) == 0:
                 rewards = [Reward.TRIP, Reward.GRANT, Reward.NULL]
@@ -440,8 +440,8 @@ def admin_attendance():
                         }
                         for i in get_attendances_by_user_id(user.id).data:
                             date = i.date
-                            if (str(date.year) == start and date.month >= 9) or (
-                                    str(date.year) == end and date.month < 9):
+                            if (date.year == start and date.month >= 9) or (
+                                    date.year == end and date.month < 9):
                                 if date.month in months.keys():
                                     d[months[date.month]] += i.count
                                     d['all'] += i.count

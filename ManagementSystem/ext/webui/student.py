@@ -105,10 +105,29 @@ def student_attendance():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
+
     resp = get_attendances_by_user_id(current_user.id)
     if not resp.success:
         return render_template("error-500.html")
-    attendance = resp.data
+    now = datetime.now()
+    current_year = now.year
+    if now.month >= 9:
+        start = current_year
+        end = current_year + 1
+    else:
+        start = current_year - 1
+        end = current_year
+
+    if request.method == "POST":
+        start = int(request.form['start'])
+        end = int(request.form['end'])
+
+    attendance = []
+    for i in resp.data:
+        date = i.date
+        if (date.year == start and date.month >= 9) or (date.year == end and date.month < 9):
+            attendance.append(i)
+
     visits_count = len(attendance)
     # base set up
     now = datetime.now()

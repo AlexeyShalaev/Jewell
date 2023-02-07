@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from logging import getLogger
 
 from flask import *
@@ -298,8 +299,18 @@ def security_count():
 def attendance_count(user_id):
     try:
         cnt = 0
+        now = datetime.now()
+        current_year = now.year
+        if now.month >= 9:
+            start = current_year
+            end = current_year + 1
+        else:
+            start = current_year - 1
+            end = current_year
         for i in get_attendances_by_user_id(user_id).data:
-            cnt += i.count
+            date = i.date
+            if (date.year == start and date.month >= 9) or (date.year == end and date.month < 9):
+                cnt += i.count
         if cnt > 0:
             return json.dumps({'data': cnt}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
@@ -314,8 +325,8 @@ def attendance_count(user_id):
 def get_user_attendance():
     try:
         user_id = request.form['user_id']
-        start = request.form['start']
-        end = request.form['end']
+        start = int(request.form['start'])
+        end = int(request.form['end'])
 
         d = {
             "september": [],
@@ -343,7 +354,7 @@ def get_user_attendance():
 
         for i in get_attendances_by_user_id(user_id).data:
             date = i.date
-            if (str(date.year) == start and date.month >= 9) or (str(date.year) == end and date.month < 9):
+            if (date.year == start and date.month >= 9) or (date.year == end and date.month < 9):
                 if date.month in months.keys():
                     d[months[date.month]].append(
                         {"id": str(i.id), "date": date.strftime("%d.%m.%Y %H:%M:%S"), "count": i.count})

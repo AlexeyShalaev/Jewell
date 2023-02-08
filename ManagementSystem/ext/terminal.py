@@ -1,6 +1,6 @@
 import os
 
-bot_service = 'jnet.service'
+bot_service = 'jms_bot.service'
 
 
 def get_telegram_bot_status():

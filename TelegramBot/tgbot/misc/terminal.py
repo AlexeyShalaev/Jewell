@@ -1,6 +1,6 @@
 import os
 
-website_service = 'jms.service'
+website_service = 'jms_site.service'
 
 
 def restart_website():

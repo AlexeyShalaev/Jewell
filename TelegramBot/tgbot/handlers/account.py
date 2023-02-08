@@ -21,7 +21,7 @@ async def bot_account_login(message: types.Message):
                                  parse_mode=types.ParseMode.MARKDOWN)
     else:
         await message.answer(
-            f"Привяжите авторизацию через телеграмм бота на сайте для более быстрого [входа]({login_url})",
+            f"Привяжите авторизацию через телеграм бота на сайте для более быстрого [входа]({login_url})",
             parse_mode=types.ParseMode.MARKDOWN)
 
 

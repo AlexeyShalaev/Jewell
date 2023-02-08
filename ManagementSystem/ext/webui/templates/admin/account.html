@@ -99,7 +99,7 @@ Account
                                         <div class="spinner-grow text-danger spinner-grow-sm" role="status"></div>
                                         {% endif %}
                                     </h4>
-                                    <p class="font-13 text-white-50">Вход через телеграмм бота</p>
+                                    <p class="font-13 text-white-50">Вход через телеграм бота</p>
 
 
                                     <ul class="mb-0 list-inline text-light">
@@ -354,6 +354,7 @@ Account
                     success: function (result) {
                         const res = JSON.parse(result);
                         if (res.success) {
+                            $.NotificationApp.send("Telegram", "Отправьте данный токен телеграм боту.", "top-right", "#FF5B5B", "info");
                             token_box.innerHTML = "<span>" + res.token + "</span>";
                         } else {
                             token_box.innerHTML = "<span class=\"placeholder w-100 bg-warning\"></span>";

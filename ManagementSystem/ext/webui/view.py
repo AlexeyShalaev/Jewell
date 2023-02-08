@@ -5,6 +5,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
+from ManagementSystem.ext import system_variables
 from ManagementSystem.ext.crypt import check_password_hash, crypt_pass, create_token
 from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip
 from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by_phone
@@ -135,7 +136,8 @@ def recoverpw(version):
                         add_recover(input_phone_number, user.data.id)
                         flash('Ваш запрос передан администрации на рассмотрение!', 'info')
                         notify_admins('Смена пароля', url_for('admin.security_recovers'), 'mdi mdi-shield-key',
-                                      'warning', f'Пользователь подал заявку на восстановление пароля ID={current_user.id}')
+                                      'warning',
+                                      f'Пользователь подал заявку на восстановление пароля ID={current_user.id}')
                     else:
                         status, token = create_token()
                         if status:
@@ -213,7 +215,8 @@ def registered():
             update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
                                    birthday=input_birthday)
             flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
-            notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning', f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
+            notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning',
+                          f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
             return redirect(url_for('view.registered'))
         except Exception as ex:
             logger.error(ex)
@@ -225,6 +228,7 @@ def registered():
 # База данных:          User
 # HTML:                 -
 @view.route('/registered/token', methods=['POST'])
+@login_required
 def registered_token():
     try:
         if current_user.telegram_id is None:
@@ -233,7 +237,7 @@ def registered_token():
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'icon': 'info', 'title': 'Telegram',
                                    'text': 'Отправьте данный токен нашему телеграмм боту и он привяжет ваш аккаунт.',
-                                   'footer': f'<a href="https://t.me/yahad_alex_bot" target="_blank">{token}</a>'}), 200, {
+                                   'footer': f'<a href="{system_variables["tg_bot"]}" target="_blank">{token}</a>'}), 200, {
                            'ContentType': 'application/json'}
             else:
                 return json.dumps({'icon': 'warning', 'title': 'Telegram',
@@ -253,23 +257,11 @@ def registered_token():
 
 # secure
 
-# Уровень:              sessions/logout/<id>
-# База данных:          flask_sessions
-# HTML:                 -
-@view.route('/sessions/logout/<id>', methods=['POST'])
-def sessions_logout(id):
-    try:
-        delete_flask_session(id)
-        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-    except Exception as ex:
-        logger.error(str(ex))
-    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
-
-
 # Уровень:              account/password
 # База данных:          User
 # HTML:                 -
 @view.route('/account/password', methods=['POST'])
+@login_required
 def change_password():
     try:
         old_password = request.form["old"]
@@ -317,6 +309,7 @@ def change_password():
 # База данных:          User
 # HTML:                 -
 @view.route('/account/telegram', methods=['POST'])
+@login_required
 def get_telegram_token():
     try:
         if current_user.telegram_id is None:
@@ -333,6 +326,7 @@ def get_telegram_token():
 # База данных:          User
 # HTML:                 -
 @view.route('/account/telegram/auth', methods=['POST'])
+@login_required
 def set_telegram_auth():
     try:
         if current_user.telegram_id is not None:

@@ -1,6 +1,7 @@
 from aiogram import types, Dispatcher
 
 from TelegramBot.tgbot.keyboards.sessions import create_submit_keyboard
+from TelegramBot.tgbot.misc.notifier import notify_admins
 from TelegramBot.tgbot.services.MongoDB.flask_sessions import get_flask_sessions_by_user_id, \
     delete_flask_sessions_by_user_id, delete_flask_session
 from TelegramBot.tgbot.services.MongoDB.users import get_user_by_telegram_id
@@ -41,6 +42,11 @@ async def main_callback_query(callback_query: types.CallbackQuery):
             filename = data.split('_', 1)[-1]
             status = snapshot_restore(filename)
             if status:
+                notify_admins('Резервное копирование',
+                              f'/admin/configuration/backup',
+                              'mdi mdi-backup-restore',
+                              'danger',
+                              f'Восстановлены данные из резервной копии {filename} с помощью телеграм бота пользователем: @{callback_query.from_user.username}.')
                 await callback_query.message.answer(f'Вы восстановили данные из резервной копии {filename}')
             else:
                 await callback_query.answer('Не удалось восстановить данные из резервной копии')

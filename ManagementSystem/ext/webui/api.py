@@ -4,6 +4,7 @@ from logging import getLogger
 
 from flask import *
 
+from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, Time
@@ -11,7 +12,7 @@ from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
 from ManagementSystem.ext.database.offers import get_offers
 from ManagementSystem.ext.database.orders import get_orders
 from ManagementSystem.ext.database.products import get_products
-from ManagementSystem.ext.database.records import get_records_by_type, RecordType
+from ManagementSystem.ext.database.records import get_records_by_type, RecordType, delete_record
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
 from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications, Reward, Role
@@ -417,7 +418,9 @@ def snapshot_dump():
     if token == api_token:
         status, filename = backup()
         from ManagementSystem.ext.telegram.message import send_file
-        send_file(filename, request.json['chat_id'])
+        chat_id = request.json['chat_id']
+        if chat_id != '':
+            send_file(filename, chat_id)
     return json.dumps({'success': status}), 200, {'ContentType': 'application/json'}
 
 
@@ -639,4 +642,34 @@ def attendance_student():
                        'ContentType': 'application/json'}
     except:
         pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              records/delete
+# База данных:          records
+# HTML:                 -
+@api.route('/records/delete', methods=['POST'])
+def records_delete():
+    token = request.json['token']
+    if token == api_token:
+        record_id = request.json['record_id']
+        user_id = request.json['user_id']
+        try:
+            resp_status, crypted_record_id = encrypt_id_with_no_digits(str(record_id))
+            if resp_status:
+                filename = ''
+                directory = directories['records']
+                files = os.listdir(directory)
+                for file in files:
+                    if crypted_record_id == file.split('.')[0]:
+                        filename = file
+                        break
+                if filename != '':
+                    os.remove(os.path.join(directory, filename))
+        except Exception as ex:
+            logger.error(ex)
+        delete_record(record_id)
+        notify_user(user_id, 'Удалена запись', '', 'mdi mdi-delete-clock', 'primary',
+                    f'Удалена одна из ваших записей, у которой вы установили временное ограничение.')
+        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

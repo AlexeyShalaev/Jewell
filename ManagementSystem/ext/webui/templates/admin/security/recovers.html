@@ -38,7 +38,7 @@
                             <td><a href="{{ url_for('networking.profile', user_id=i.user_id) }}" target="_blank">{{ i.user_id }}</a></td>
                             <td>{{ i.phone_number }}</td>
                             <td class="table-action">
-                                <a onclick="get_auth_link('{{ i.id }}', '{{ i.user_id }}', '{{ i.phone_number }}');"
+                                <a onclick="get_recover_link('{{ i.id }}', '{{ i.user_id }}', '{{ i.phone_number }}');"
                                    class="action-icon"> <i
                                         class="mdi mdi-cellphone-key"></i></a>
                                 <form method="post" class="action-icon">
@@ -60,13 +60,12 @@
     </div>
 
     <script>
-        function get_auth_link(recover_id, user_id, phone_number) {
+        function get_recover_link(recover_id, user_id, phone_number) {
             try {
                 $.ajax({
                         type: 'POST',
                         url: '{{ url_for('admin.security_recover_link')}}',
                         data: {
-                            'recover_id': recover_id,
                             'user_id': user_id
                         },
                         success: function (result) {
@@ -74,8 +73,9 @@
                             if (res.success === true) {
                                 Swal.fire({
                                     icon: 'info',
+                                    width: 'auto',
                                     title: 'Восстановление пароля',
-                                    text: `Отправьте данную ссылку для временного доступа к аккаунту на номер телефона: ${phone_number}`,
+                                    text: `Отправьте данную ссылку для смены пароля на номер телефона: ${phone_number}`,
                                     footer: res.url
                                 });
                             } else {

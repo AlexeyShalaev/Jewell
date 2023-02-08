@@ -8,9 +8,9 @@ from flask_toastr import *
 from ManagementSystem.ext import system_variables
 from ManagementSystem.ext.crypt import check_password_hash, crypt_pass, create_token
 from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip
-from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by_phone
+from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by_phone, delete_recovers_by_user_id
 from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, check_user_by_phone, add_user, \
-    Role, update_registered_user, get_user_by_access_token
+    Role, update_registered_user, get_user_by_access_token, update_password_by_access_token
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.telegram.message import send_message
@@ -142,13 +142,13 @@ def recoverpw(version):
                         status, token = create_token()
                         if status:
                             update_user(user.data.id, 'access_token', token)
-                            recover_url = request.host_url + 'login/' + token
+                            recover_url = request.host_url + 'password/reset/' + token
                             msg = f'Произошел запрос на восстановление доступа к аккаунту.\n' \
                                   f'Перейдите по ссылке и смените пароль.\n' \
                                   f'{recover_url}' \
                                   '\nЕсли это не вы срочно смените пароль в настройках.'
                             send_message(msg, user.data.telegram_id)
-                            flash('Наш бот отправит вам ссылку на временный доступ к аккаунту!', 'success')
+                            flash('Наш бот отправит вам ссылку для смены пароля!', 'success')
                         else:
                             flash('Не удалось отправить ссылку на восстановление пароля!', 'warning')
                 return redirect("/login")
@@ -158,6 +158,42 @@ def recoverpw(version):
         return render_template("authentication/auth-recoverpw-2.html")
     else:
         return render_template("authentication/auth-recoverpw.html")
+
+
+# Уровень:              /password/reset/<access_token>
+# База данных:          User
+# HTML:                 auth-reset-password
+@view.route('/password/reset/<access_token>', methods=["GET", "POST"])
+def reset_password(access_token):
+    status, url = auto_redirect()
+    if status:
+        return redirect(url)
+
+    r = get_user_by_access_token(access_token)
+    if not r.success:
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            password = request.form.get("password")
+            password_repeat = request.form.get("password_repeat")
+            if len(password) < 4:
+                flash('Длина пароля должна быть больше 4.', 'warning')
+            elif password != password_repeat:
+                flash('Пароли не совпадают.', 'warning')
+            else:
+                crypt_status, crypted_pass = crypt_pass(password)
+                if not crypt_status:
+                    flash('Не удалось сменить пароль, возможно вы вводите недопустимые символы.', 'warning')
+                else:
+                    update_password_by_access_token(access_token, crypted_pass)
+                    delete_recovers_by_user_id(r.data.id)
+                    flash('Вы успешно сменили пароль.', 'success')
+                    return redirect(url_for("view.landing"))
+        except Exception as ex:
+            logger.error(ex)
+
+    return render_template("authentication/auth-reset-password.html")
 
 
 # Уровень:              register

@@ -1274,13 +1274,11 @@ def security_recovers():
 @admin.route('/security/recovers/link', methods=['POST'])
 def security_recover_link():
     try:
-        recover_id = request.form['recover_id']
         user_id = request.form['user_id']
         status, token = create_token()
         if status:
             update_user(user_id, 'access_token', token)
-            recover_url = request.host_url + 'login/' + token
-            delete_recover(recover_id)
+            recover_url = request.host_url + 'password/reset/' + token
             return json.dumps({'success': True, 'url': recover_url}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         pass

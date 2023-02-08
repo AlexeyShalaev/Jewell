@@ -115,6 +115,11 @@ def update_user(id, key, value):
     db.users.update_one({'_id': ObjectId(id)}, {"$set": {key: value}})
 
 
+# обновление пароля пользователя по access_token
+def update_password_by_access_token(access_token, password):
+    db.users.update_one({'access_token': access_token}, {"$set": {"password": password, "access_token": ''}})
+
+
 # обновление уведомлений пользователя
 def update_notifications(id, notifications):
     db.users.update_one({'_id': ObjectId(id)}, {"$set": {'notifications': [i.to_json() for i in notifications]}})

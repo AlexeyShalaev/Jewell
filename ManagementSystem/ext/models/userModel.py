@@ -100,7 +100,7 @@ class User(UserMixin):
             'id': str(self.id),
             'data': f'{self.telegram_username} {self.first_name} {self.last_name} {self.sex.value} {self.birthday}'
                     f' {self.reward.value} {self.profession} {self.university} {self.location}'
-                    f' {" ".join(self.languages)} {" ".join(self.tags)}'}
+                    f' {" ".join(self.languages) if self.languages is not None else ""} {" ".join(self.tags) if self.tags is not None else ""}'}
 
     def to_net(self):
         return {"id": str(self.id),

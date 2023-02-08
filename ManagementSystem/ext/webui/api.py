@@ -166,10 +166,15 @@ def networking_search():
         query = request.form['query']
         users = get_users().data
         if len(query) != 0:
+            print(1)
             docs = [user.to_document() for user in users]
+            print(2)
             result = search_documents(documents=docs, query=query, max_result_document_count=-1)
+            print(3)
             users = list(filter(lambda user: str(user.id) in result, users))
+            print(4)
             users.sort(key=lambda user: result.index(str(user.id)))
+            print(5)
         return json.dumps({'success': True, 'users': [user.to_net() for user in users]}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:

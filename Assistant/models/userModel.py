@@ -1,9 +1,6 @@
-import json
 from enum import Enum
 
 from bson import ObjectId
-from flask import url_for
-from flask_login import UserMixin
 
 from Assistant.models.notification import Notification
 
@@ -28,7 +25,7 @@ class Sex(Enum):
     NULL = 'null'  # ничего
 
 
-class User(UserMixin):
+class User:
     id: ObjectId
     phone_number: str  # 89854839731
     password: str  # qwerty1234
@@ -71,47 +68,3 @@ class User(UserMixin):
         self.tags = data['tags']
         self.notifications = [Notification(i) for i in data['notifications']]
         self.points = data['points']
-
-    def to_json(self):
-        return json.dumps({"_id": str(self.id),
-                           "phone_number": self.phone_number,
-                           "password": self.password,
-                           "telegram_id": self.telegram_id,
-                           "telegram_username": self.telegram_username,
-                           "telegram_auth": self.telegram_auth,
-                           "first_name": self.first_name,
-                           "last_name": self.last_name,
-                           "sex": self.sex.value,
-                           "birthday": self.birthday,
-                           "role": self.role.value,
-                           "reward": self.reward.value,
-                           "access_token": self.access_token,
-                           "profession": self.profession,
-                           "university": self.university,
-                           "languages": self.languages,
-                           "location": self.location,
-                           "tags": self.tags,
-                           "notifications": [i.to_json() for i in self.notifications],
-                           "points": self.points
-                           })
-
-    def to_document(self):
-        return {
-            'id': str(self.id),
-            'data': f'{self.telegram_username} {self.first_name} {self.last_name} {self.sex.value} {self.birthday}'
-                    f' {self.reward.value} {self.profession} {self.university} {self.location}'
-                    f' {" ".join(self.languages)} {" ".join(self.tags)}'}
-
-    def to_net(self):
-        return {"id": str(self.id),
-                "name": f'<a href=\"{self.get_page()}\" target="_blank">{self.first_name} {self.last_name}</a>',
-                "telegram": f'<a href=\"https://t.me/{self.telegram_username}\" target="_blank">@{self.telegram_username}</a>' if self.telegram_username else "-",
-                }
-
-    def to_game_rating(self):
-        return {"link": f'<a href=\"{self.get_page()}\" target="_blank">{self.first_name} {self.last_name}</a>',
-                "points": self.points,
-                }
-
-    def get_page(self):
-        return url_for('networking.profile', user_id=str(self.id))

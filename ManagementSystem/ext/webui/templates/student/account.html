@@ -364,6 +364,7 @@ Account
                     success: function (result) {
                         const res = JSON.parse(result);
                         if (res.success) {
+                            clipboard(res.token);
                             $.NotificationApp.send("Telegram", "Отправьте данный токен телеграм боту.", "top-right", "#FF5B5B", "info");
                             token_box.innerHTML = "<span>" + res.token + "</span>";
                         } else {
@@ -376,6 +377,28 @@ Account
             }
         }
     }
+
+    function clipboard(copyText) {
+            try {
+                // text area method
+                let textArea = document.createElement("textarea");
+                textArea.value = copyText;
+                // make the textarea out of viewport
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                new Promise((res, rej) => {
+                    // here the magic happens
+                    document.execCommand('copy') ? res() : rej();
+                    textArea.remove();
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        }
 
 </script>
 

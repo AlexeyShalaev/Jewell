@@ -239,25 +239,32 @@ def registered():
     if not check_session():
         logout_user()
         return redirect(url_for("view.landing"))
+
     if request.method == "POST":
         try:
             # auto redirect
             status, url = auto_redirect(ignore_role=Role.REGISTERED)
             if status:
                 return redirect(url)
-            input_first_name = request.form.get("first_name")
-            input_last_name = request.form.get("last_name")
-            input_birthday = request.form.get("birthday")
-            update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
-                                   birthday=input_birthday)
-            flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
-            notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning',
-                          f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
-            return redirect(url_for('view.registered'))
+
+            if current_user.telegram_id is None:
+                flash('Сначала привяжите телеграмм аккаунт.', 'warning')
+            else:
+                input_first_name = request.form.get("first_name")
+                input_last_name = request.form.get("last_name")
+                input_birthday = request.form.get("birthday")
+                update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
+                                       birthday=input_birthday)
+                flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
+                notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning',
+                              f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
+
         except Exception as ex:
             logger.error(ex)
+        return redirect(url_for('view.landing'))
+
     return render_template("authentication/auth-registered.html",
-                           telegram_validated=current_user.telegram_id is not None)
+                           telegram_validated=(current_user.telegram_id is not None))
 
 
 # Уровень:              registered/token
@@ -273,7 +280,7 @@ def registered_token():
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'icon': 'info', 'title': 'Telegram',
                                    'text': 'Отправьте данный токен нашему телеграмм боту и он привяжет ваш аккаунт.',
-                                   'footer': f'<a href="{system_variables["tg_bot"]}" target="_blank">{token}</a>'}), 200, {
+                                   'footer': f'<a onclick="clipboard(\'{token}\');" href="{system_variables["tg_bot"]}" target="_blank">{token}</a>'}), 200, {
                            'ContentType': 'application/json'}
             else:
                 return json.dumps({'icon': 'warning', 'title': 'Telegram',

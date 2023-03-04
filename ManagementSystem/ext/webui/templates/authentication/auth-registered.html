@@ -43,13 +43,13 @@
 
                     <!-- Logo -->
                     <div class="card-header pt-4 pb-4 text-center bg-primary">
-                        <a class="logo-dark" href="{{url_for('view.landing')}}">
+                        <a class="logo-dark" href="{{ url_for('view.landing') }}">
                             <span><img src="../../assets/images/logo-dark.png" alt="logo"></span>
                         </a>
                     </div>
 
                     <div class="card-body p-4">
-                        <form action="{{ url_for('view.registered')}}" method="post">
+                        <form action="{{ url_for('view.registered') }}" method="post">
 
                             <div class="col">
 
@@ -58,7 +58,7 @@
                                     <label for="phonenumber" class="form-label">Номер телефона</label>
                                     <div class="input-group input-group-merge">
                                         <input type="text" id="phonenumber" class="form-control"
-                                               disabled value="{{current_user['phone_number']}}">
+                                               disabled value="{{ current_user['phone_number'] }}">
                                         <div class="input-group-text" onclick="link_telegram()">
                                             <span class="ri-telegram-fill"></span>
                                         </div>
@@ -69,7 +69,7 @@
                                 <div class="mb-3">
                                     <label for="first_name" class="form-label">Имя</label>
                                     <input type="text" id="first_name" name="first_name"
-                                           class="form-control" value="{{current_user['first_name']}}"
+                                           class="form-control" value="{{ current_user['first_name'] }}"
                                            placeholder="Введите ваше имя"
                                            pattern="[\u0400-\u04ff]{1,32}"
                                            required>
@@ -79,7 +79,7 @@
                                 <div class="mb-3">
                                     <label for="last_name" class="form-label">Фамилия</label>
                                     <input type="text" id="last_name" name="last_name"
-                                           class="form-control" value="{{current_user['last_name']}}"
+                                           class="form-control" value="{{ current_user['last_name'] }}"
                                            placeholder="Введите вашу фамилию" pattern="[\u0400-\u04ff]{1,32}"
                                            required>
                                 </div>
@@ -92,7 +92,8 @@
                                            data-date-format="dd.mm.yyyy"
                                            data-date-autoclose="true"
                                            pattern="\d{2}.\d{2}.\d{4}"
-                                           required id="birthday" name="birthday" value="{{current_user['birthday']}}">
+                                           required id="birthday" name="birthday"
+                                           value="{{ current_user['birthday'] }}">
                                 </div>
 
                             </div> <!-- end col-->
@@ -107,7 +108,7 @@
 
                 <div class="row mt-3">
                     <div class="col text-center">
-                        <a href="{{url_for('view.logout')}}"
+                        <a href="{{ url_for('view.logout') }}"
                            class="text-muted ms-1"><b>Выйти из аккаунта</b></a>
                     </div> <!-- end col -->
                 </div>
@@ -160,6 +161,28 @@
             });
         } catch (err) {
             console.log(err);
+        }
+    }
+
+    function clipboard(copyText) {
+        try {
+            // text area method
+            let textArea = document.createElement("textarea");
+            textArea.value = copyText;
+            // make the textarea out of viewport
+            textArea.style.position = "fixed";
+            textArea.style.left = "-999999px";
+            textArea.style.top = "-999999px";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            new Promise((res, rej) => {
+                // here the magic happens
+                document.execCommand('copy') ? res() : rej();
+                textArea.remove();
+            });
+        } catch (e) {
+            console.log(e);
         }
     }
 </script>

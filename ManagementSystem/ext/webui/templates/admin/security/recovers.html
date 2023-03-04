@@ -35,7 +35,8 @@
                     <tbody>
                     {% for i in recovers %}
                         <tr>
-                            <td><a href="{{ url_for('networking.profile', user_id=i.user_id) }}" target="_blank">{{ i.user_id }}</a></td>
+                            <td><a href="{{ url_for('networking.profile', user_id=i.user_id) }}"
+                                   target="_blank">{{ i.user_id }}</a></td>
                             <td>{{ i.phone_number }}</td>
                             <td class="table-action">
                                 <a onclick="get_recover_link('{{ i.id }}', '{{ i.user_id }}', '{{ i.phone_number }}');"
@@ -71,6 +72,7 @@
                         success: function (result) {
                             const res = JSON.parse(result);
                             if (res.success === true) {
+                                clipboard(res.url);
                                 Swal.fire({
                                     icon: 'info',
                                     width: 'auto',
@@ -86,6 +88,28 @@
                 );
             } catch
                 (err) {
+            }
+        }
+
+        function clipboard(copyText) {
+            try {
+                // text area method
+                let textArea = document.createElement("textarea");
+                textArea.value = copyText;
+                // make the textarea out of viewport
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                new Promise((res, rej) => {
+                    // here the magic happens
+                    document.execCommand('copy') ? res() : rej();
+                    textArea.remove();
+                });
+            } catch (e) {
+                console.log(e);
             }
         }
     </script>

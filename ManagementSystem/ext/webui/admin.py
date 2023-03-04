@@ -392,79 +392,92 @@ def admin_attendance():
 
     if request.method == "POST":
         try:
-            reward = request.form['reward']
-            start = int(request.form['start'])
-            end = int(request.form['end'])
-            rewards = []
-            if len(reward) == 0:
-                rewards = [Reward.TRIP, Reward.GRANT, Reward.NULL]
+            if 'add_attendance' in [request.values[i] for i in request.values]:
+                selected_students = request.form.getlist('students_attendance')
+                date = request.form.get('date_attendance')
+                for student in selected_students:
+                    add_attendance(student, 1, f'{date} 00:00:00')
+                flash('Вы успешно добавили посещаемость', 'success')
+                return redirect(url_for('admin.admin_attendance'))
             else:
-                for i in reward.split(';'):
-                    if len(i) > 0:
-                        rewards.append(Reward(i))
+                reward = request.form['reward']
+                start = int(request.form['start'])
+                end = int(request.form['end'])
+                rewards = []
+                if len(reward) == 0:
+                    rewards = [Reward.TRIP, Reward.GRANT, Reward.NULL]
+                else:
+                    for i in reward.split(';'):
+                        if len(i) > 0:
+                            rewards.append(Reward(i))
 
-            users = list()
-            users_with_bad_attendance = list()
-            now = datetime.now()
-            trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
-            days_remaining = (trip_date - now).days
-            weeks_remaining = int(days_remaining / 7)
+                users = list()
+                users_with_bad_attendance = list()
+                now = datetime.now()
+                trip_date = datetime.strptime(system_variables['yahad_trip'], "%d.%m.%Y")
+                days_remaining = (trip_date - now).days
+                weeks_remaining = int(days_remaining / 7)
 
-            months = {
-                9: 'september',
-                10: 'october',
-                11: 'november',
-                12: 'december',
-                1: 'january',
-                2: 'february',
-                3: 'march',
-                4: 'april',
-                5: 'may'
-            }
+                months = {
+                    9: 'september',
+                    10: 'october',
+                    11: 'november',
+                    12: 'december',
+                    1: 'january',
+                    2: 'february',
+                    3: 'march',
+                    4: 'april',
+                    5: 'may'
+                }
 
-            for user in get_users().data:
-                try:
-                    if user.role == Role.STUDENT and user.reward in rewards:
-                        d = {
-                            "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{rus2eng(user.last_name)} {rus2eng(user.first_name)}</a>',
-                            "september": 0,
-                            "october": 0,
-                            "november": 0,
-                            "december": 0,
-                            "january": 0,
-                            "february": 0,
-                            "march": 0,
-                            "april": 0,
-                            "may": 0,
-                            "all": 0
-                        }
-                        for i in get_attendances_by_user_id(user.id).data:
-                            date = i.date
-                            if (date.year == start and date.month >= 9) or (
-                                    date.year == end and date.month < 9):
-                                if date.month in months.keys():
-                                    d[months[date.month]] += i.count
-                                    d['all'] += i.count
+                for user in get_users().data:
+                    try:
+                        if user.role == Role.STUDENT and user.reward in rewards:
+                            d = {
+                                "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{rus2eng(user.last_name)} {rus2eng(user.first_name)}</a>',
+                                "september": 0,
+                                "october": 0,
+                                "november": 0,
+                                "december": 0,
+                                "january": 0,
+                                "february": 0,
+                                "march": 0,
+                                "april": 0,
+                                "may": 0,
+                                "all": 0
+                            }
+                            for i in get_attendances_by_user_id(user.id).data:
+                                date = i.date
+                                if (date.year == start and date.month >= 9) or (
+                                        date.year == end and date.month < 9):
+                                    if date.month in months.keys():
+                                        d[months[date.month]] += i.count
+                                        d['all'] += i.count
 
-                        users.append(d)
-                        if user.reward == Reward.TRIP:
-                            if now < trip_date:
-                                visits_count = d['all']
-                                if visits_count + weeks_remaining < 25:
-                                    users_with_bad_attendance.append({
-                                        "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.first_name} {user.last_name}</a>',
-                                        "visits": visits_count
-                                    })
-                except:
-                    pass
-            return json.dumps({'success': True, 'users': users,
-                               'users_with_bad_attendance': users_with_bad_attendance}), 200, {
-                       'ContentType': 'application/json'}
+                            users.append(d)
+                            if user.reward == Reward.TRIP:
+                                if now < trip_date:
+                                    visits_count = d['all']
+                                    if visits_count + weeks_remaining < 25:
+                                        users_with_bad_attendance.append({
+                                            "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.first_name} {user.last_name}</a>',
+                                            "visits": visits_count
+                                        })
+                    except:
+                        pass
+                return json.dumps({'success': True, 'users': users,
+                                   'users_with_bad_attendance': users_with_bad_attendance}), 200, {
+                           'ContentType': 'application/json'}
         except Exception as ex:
             logger.error(f'get_attendance: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
-    return render_template("admin/courses/attendance.html")
+    students = []
+    for student in get_users_by_role(Role.STUDENT).data:
+        if student.reward != Reward.NULL:
+            students.append({"name": f'{student.first_name} {student.last_name}', "id": str(student.id)})
+
+    return render_template("admin/courses/attendance.html", students=students)
 
 
 # Уровень:              attendance/user_id

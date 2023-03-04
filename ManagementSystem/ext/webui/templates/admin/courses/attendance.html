@@ -56,6 +56,15 @@
     <!-- end page title -->
 
     <div class="row">
+        <div class="col-12">
+            <button onclick="select_students();" type="button" class="mb-2 btn btn-primary rounded-pill"
+                    data-bs-toggle="modal"
+                    data-bs-target="#attendance-modal"><i class="mdi mdi-plus"></i>Отметить посещаемость
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
         <table id="attendance_table" class="table table-striped" style="width:100%">
             <thead>
             <tr>
@@ -138,6 +147,48 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
                 </div>
                 <div id="uwba" class="modal-body">
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <div id="attendance-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-primary">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Добавление посещаемости</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="ps-3 pe-3" method="post">
+
+                        <div class="mb-3">
+                            <label for="students_attendance" class="form-label">Студенты</label>
+                            <!-- Multiple Select -->
+                            <select id="students_attendance" name="students_attendance"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2" multiple="multiple"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <!-- Autoclose -->
+                        <div class="mb-3 position-relative" id="datepicker">
+                            <label for="date_attendance" class="form-label">Дата</label>
+                            <input id="date_attendance" name="date_attendance" type="text" class="form-control" data-date-format="dd.mm.yyyy" data-provide="datepicker" data-date-autoclose="true"
+                                   data-date-container="#datepicker" required>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-primary" type="submit" name="btn_attendance"
+                                    value="add_attendance">Добавить
+                            </button>
+                        </div>
+
+                    </form>
 
                 </div>
             </div><!-- /.modal-content -->
@@ -288,6 +339,21 @@
                 }
             }
             set_years();
+        }
+
+        function select_students(element = "students_attendance", sel_students = []) {
+            let sel = document.getElementById(element);
+            sel.innerHTML = "";
+            const students = {{students | safe}};
+            for (const [key, value] of Object.entries(students)) {
+                let opt = document.createElement("option");
+                opt.setAttribute("value", value.id);
+                opt.innerText = value.name;
+                if (sel_students.includes(value.id)) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            }
         }
 
     </script>

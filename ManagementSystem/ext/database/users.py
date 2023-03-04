@@ -101,7 +101,8 @@ def add_user(phone_number: str, password: str):
         "location": None,
         "tags": None,
         "notifications": [],
-        "points": 0
+        "points": 0,
+        "encodings": []
     })
 
 

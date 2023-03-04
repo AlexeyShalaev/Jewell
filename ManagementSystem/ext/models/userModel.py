@@ -1,6 +1,7 @@
 import json
 from enum import Enum
 
+import numpy as np
 from bson import ObjectId
 from flask import url_for
 from flask_login import UserMixin
@@ -49,6 +50,7 @@ class User(UserMixin):
     tags: list  # теги
     notifications: list  # уведомления
     points: int
+    encodings: list  # face encodings
 
     def __init__(self, data):
         self.id = data['_id']
@@ -71,6 +73,9 @@ class User(UserMixin):
         self.tags = data['tags']
         self.notifications = [Notification(i) for i in data['notifications']]
         self.points = data['points']
+        encodings = []
+        for i in data['encodings']:
+            encodings.append(np.fromstring(i, dtype=float, sep=","))
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),

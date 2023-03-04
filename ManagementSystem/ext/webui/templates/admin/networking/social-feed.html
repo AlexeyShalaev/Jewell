@@ -1,771 +1,809 @@
 {% extends 'admin-base.html' %}
 
 {% block title %}
-Feed
+    Feed
 {% endblock %}
 
 {% block body %}
 
-<!-- start page title -->
-<div class="row">
-    <div class="col-12">
-        <div class="page-title-box">
-            <div class="page-title-right">
-                <ol class="breadcrumb m-0">
-                    <li class="breadcrumb-item"><a href="{{url_for('admin.admin_home')}}">Администратор</a></li>
-                    <li class="breadcrumb-item">Net Working</li>
-                    <li class="breadcrumb-item active">Лента</li>
-                </ol>
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a></li>
+                        <li class="breadcrumb-item">Net Working</li>
+                        <li class="breadcrumb-item active">Лента</li>
+                    </ol>
+                </div>
+                <h4 class="page-title">Лента</h4>
             </div>
-            <h4 class="page-title">Лента</h4>
         </div>
     </div>
-</div>
-<!-- end page title -->
+    <!-- end page title -->
 
-<div class="row">
-    <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-1">
-        <!-- start profile info -->
-        <div class="card">
-            <div class="card-body">
-
-                <div class="d-flex align-self-start">
-                    <img class="avatar-img d-flex align-self-start rounded me-2" src=""
-                         alt="Dominic Keller" height="48">
-                    <div class="w-100 overflow-hidden">
-                        <h5 class="mt-1 mb-0">{{current_user.first_name}} {{current_user.last_name}}</h5>
-                        <p class="mb-1 mt-1 text-muted">{{current_user.birthday}}</p>
-                    </div>
-                </div>
-                <div class="list-group list-group-flush mt-2">
-                    {% if current_user.sex.value == 'male' %}
-                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-person me-1"></i>Мужчина</a>
-                    {% elif current_user.sex.value == 'female' %}
-                    <a class="list-group-item list-group-item-action border-0"><i
-                            class="fa-solid fa-person-dress me-1"></i>Женщина</a>
-                    {% endif %}
-
-                    {% if current_user.location != None %}
-                    <a class="list-group-item list-group-item-action border-0"><i
-                            class="fa-solid fa-location-dot me-1"></i>{% if current_user.location | length > 0
-                        %}{{current_user.location}}{% else %}Локация{% endif %}</a>
-                    {% endif %}
-
-                    {% if current_user.languages != None %}
-                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-language me-1"></i>
-                        {% if current_user.languages | length > 0 %}{% for language in current_user.languages
-                        %}{{language}} {% endfor %}{% else %}Языки{% endif %}
-                    </a>
-                    {% endif %}
-
-                    {% if current_user.profession != None %}
-                    <a class="list-group-item list-group-item-action border-0"><i class="fa-solid fa-user-tie me-1"></i>{%
-                        if current_user.profession | length > 0 %}{{current_user.profession}}{% else %}Профессия{% endif
-                        %}</a>
-                    {% endif %}
-
-                    {% if current_user.university != None %}
-                    <a class="list-group-item list-group-item-action border-0"><i
-                            class="fa-solid fa-graduation-cap me-1"></i>{% if current_user.university | length > 0
-                        %}{{current_user.university}}{% else %}Университет{% endif %}</a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        <!-- end profile info -->
-
-        <!-- tags -->
-        <div class="card ribbon-box">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h4 class="header-title">Теги</h4>
-                </div>
-
-                {% if current_user.tags != None %}
-                <ul class="list-group list-group-flush">
-                    {% for tag in current_user.tags %}
-                    <li class="list-group-item">{{tag}}</li>
-                    {% endfor %}
-                </ul>
-                {% else%}
-                <div class="ribbon ribbon-warning float-start"><i class="mdi mdi-access-point me-1"></i>Предупреждение
-                </div>
-                <div class="ribbon-content">
-                    Заполните теги для лучшей работы сервиса Net Working
-                </div>
-                {% endif %}
-
-
-            </div> <!-- end card-body-->
-        </div> <!-- end card-->
-
-         <div class="card">
-            <div class="card-body pb-0">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span
-                        class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
-                        {{friends_requests_to | length}}
-                    </span>
-                    <h4 class="header-title">Запросы к вам в друзья</h4>
-                    <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
-                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
-                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
-                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
-                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
-                </div>
-
-                <div class="inbox-widget">
-                    <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
-                        {% for req in friends_requests_to %}
-                         <form action="" method="post">
-                             <div class="inbox-item">
-                                 <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                 <input type="hidden" name="sender_id" value="{{req.sender_id}}">
-                                 <a href="{{url_for('networking.profile', user_id=req.sender_id)}}">
-                                <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.sender_id)}}"
-                                                                 class="rounded-circle"
-                                                                 alt=""></div>
-                                <p class="inbox-item-author">{{req.last_name}}</p>
-                                 <p class="inbox-item-text">{{req.first_name}}</p>
-                                 </a>
-                                <p class="inbox-item-date">
-                                    <button name="btn_feed" value="accept_friend" type="submit" class="btn btn-sm btn-outline-success px-1 py-0 me-2"><i
-                                            class="uil uil-user-plus font-16"></i></button>
-                                    <button name="btn_feed" value="reject_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
-                                            class="uil uil-user-minus font-16"></i></button>
-                                </p>
-                            </div>
-                      </form>
-                        {% endfor %}
-                    </div>
-                </div> <!-- end inbox-widget -->
-
-
-            </div> <!-- end card-body -->
-        </div>
-
-        <div class="card">
-            <div class="card-body pb-0">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span
-                        class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
-                        {{friends_requests_from | length}}
-                    </span>
-                    <h4 class="header-title">Запросы в друзья от вас</h4>
-                    <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
-                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
-                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
-                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
-                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
-                </div>
-
-                <div class="inbox-widget">
-                    <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
-                        {% for req in friends_requests_from %}
-                         <form action="" method="post">
-                             <div class="inbox-item">
-                                 <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                 <a href="{{url_for('networking.profile', user_id=req.receiver_id)}}">
-                                <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.receiver_id)}}"
-                                                                 class="rounded-circle"
-                                                                 alt=""></div>
-                                <p class="inbox-item-author">{{req.last_name}}</p>
-                                 <p class="inbox-item-text">{{req.first_name}}</p>
-                                 </a>
-                                <p class="inbox-item-date">
-                                    <button name="btn_feed" value="revoke_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
-                                            class="uil uil-minus font-16"></i></button>
-                                </p>
-                            </div>
-                      </form>
-                        {% endfor %}
-                    </div>
-                </div> <!-- end inbox-widget -->
-
-
-            </div> <!-- end card-body -->
-        </div>
-
-    </div> <!-- end col -->
-
-    <div class="col-xxl-6 col-lg-12 order-lg-2 order-xxl-1">
-
-        <div class="card">
-            <div class="card-body p-0">
-                <ul class="nav nav-tabs nav-bordered" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <a href="#newpost" data-bs-toggle="tab" aria-expanded="false" class="nav-link active px-3 py-2"
-                           aria-selected="true" role="tab">
-                            <i class="mdi mdi-pencil-box-multiple font-18 d-md-none d-block"></i>
-                            <span class="d-none d-md-block">Новая запись</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a href="#user-records" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
-                           aria-selected="false" tabindex="-1" role="tab">
-                            <i class="mdi mdi-post font-18 d-md-none d-block"></i>
-                            <span class="d-none d-md-block">Мои записи</span>
-                        </a>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <a href="#profile-edit" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
-                           aria-selected="false" tabindex="-1" role="tab">
-                            <i class="mdi mdi-account-settings font-18 d-md-none d-block"></i>
-                            <span class="d-none d-md-block">Настройки профиля</span>
-                        </a>
-                    </li>
-                </ul> <!-- end nav-->
-
-                <div class="tab-content">
-                    <div class="tab-pane show active p-3" id="newpost" role="tabpanel">
-                        <!-- comment box -->
-                        <div class="border rounded">
-                            <form class="comment-area-box" action="" method="post">
-                                <textarea name="record_text" rows="4" class="form-control border-0 resize-none"
-                                          placeholder="Напишите что-то...." required minlength="5"></textarea>
-                                <div class="p-2 bg-light d-flex justify-content-between align-items-center">
-                                    <button type="submit" name="btn_feed" value="add_record"
-                                            class="btn btn-sm btn-success"><i
-                                            class="uil uil-message me-1"></i>Опубликовать
-                                    </button>
-                                </div>
-                            </form>
-                        </div> <!-- end .border-->
-                        <!-- end comment box -->
-                    </div> <!-- end preview-->
-                </div> <!-- end tab-content-->
-                <div class="tab-content">
-                    <div class="tab-pane show p-3" id="user-records" role="tabpanel">
-                        <!-- comment box -->
-                        <div class="border rounded">
-                            <div class="accordion" id="CardaccordionRecords">
-                                {% for record in user_records %}
-                                    <div class="card mb-0">
-                                    <div class="card-header">
-                                        <h5 class="m-0">
-                                            <a class="custom-accordion-title d-block"
-                                               data-bs-toggle="collapse" href="#{{record['record_id']}}"
-                                               aria-expanded="false" aria-controls="{{record['record_id']}}">
-                                                {{record['time']}}
-                                            </a>
-                                        </h5>
-                                    </div>
-                                    <div id="{{record['record_id']}}" class="collapse"
-                                         data-bs-parent="#CardaccordionRecords">
-                                        <div class="card-body">
-                                            <form class="comment-area-box" action=""
-                                                  method="post">
-                                                <input type="hidden" name="record_id" value="{{record['record_id']}}">
-                                                <textarea name="record_text" rows="4"
-                                                          class="bg-body form-control border-0 resize-none"
-                                                          placeholder="Напишите что-то...." required="" minlength="5">{{record['text']}}</textarea>
-                                                <div class="p-2 bg-light d-flex justify-content-between align-items-center">
-                                                    <button type="submit" name="btn_feed" value="edit_record"
-                                                            class="btn btn-sm btn-info"><i
-                                                            class="uil uil-comment-alt-edit me-1"></i>Редактировать
-                                                    </button>
-                                                    <button type="submit" name="btn_feed" value="delete_record"
-                                                            class="btn btn-sm btn-danger"><i
-                                                            class="uil uil-trash-alt me-1"></i>Удалить
-                                                    </button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                        </div> <!-- end .border-->
-                        <!-- end comment box -->
-                    </div> <!-- end preview-->
-                </div> <!-- end tab-content-->
-                <div class="tab-content">
-                    <div class="tab-pane show p-3" id="profile-edit" role="tabpanel">
-                        <!-- comment box -->
-                        <form action="" method="post">
-                            <div id="progressbarwizard">
-
-                                <ul class="nav nav-pills nav-justified form-wizard-header mb-3" role="tablist">
-                                    <li class="nav-item" role="presentation">
-                                        <a href="#profile-1" data-bs-toggle="tab" data-toggle="tab"
-                                           class="nav-link rounded-0 py-2 active" aria-selected="true" role="tab">
-                                            <i class="mdi mdi-account-circle font-18 align-middle me-1"></i>
-                                            <span class="d-none d-sm-inline">Основные</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="#profile-2" data-bs-toggle="tab" data-toggle="tab"
-                                           class="nav-link rounded-0 py-2" aria-selected="false" tabindex="-1"
-                                           role="tab">
-                                            <i class="mdi mdi-face-man-profile font-18 align-middle me-1"></i>
-                                            <span class="d-none d-sm-inline">Языки и теги</span>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item" role="presentation">
-                                        <a href="#finish" data-bs-toggle="tab" data-toggle="tab"
-                                           class="nav-link rounded-0 py-2" aria-selected="false" tabindex="-1"
-                                           role="tab">
-                                            <i class="mdi mdi-checkbox-marked-circle-outline font-18 align-middle me-1"></i>
-                                            <span class="d-none d-sm-inline">Сохранение</span>
-                                        </a>
-                                    </li>
-                                </ul>
-
-                                <div class="tab-content b-0 mb-3">
-
-                                    <div id="bar" class="progress mb-3" style="height: 7px;">
-                                        <div class="bar progress-bar progress-bar-striped progress-bar-animated bg-success"
-                                             style="width: 33.3333%;"></div>
-                                    </div>
-
-                                    <div class="tab-pane active show" id="profile-1" role="tabpanel">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="row mb-3">
-                                                    <label class="col-md-3 col-form-label" for="editSex">Пол</label>
-                                                    <div class="col-md-9">
-                                                        <select id="editSex" name="editSex" class="form-select mb-3">
-                                                            {% if current_user.sex.value == 'female' %}
-                                                            <option value="female" selected>Женщина</option>
-                                                            <option value="male">Мужчина</option>
-                                                            {% else %}
-                                                            <option value="male" selected>Мужчина</option>
-                                                            <option value="female">Женщина</option>
-                                                            {% endif %}
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-3">
-                                                    <label class="col-md-3 col-form-label" for="editLocation">
-                                                        Локация</label>
-                                                    <div class="col-md-9">
-                                                        <input type="text" placeholder="Россия, Москва"
-                                                               id="editLocation" name="editLocation"
-                                                               class="form-control" value="{{current_user.location}}">
-                                                    </div>
-                                                </div>
-
-                                                <div class="row mb-3">
-                                                    <label class="col-md-3 col-form-label" for="editProfession">
-                                                        Профессия</label>
-                                                    <div class="col-md-9">
-                                                        <input type="text" id="editProfession" name="editProfession"
-                                                               class="form-control" value="{{current_user.profession}}">
-                                                    </div>
-                                                </div>
-
-                                                <div class="row mb-3">
-                                                    <label class="col-md-3 col-form-label" for="editUniversity">
-                                                        Университет/Колледж/Школа</label>
-                                                    <div class="col-md-9">
-                                                        <input type="text" id="editUniversity" name="editUniversity"
-                                                               class="form-control" value="{{current_user.university}}">
-                                                    </div>
-                                                </div>
-                                            </div> <!-- end col -->
-                                        </div> <!-- end row -->
-
-                                        <ul class="list-inline wizard mb-0">
-                                            <li class="next list-inline-item float-end">
-                                                <a class="btn btn-info">Далее <i
-                                                        class="mdi mdi-arrow-right ms-1"></i></a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="tab-pane" id="profile-2" role="tabpanel">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="row mb-3">
-                                                    <label class="col-md-3 col-form-label"
-                                                           for="editLanguages">Языки</label>
-                                                    <div class="col-md-9">
-                                                        <!-- Multiple Select -->
-                                                        <select id="editLanguages" name="editLanguages"
-                                                                class="select2 form-control select2-multiple"
-                                                                data-toggle="select2" multiple="multiple"
-                                                                data-placeholder="Выбрать ...">
-                                                            {% if current_user.languages != None %}
-                                                            {% for language in current_user.languages %}
-                                                            <option selected value="{{language}}">{{language}}</option>
-                                                            {% endfor %}
-                                                            {% endif %}
-                                                            <option value="Russian">Русский</option>
-                                                            <option value="English">English</option>
-                                                            <option value="Hebrew">Иврит</option>
-                                                            <option value="Afrikaans">Afrikaans</option>
-                                                            <option value="Albanian">Albanian</option>
-                                                            <option value="Amharic">Amharic</option>
-                                                            <option value="Arabic">Arabic</option>
-                                                            <option value="Aragonese">Aragonese</option>
-                                                            <option value="Armenian">Armenian</option>
-                                                            <option value="Asturian">Asturian</option>
-                                                            <option value="Azerbaijani">Azerbaijani</option>
-                                                            <option value="Basque">Basque</option>
-                                                            <option value="Belarusian">Belarusian</option>
-                                                            <option value="Bengali">Bengali</option>
-                                                            <option value="Bosnian">Bosnian</option>
-                                                            <option value="Breton">Breton</option>
-                                                            <option value="Bulgarian">Bulgarian</option>
-                                                            <option value="Catalan">Catalan</option>
-                                                            <option value="Central Kurdish">Central Kurdish</option>
-                                                            <option value="Chinese">Chinese</option>
-                                                            <option value="Chinese (Hong Kong)">Chinese (Hong Kong)
-                                                            </option>
-                                                            <option value="Chinese (Simplified)">Chinese (Simplified)
-                                                            </option>
-                                                            <option value="Chinese (Traditional)">Chinese
-                                                                (Traditional)
-                                                            </option>
-                                                            <option value="Corsican">Corsican</option>
-                                                            <option value="Croatian">Croatian</option>
-                                                            <option value="Czech">Czech</option>
-                                                            <option value="Danish">Danish</option>
-                                                            <option value="Dutch">Dutch</option>
-                                                            <option value="English (Australia)">English (Australia)
-                                                            </option>
-                                                            <option value="English (Canada)">English (Canada)</option>
-                                                            <option value="English (India)">English (India)</option>
-                                                            <option value="English (New Zealand)">English (New
-                                                                Zealand)
-                                                            </option>
-                                                            <option value="English (South Africa)">English (South
-                                                                Africa)
-                                                            </option>
-                                                            <option value="English (United Kingdom)">English (United
-                                                                Kingdom)
-                                                            </option>
-                                                            <option value="English (United States)">English (United
-                                                                States)
-                                                            </option>
-                                                            <option value="Esperanto">Esperanto</option>
-                                                            <option value="Estonian">Estonian</option>
-                                                            <option value="Faroese">Faroese</option>
-                                                            <option value="Filipino">Filipino</option>
-                                                            <option value="Finnish">Finnish</option>
-                                                            <option value="French">French</option>
-                                                            <option value="French (Canada)">French (Canada)</option>
-                                                            <option value="French (France)">French (France)</option>
-                                                            <option value="French (Switzerland)">French (Switzerland)
-                                                            </option>
-                                                            <option value="Galician">Galician</option>
-                                                            <option value="Georgian">Georgian</option>
-                                                            <option value="German">German</option>
-                                                            <option value="German (Austria)">German (Austria)</option>
-                                                            <option value="German (Germany)">German (Germany)</option>
-                                                            <option value="German (Liechtenstein)">German
-                                                                (Liechtenstein)
-                                                            </option>
-                                                            <option value="German (Switzerland)">German (Switzerland)
-                                                            </option>
-                                                            <option value="Greek">Greek</option>
-                                                            <option value="Guarani">Guarani</option>
-                                                            <option value="Gujarati">Gujarati</option>
-                                                            <option value="Hausa">Hausa</option>
-                                                            <option value="Hawaiian">Hawaiian</option>
-                                                            <option value="Hindi">Hindi</option>
-                                                            <option value="Hungarian">Hungarian</option>
-                                                            <option value="Icelandic">Icelandic</option>
-                                                            <option value="Indonesian">Indonesian</option>
-                                                            <option value="Interlingua">Interlingua</option>
-                                                            <option value="Irish">Irish</option>
-                                                            <option value="Italian">Italian</option>
-                                                            <option value="Italian (Italy)">Italian (Italy)</option>
-                                                            <option value="Italian (Switzerland)">Italian
-                                                                (Switzerland)
-                                                            </option>
-                                                            <option value="Japanese">Japanese</option>
-                                                            <option value="Kannada">Kannada</option>
-                                                            <option value="Kazakh">Kazakh</option>
-                                                            <option value="Khmer">Khmer</option>
-                                                            <option value="Korean">Korean</option>
-                                                            <option value="Kurdish">Kurdish</option>
-                                                            <option value="Kyrgyz">Kyrgyz</option>
-                                                            <option value="Lao">Lao</option>
-                                                            <option value="Latin">Latin</option>
-                                                            <option value="Latvian">Latvian</option>
-                                                            <option value="Lingala">Lingala</option>
-                                                            <option value="Lithuanian">Lithuanian</option>
-                                                            <option value="Macedonian">Macedonian</option>
-                                                            <option value="Malay">Malay</option>
-                                                            <option value="Malayalam">Malayalam</option>
-                                                            <option value="Maltese">Maltese</option>
-                                                            <option value="Marathi">Marathi</option>
-                                                            <option value="Mongolian">Mongolian</option>
-                                                            <option value="Nepali">Nepali</option>
-                                                            <option value="Norwegian">Norwegian</option>
-                                                            <option value="Norwegian Bokm?l">Norwegian Bokm?l</option>
-                                                            <option value="Norwegian Nynorsk">Norwegian Nynorsk</option>
-                                                            <option value="Occitan">Occitan</option>
-                                                            <option value="Oriya">Oriya</option>
-                                                            <option value="Oromo">OrOromoo</option>
-                                                            <option value="Pashto">Pashto</option>
-                                                            <option value="Persian">Persian</option>
-                                                            <option value="Polish">Polish</option>
-                                                            <option value="Portuguese">Portuguese
-                                                            </option>
-                                                            <option value="Portuguese (Brazil)">Portuguese (Brazil)
-                                                            </option>
-                                                            <option value="Portuguese (Portugal)">Portuguese
-                                                                (Portugal)
-                                                            </option>
-                                                            <option value="Punjabi">Punjabi</option>
-                                                            <option value="Quechua">Quechua</option>
-                                                            <option value="Romanian">Romanian</option>
-                                                            <option value="Romanian (Moldova)">Romanian (Moldova)
-                                                            </option>
-                                                            <option value="Romansh">Romansh</option>
-                                                            <option value="Scottish Gaelic">Scottish Gaelic</option>
-                                                            <option value="Serbian">Serbian</option>
-                                                            <option value="Serbo">Serbo</option>
-                                                            <option value="Shona">Shona</option>
-                                                            <option value="Sindhi">Sindhi</option>
-                                                            <option value="Sinhala">Sinhala</option>
-                                                            <option value="Slovak">Slovak</option>
-                                                            <option value="Slovenian">Slovenian</option>
-                                                            <option value="Somali">Somali</option>
-                                                            <option value="Southern Sotho">Southern Sotho</option>
-                                                            <option value="Spanish">Spanish</option>
-                                                            <option value="Spanish (Argentina)">Spanish (Argentina)
-                                                            </option>
-                                                            <option value="Spanish (Latin America)">Spanish (Latin
-                                                                America)
-                                                            </option>
-                                                            <option value="Spanish (Mexico)">Spanish (Mexico)</option>
-                                                            <option value="Spanish (Spain)">Spanish (Spain)</option>
-                                                            <option value="Spanish (United States)">Spanish (United
-                                                                States)
-                                                            </option>
-                                                            <option value="Sundanese">Sundanese</option>
-                                                            <option value="Swahili">Swahili</option>
-                                                            <option value="Swedish">Swedish</option>
-                                                            <option value="Tajik">Tajik</option>
-                                                            <option value="Tamil">Tamil</option>
-                                                            <option value="Tatar">Tatar</option>
-                                                            <option value="Telugu">Telugu</option>
-                                                            <option value="Thai">Thai</option>
-                                                            <option value="Tigrinya">Tigrinya</option>
-                                                            <option value="Tongan">Tongan</option>
-                                                            <option value="Turkish">Turkish</option>
-                                                            <option value="Turkmen">Turkmen</option>
-                                                            <option value="Twi">Twi</option>
-                                                            <option value="Ukrainian">Ukrainian</option>
-                                                            <option value="Urdu">Urdu</option>
-                                                            <option value="Uyghur">Uyghur</option>
-                                                            <option value="Uzbek">Uzbek</option>
-                                                            <option value="Vietnamese">Vietnamese</option>
-                                                            <option value="Walloon">Walloon</option>
-                                                            <option value="Welsh">Welsh</option>
-                                                            <option value="Western Frisian">Western Frisian</option>
-                                                            <option value="Xhosa">Xhosa</option>
-                                                            <option value="Yiddish">Yiddish</option>
-                                                            <option value="Yoruba">Yoruba</option>
-                                                            <option value="Zulu">Zulu</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                                <div class="row mb-3">
-                                                    <label class="col-md-3 col-form-label" for="editTags"> Теги (пишите
-                                                        через пробел)</label>
-                                                    <div class="col-md-9">
-                                                        <textarea class="form-control" name="editTags" id="editTags"
-                                                                  rows="5">{% if current_user.tags != None %}{% for tag in current_user.tags %}{{tag}} {% endfor %}{% endif %}</textarea>
-                                                    </div>
-                                                </div>
-                                            </div> <!-- end col -->
-                                        </div> <!-- end row -->
-                                        <ul class="pager wizard mb-0 list-inline">
-                                            <li class="previous list-inline-item disabled">
-                                                <button type="button" class="btn btn-light"><i
-                                                        class="mdi mdi-arrow-left me-1"></i> Назад
-                                                </button>
-                                            </li>
-                                            <li class="next list-inline-item float-end">
-                                                <button type="button" class="btn btn-info">Далее <i
-                                                        class="mdi mdi-arrow-right ms-1"></i></button>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="tab-pane" id="finish" role="tabpanel">
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="text-center">
-                                                    <h2 class="mt-0"><i class="mdi mdi-check-all"></i></h2>
-                                                    <h3 class="mt-0">Спасибо!</h3>
-                                                </div>
-                                            </div> <!-- end col -->
-                                        </div> <!-- end row -->
-                                        <ul class="pager wizard mb-0 list-inline mt-1">
-                                            <li class="previous list-inline-item disabled">
-                                                <button type="button" class="btn btn-light"><i
-                                                        class="mdi mdi-arrow-left me-1"></i> Назад
-                                                </button>
-                                            </li>
-                                            <li class="next list-inline-item float-end">
-                                                <button type="submit" name="btn_feed" value="profile"
-                                                        class="btn btn-info">Сохранить
-                                                </button>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                </div> <!-- tab-content -->
-                            </div> <!-- end #progressbarwizard-->
-                        </form>
-                        <!-- end comment box -->
-                    </div> <!-- end preview-->
-                </div> <!-- end tab-content-->
-            </div>
-        </div>
-
-        <div class="app-search mb-3">
-            <form method="post">
-                <div class="input-group">
-                    <input type="search" class="form-control bg-dark bg-gradient text-light" placeholder="Искать..." name="input_query" value="">
-                    <span class="mdi mdi-magnify search-icon text-light"></span>
-                    <button name="btn_feed" value="search_records" class="input-group-text btn btn-primary" type="submit">Искать</button>
-                </div>
-            </form>
-        </div>
-
-        <div id="records">
-
-            {% if records | length > 0 %}
-
-            {% if query != None and query | length > 0 %}
-                <div class="alert alert-success" role="alert">
-                    По запросу <strong>{{query}}</strong> найдено записей <strong>{{records | length}}</strong>.
-                </div>
-            {% endif %}
-
-            <!-- start news feeds -->
-            {% for record in records[:5] %}
+    <div class="row">
+        <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-1">
+            <!-- start profile info -->
             <div class="card">
-                <div class="card-body pb-1">
-                    <a href="{{url_for('networking.profile', user_id=record['user_id'])}}" class="d-flex">
-                        <img class="me-2 rounded" src="{{url_for('api.get_avatar', user_id=record['user_id'])}}"
-                             alt="avatar"
-                             height="32">
-                        <div class="w-100">
-                            <h5 class="m-0">{{record['author']}}</h5>
-                            <p class="text-muted"><small>{{record['time']}}</small></p>
-                        </div> <!-- end w-100-->
-                    </a> <!-- end d-flex -->
+                <div class="card-body">
 
-                    <hr class="m-0">
-
-                    <div class="my-3">
-                        <p style="white-space:pre-wrap">{{record['text']}}</p>
+                    <div class="d-flex align-self-start">
+                        <img class="avatar-img d-flex align-self-start rounded me-2" src=""
+                             alt="Dominic Keller" height="48">
+                        <div class="w-100 overflow-hidden">
+                            <h5 class="mt-1 mb-0">{{ current_user.first_name }} {{ current_user.last_name }}</h5>
+                            <p class="mb-1 mt-1 text-muted">{{ current_user.birthday }}</p>
+                        </div>
                     </div>
+                    <div class="list-group list-group-flush mt-2">
+                        {% if current_user.sex.value == 'male' %}
+                            <a class="list-group-item list-group-item-action border-0"><i
+                                    class="fa-solid fa-person me-1"></i>Мужчина</a>
+                        {% elif current_user.sex.value == 'female' %}
+                            <a class="list-group-item list-group-item-action border-0"><i
+                                    class="fa-solid fa-person-dress me-1"></i>Женщина</a>
+                        {% endif %}
+
+                        {% if current_user.location != None %}
+                            <a class="list-group-item list-group-item-action border-0"><i
+                                    class="fa-solid fa-location-dot me-1"></i>
+                                {% if current_user.location | length > 0 %}
+                                    {{ current_user.location }}{% else %}Локация{% endif %}</a>
+                        {% endif %}
+
+                        {% if current_user.languages != None %}
+                            <a class="list-group-item list-group-item-action border-0"><i
+                                    class="fa-solid fa-language me-1"></i>
+                                {% if current_user.languages | length > 0 %}{% for language in current_user.languages %}
+                                    {{ language }} {% endfor %}{% else %}Языки{% endif %}
+                            </a>
+                        {% endif %}
+
+                        {% if current_user.profession != None %}
+                            <a class="list-group-item list-group-item-action border-0"><i
+                                    class="fa-solid fa-user-tie me-1"></i>{% if current_user.profession | length > 0 %}
+                                {{ current_user.profession }}{% else %}Профессия{% endif %}</a>
+                        {% endif %}
+
+                        {% if current_user.university != None %}
+                            <a class="list-group-item list-group-item-action border-0"><i
+                                    class="fa-solid fa-graduation-cap me-1"></i>
+                                {% if current_user.university | length > 0 %}
+                                    {{ current_user.university }}{% else %}Университет{% endif %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <!-- end profile info -->
+
+            <!-- tags -->
+            <div class="card ribbon-box">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="header-title">Теги</h4>
+                    </div>
+
+                    {% if current_user.tags != None %}
+                        <ul class="list-group list-group-flush">
+                            {% for tag in current_user.tags %}
+                                <li class="list-group-item">{{ tag }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="ribbon ribbon-warning float-start"><i class="mdi mdi-access-point me-1"></i>Предупреждение
+                        </div>
+                        <div class="ribbon-content">
+                            Заполните теги для лучшей работы сервиса Net Working
+                        </div>
+                    {% endif %}
+
+
+                </div> <!-- end card-body-->
+            </div> <!-- end card-->
+
+            <div class="card">
+                <div class="card-body pb-0">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span
+                            class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
+                        {{ friends_requests_to | length }}
+                    </span>
+                        <h4 class="header-title">Запросы к вам в друзья</h4>
+                        <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
+                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
+                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
+                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
+                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
+                    </div>
+
+                    <div class="inbox-widget">
+                        <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
+                            {% for req in friends_requests_to %}
+                                <form action="" method="post">
+                                    <div class="inbox-item">
+                                        <input type="hidden" name="friend_request_id" value="{{ req.id }}">
+                                        <input type="hidden" name="sender_id" value="{{ req.sender_id }}">
+                                        <a href="{{ url_for('networking.profile', user_id=req.sender_id) }}">
+                                            <div class="inbox-item-img"><img
+                                                    src="{{ url_for('api.get_avatar', user_id=req.sender_id) }}"
+                                                    class="rounded-circle"
+                                                    alt=""></div>
+                                            <p class="inbox-item-author">{{ req.last_name }}</p>
+                                            <p class="inbox-item-text">{{ req.first_name }}</p>
+                                        </a>
+                                        <p class="inbox-item-date">
+                                            <button name="btn_feed" value="accept_friend" type="submit"
+                                                    class="btn btn-sm btn-outline-success px-1 py-0 me-2"><i
+                                                    class="uil uil-user-plus font-16"></i></button>
+                                            <button name="btn_feed" value="reject_friend" type="submit"
+                                                    class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                                    class="uil uil-user-minus font-16"></i></button>
+                                        </p>
+                                    </div>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    </div> <!-- end inbox-widget -->
+
 
                 </div> <!-- end card-body -->
             </div>
-            {% endfor %}
-            <!-- end news feeds -->
 
-             <div class="text-center mb-3" id="load_more">
-                <a onclick="fetchRecords()" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1 font-16"></i>
-                    Загрузить еще </a>
+            <div class="card">
+                <div class="card-body pb-0">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span
+                            class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
+                        {{ friends_requests_from | length }}
+                    </span>
+                        <h4 class="header-title">Запросы в друзья от вас</h4>
+                        <i class="mdi mdi-information mdi-24px mdi-spin" onclick="$.NotificationApp.send('Совет',
+                    'Дорогой друг, пожалуйста, учитывай, что мы хотим создать настоящую сеть связей между' +
+                     ' пользователями, поэтому добавлять в друзья надо только тех людей, которые могут' +
+                      ' тебе помочь бескорыстно. Это не друзья в социальной сети, никто не обидится,' +
+                       ' если ты не примешь заявку, зато сохранишь парадигму нетворкинга. Спасибо!','top-right','','warning', hideAfter=20000)"></i>
+                    </div>
+
+                    <div class="inbox-widget">
+                        <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
+                            {% for req in friends_requests_from %}
+                                <form action="" method="post">
+                                    <div class="inbox-item">
+                                        <input type="hidden" name="friend_request_id" value="{{ req.id }}">
+                                        <a href="{{ url_for('networking.profile', user_id=req.receiver_id) }}">
+                                            <div class="inbox-item-img"><img
+                                                    src="{{ url_for('api.get_avatar', user_id=req.receiver_id) }}"
+                                                    class="rounded-circle"
+                                                    alt=""></div>
+                                            <p class="inbox-item-author">{{ req.last_name }}</p>
+                                            <p class="inbox-item-text">{{ req.first_name }}</p>
+                                        </a>
+                                        <p class="inbox-item-date">
+                                            <button name="btn_feed" value="revoke_friend" type="submit"
+                                                    class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                                    class="uil uil-minus font-16"></i></button>
+                                        </p>
+                                    </div>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    </div> <!-- end inbox-widget -->
+
+
+                </div> <!-- end card-body -->
             </div>
 
-            {% else %}
-                {% if query != None and query | length > 0 %}
-                    <div class="alert alert-primary" role="alert">
-                        По запросу <strong>{{query}}</strong> ничего не найдено.
+        </div> <!-- end col -->
+
+        <div class="col-xxl-6 col-lg-12 order-lg-2 order-xxl-1">
+
+            <div class="card">
+                <div class="card-body p-0">
+                    <ul class="nav nav-tabs nav-bordered" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a href="#newpost" data-bs-toggle="tab" aria-expanded="false"
+                               class="nav-link active px-3 py-2"
+                               aria-selected="true" role="tab">
+                                <i class="mdi mdi-pencil-box-multiple font-18 d-md-none d-block"></i>
+                                <span class="d-none d-md-block">Новая запись</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="#user-records" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
+                               aria-selected="false" tabindex="-1" role="tab">
+                                <i class="mdi mdi-post font-18 d-md-none d-block"></i>
+                                <span class="d-none d-md-block">Мои записи</span>
+                            </a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="#profile-edit" data-bs-toggle="tab" aria-expanded="true" class="nav-link px-3 py-2"
+                               aria-selected="false" tabindex="-1" role="tab">
+                                <i class="mdi mdi-account-settings font-18 d-md-none d-block"></i>
+                                <span class="d-none d-md-block">Настройки профиля</span>
+                            </a>
+                        </li>
+                    </ul> <!-- end nav-->
+
+                    <div class="tab-content">
+                        <div class="tab-pane show active p-3" id="newpost" role="tabpanel">
+                            <!-- comment box -->
+                            <div class="border rounded">
+                                <form class="comment-area-box" action="" method="post">
+                                <textarea name="record_text" rows="4" class="form-control border-0 resize-none"
+                                          placeholder="Напишите что-то...." required minlength="5"></textarea>
+                                    <div class="p-2 bg-light d-flex justify-content-between align-items-center">
+                                        <button type="submit" name="btn_feed" value="add_record"
+                                                class="btn btn-sm btn-success"><i
+                                                class="uil uil-message me-1"></i>Опубликовать
+                                        </button>
+                                    </div>
+                                </form>
+                            </div> <!-- end .border-->
+                            <!-- end comment box -->
+                        </div> <!-- end preview-->
+                    </div> <!-- end tab-content-->
+                    <div class="tab-content">
+                        <div class="tab-pane show p-3" id="user-records" role="tabpanel">
+                            <!-- comment box -->
+                            <div class="border rounded">
+                                <div class="accordion" id="CardaccordionRecords">
+                                    {% for record in user_records %}
+                                        <div class="card mb-0">
+                                            <div class="card-header">
+                                                <h5 class="m-0">
+                                                    <a class="custom-accordion-title d-block"
+                                                       data-bs-toggle="collapse" href="#{{ record['record_id'] }}"
+                                                       aria-expanded="false" aria-controls="{{ record['record_id'] }}">
+                                                        {{ record['time'] }}
+                                                    </a>
+                                                </h5>
+                                            </div>
+                                            <div id="{{ record['record_id'] }}" class="collapse"
+                                                 data-bs-parent="#CardaccordionRecords">
+                                                <div class="card-body">
+                                                    <form class="comment-area-box" action=""
+                                                          method="post">
+                                                        <input type="hidden" name="record_id"
+                                                               value="{{ record['record_id'] }}">
+                                                        <textarea name="record_text" rows="4"
+                                                                  class="bg-body form-control border-0 resize-none"
+                                                                  placeholder="Напишите что-то...." required=""
+                                                                  minlength="5">{{ record['text'] }}</textarea>
+                                                        <div class="p-2 bg-light d-flex justify-content-between align-items-center">
+                                                            <button type="submit" name="btn_feed" value="edit_record"
+                                                                    class="btn btn-sm btn-info"><i
+                                                                    class="uil uil-comment-alt-edit me-1"></i>Редактировать
+                                                            </button>
+                                                            <button type="submit" name="btn_feed" value="delete_record"
+                                                                    class="btn btn-sm btn-danger"><i
+                                                                    class="uil uil-trash-alt me-1"></i>Удалить
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div> <!-- end .border-->
+                            <!-- end comment box -->
+                        </div> <!-- end preview-->
+                    </div> <!-- end tab-content-->
+                    <div class="tab-content">
+                        <div class="tab-pane show p-3" id="profile-edit" role="tabpanel">
+                            <!-- comment box -->
+                            <form action="" method="post">
+                                <div id="progressbarwizard">
+
+                                    <ul class="nav nav-pills nav-justified form-wizard-header mb-3" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <a href="#profile-1" data-bs-toggle="tab" data-toggle="tab"
+                                               class="nav-link rounded-0 py-2 active" aria-selected="true" role="tab">
+                                                <i class="mdi mdi-account-circle font-18 align-middle me-1"></i>
+                                                <span class="d-none d-sm-inline">Основные</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <a href="#profile-2" data-bs-toggle="tab" data-toggle="tab"
+                                               class="nav-link rounded-0 py-2" aria-selected="false" tabindex="-1"
+                                               role="tab">
+                                                <i class="mdi mdi-face-man-profile font-18 align-middle me-1"></i>
+                                                <span class="d-none d-sm-inline">Языки и теги</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <a href="#finish" data-bs-toggle="tab" data-toggle="tab"
+                                               class="nav-link rounded-0 py-2" aria-selected="false" tabindex="-1"
+                                               role="tab">
+                                                <i class="mdi mdi-checkbox-marked-circle-outline font-18 align-middle me-1"></i>
+                                                <span class="d-none d-sm-inline">Сохранение</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <div class="tab-content b-0 mb-3">
+
+                                        <div id="bar" class="progress mb-3" style="height: 7px;">
+                                            <div class="bar progress-bar progress-bar-striped progress-bar-animated bg-success"
+                                                 style="width: 33.3333%;"></div>
+                                        </div>
+
+                                        <div class="tab-pane active show" id="profile-1" role="tabpanel">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="row mb-3">
+                                                        <label class="col-md-3 col-form-label" for="editSex">Пол</label>
+                                                        <div class="col-md-9">
+                                                            <select id="editSex" name="editSex"
+                                                                    class="form-select mb-3">
+                                                                {% if current_user.sex.value == 'female' %}
+                                                                    <option value="female" selected>Женщина</option>
+                                                                    <option value="male">Мужчина</option>
+                                                                {% else %}
+                                                                    <option value="male" selected>Мужчина</option>
+                                                                    <option value="female">Женщина</option>
+                                                                {% endif %}
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label class="col-md-3 col-form-label" for="editLocation">
+                                                            Локация</label>
+                                                        <div class="col-md-9">
+                                                            <input type="text" placeholder="Россия, Москва"
+                                                                   id="editLocation" name="editLocation"
+                                                                   class="form-control"
+                                                                   value="{{ current_user.location }}">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row mb-3">
+                                                        <label class="col-md-3 col-form-label" for="editProfession">
+                                                            Профессия</label>
+                                                        <div class="col-md-9">
+                                                            <input type="text" id="editProfession" name="editProfession"
+                                                                   class="form-control"
+                                                                   value="{{ current_user.profession }}">
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row mb-3">
+                                                        <label class="col-md-3 col-form-label" for="editUniversity">
+                                                            Университет/Колледж/Школа</label>
+                                                        <div class="col-md-9">
+                                                            <input type="text" id="editUniversity" name="editUniversity"
+                                                                   class="form-control"
+                                                                   value="{{ current_user.university }}">
+                                                        </div>
+                                                    </div>
+                                                </div> <!-- end col -->
+                                            </div> <!-- end row -->
+
+                                            <ul class="list-inline wizard mb-0">
+                                                <li class="next list-inline-item float-end">
+                                                    <a class="btn btn-info">Далее <i
+                                                            class="mdi mdi-arrow-right ms-1"></i></a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="tab-pane" id="profile-2" role="tabpanel">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="row mb-3">
+                                                        <label class="col-md-3 col-form-label"
+                                                               for="editLanguages">Языки</label>
+                                                        <div class="col-md-9">
+                                                            <!-- Multiple Select -->
+                                                            <select id="editLanguages" name="editLanguages"
+                                                                    class="select2 form-control select2-multiple"
+                                                                    data-toggle="select2" multiple="multiple"
+                                                                    data-placeholder="Выбрать ...">
+                                                                {% if current_user.languages != None %}
+                                                                    {% for language in current_user.languages %}
+                                                                        <option selected
+                                                                                value="{{ language }}">{{ language }}</option>
+                                                                    {% endfor %}
+                                                                {% endif %}
+                                                                <option value="Russian">Русский</option>
+                                                                <option value="English">English</option>
+                                                                <option value="Hebrew">Иврит</option>
+                                                                <option value="Afrikaans">Afrikaans</option>
+                                                                <option value="Albanian">Albanian</option>
+                                                                <option value="Amharic">Amharic</option>
+                                                                <option value="Arabic">Arabic</option>
+                                                                <option value="Aragonese">Aragonese</option>
+                                                                <option value="Armenian">Armenian</option>
+                                                                <option value="Asturian">Asturian</option>
+                                                                <option value="Azerbaijani">Azerbaijani</option>
+                                                                <option value="Basque">Basque</option>
+                                                                <option value="Belarusian">Belarusian</option>
+                                                                <option value="Bengali">Bengali</option>
+                                                                <option value="Bosnian">Bosnian</option>
+                                                                <option value="Breton">Breton</option>
+                                                                <option value="Bulgarian">Bulgarian</option>
+                                                                <option value="Catalan">Catalan</option>
+                                                                <option value="Central Kurdish">Central Kurdish</option>
+                                                                <option value="Chinese">Chinese</option>
+                                                                <option value="Chinese (Hong Kong)">Chinese (Hong Kong)
+                                                                </option>
+                                                                <option value="Chinese (Simplified)">Chinese
+                                                                    (Simplified)
+                                                                </option>
+                                                                <option value="Chinese (Traditional)">Chinese
+                                                                    (Traditional)
+                                                                </option>
+                                                                <option value="Corsican">Corsican</option>
+                                                                <option value="Croatian">Croatian</option>
+                                                                <option value="Czech">Czech</option>
+                                                                <option value="Danish">Danish</option>
+                                                                <option value="Dutch">Dutch</option>
+                                                                <option value="English (Australia)">English (Australia)
+                                                                </option>
+                                                                <option value="English (Canada)">English (Canada)
+                                                                </option>
+                                                                <option value="English (India)">English (India)</option>
+                                                                <option value="English (New Zealand)">English (New
+                                                                    Zealand)
+                                                                </option>
+                                                                <option value="English (South Africa)">English (South
+                                                                    Africa)
+                                                                </option>
+                                                                <option value="English (United Kingdom)">English (United
+                                                                    Kingdom)
+                                                                </option>
+                                                                <option value="English (United States)">English (United
+                                                                    States)
+                                                                </option>
+                                                                <option value="Esperanto">Esperanto</option>
+                                                                <option value="Estonian">Estonian</option>
+                                                                <option value="Faroese">Faroese</option>
+                                                                <option value="Filipino">Filipino</option>
+                                                                <option value="Finnish">Finnish</option>
+                                                                <option value="French">French</option>
+                                                                <option value="French (Canada)">French (Canada)</option>
+                                                                <option value="French (France)">French (France)</option>
+                                                                <option value="French (Switzerland)">French
+                                                                    (Switzerland)
+                                                                </option>
+                                                                <option value="Galician">Galician</option>
+                                                                <option value="Georgian">Georgian</option>
+                                                                <option value="German">German</option>
+                                                                <option value="German (Austria)">German (Austria)
+                                                                </option>
+                                                                <option value="German (Germany)">German (Germany)
+                                                                </option>
+                                                                <option value="German (Liechtenstein)">German
+                                                                    (Liechtenstein)
+                                                                </option>
+                                                                <option value="German (Switzerland)">German
+                                                                    (Switzerland)
+                                                                </option>
+                                                                <option value="Greek">Greek</option>
+                                                                <option value="Guarani">Guarani</option>
+                                                                <option value="Gujarati">Gujarati</option>
+                                                                <option value="Hausa">Hausa</option>
+                                                                <option value="Hawaiian">Hawaiian</option>
+                                                                <option value="Hindi">Hindi</option>
+                                                                <option value="Hungarian">Hungarian</option>
+                                                                <option value="Icelandic">Icelandic</option>
+                                                                <option value="Indonesian">Indonesian</option>
+                                                                <option value="Interlingua">Interlingua</option>
+                                                                <option value="Irish">Irish</option>
+                                                                <option value="Italian">Italian</option>
+                                                                <option value="Italian (Italy)">Italian (Italy)</option>
+                                                                <option value="Italian (Switzerland)">Italian
+                                                                    (Switzerland)
+                                                                </option>
+                                                                <option value="Japanese">Japanese</option>
+                                                                <option value="Kannada">Kannada</option>
+                                                                <option value="Kazakh">Kazakh</option>
+                                                                <option value="Khmer">Khmer</option>
+                                                                <option value="Korean">Korean</option>
+                                                                <option value="Kurdish">Kurdish</option>
+                                                                <option value="Kyrgyz">Kyrgyz</option>
+                                                                <option value="Lao">Lao</option>
+                                                                <option value="Latin">Latin</option>
+                                                                <option value="Latvian">Latvian</option>
+                                                                <option value="Lingala">Lingala</option>
+                                                                <option value="Lithuanian">Lithuanian</option>
+                                                                <option value="Macedonian">Macedonian</option>
+                                                                <option value="Malay">Malay</option>
+                                                                <option value="Malayalam">Malayalam</option>
+                                                                <option value="Maltese">Maltese</option>
+                                                                <option value="Marathi">Marathi</option>
+                                                                <option value="Mongolian">Mongolian</option>
+                                                                <option value="Nepali">Nepali</option>
+                                                                <option value="Norwegian">Norwegian</option>
+                                                                <option value="Norwegian Bokm?l">Norwegian Bokm?l
+                                                                </option>
+                                                                <option value="Norwegian Nynorsk">Norwegian Nynorsk
+                                                                </option>
+                                                                <option value="Occitan">Occitan</option>
+                                                                <option value="Oriya">Oriya</option>
+                                                                <option value="Oromo">OrOromoo</option>
+                                                                <option value="Pashto">Pashto</option>
+                                                                <option value="Persian">Persian</option>
+                                                                <option value="Polish">Polish</option>
+                                                                <option value="Portuguese">Portuguese
+                                                                </option>
+                                                                <option value="Portuguese (Brazil)">Portuguese (Brazil)
+                                                                </option>
+                                                                <option value="Portuguese (Portugal)">Portuguese
+                                                                    (Portugal)
+                                                                </option>
+                                                                <option value="Punjabi">Punjabi</option>
+                                                                <option value="Quechua">Quechua</option>
+                                                                <option value="Romanian">Romanian</option>
+                                                                <option value="Romanian (Moldova)">Romanian (Moldova)
+                                                                </option>
+                                                                <option value="Romansh">Romansh</option>
+                                                                <option value="Scottish Gaelic">Scottish Gaelic</option>
+                                                                <option value="Serbian">Serbian</option>
+                                                                <option value="Serbo">Serbo</option>
+                                                                <option value="Shona">Shona</option>
+                                                                <option value="Sindhi">Sindhi</option>
+                                                                <option value="Sinhala">Sinhala</option>
+                                                                <option value="Slovak">Slovak</option>
+                                                                <option value="Slovenian">Slovenian</option>
+                                                                <option value="Somali">Somali</option>
+                                                                <option value="Southern Sotho">Southern Sotho</option>
+                                                                <option value="Spanish">Spanish</option>
+                                                                <option value="Spanish (Argentina)">Spanish (Argentina)
+                                                                </option>
+                                                                <option value="Spanish (Latin America)">Spanish (Latin
+                                                                    America)
+                                                                </option>
+                                                                <option value="Spanish (Mexico)">Spanish (Mexico)
+                                                                </option>
+                                                                <option value="Spanish (Spain)">Spanish (Spain)</option>
+                                                                <option value="Spanish (United States)">Spanish (United
+                                                                    States)
+                                                                </option>
+                                                                <option value="Sundanese">Sundanese</option>
+                                                                <option value="Swahili">Swahili</option>
+                                                                <option value="Swedish">Swedish</option>
+                                                                <option value="Tajik">Tajik</option>
+                                                                <option value="Tamil">Tamil</option>
+                                                                <option value="Tatar">Tatar</option>
+                                                                <option value="Telugu">Telugu</option>
+                                                                <option value="Thai">Thai</option>
+                                                                <option value="Tigrinya">Tigrinya</option>
+                                                                <option value="Tongan">Tongan</option>
+                                                                <option value="Turkish">Turkish</option>
+                                                                <option value="Turkmen">Turkmen</option>
+                                                                <option value="Twi">Twi</option>
+                                                                <option value="Ukrainian">Ukrainian</option>
+                                                                <option value="Urdu">Urdu</option>
+                                                                <option value="Uyghur">Uyghur</option>
+                                                                <option value="Uzbek">Uzbek</option>
+                                                                <option value="Vietnamese">Vietnamese</option>
+                                                                <option value="Walloon">Walloon</option>
+                                                                <option value="Welsh">Welsh</option>
+                                                                <option value="Western Frisian">Western Frisian</option>
+                                                                <option value="Xhosa">Xhosa</option>
+                                                                <option value="Yiddish">Yiddish</option>
+                                                                <option value="Yoruba">Yoruba</option>
+                                                                <option value="Zulu">Zulu</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row mb-3">
+                                                        <label class="col-md-3 col-form-label" for="editTags"> Теги
+                                                            (пишите
+                                                            через пробел)</label>
+                                                        <div class="col-md-9">
+                                                        <textarea class="form-control" name="editTags" id="editTags"
+                                                                  rows="5">{% if current_user.tags != None %}
+                                                            {% for tag in current_user.tags %}{{ tag }}
+                                                            {% endfor %}{% endif %}</textarea>
+                                                        </div>
+                                                    </div>
+                                                </div> <!-- end col -->
+                                            </div> <!-- end row -->
+                                            <ul class="pager wizard mb-0 list-inline">
+                                                <li class="previous list-inline-item disabled">
+                                                    <button type="button" class="btn btn-light"><i
+                                                            class="mdi mdi-arrow-left me-1"></i> Назад
+                                                    </button>
+                                                </li>
+                                                <li class="next list-inline-item float-end">
+                                                    <button type="button" class="btn btn-info">Далее <i
+                                                            class="mdi mdi-arrow-right ms-1"></i></button>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                        <div class="tab-pane" id="finish" role="tabpanel">
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <div class="text-center">
+                                                        <h2 class="mt-0"><i class="mdi mdi-check-all"></i></h2>
+                                                        <h3 class="mt-0">Спасибо!</h3>
+                                                    </div>
+                                                </div> <!-- end col -->
+                                            </div> <!-- end row -->
+                                            <ul class="pager wizard mb-0 list-inline mt-1">
+                                                <li class="previous list-inline-item disabled">
+                                                    <button type="button" class="btn btn-light"><i
+                                                            class="mdi mdi-arrow-left me-1"></i> Назад
+                                                    </button>
+                                                </li>
+                                                <li class="next list-inline-item float-end">
+                                                    <button type="submit" name="btn_feed" value="profile"
+                                                            class="btn btn-info">Сохранить
+                                                    </button>
+                                                </li>
+                                            </ul>
+                                        </div>
+
+                                    </div> <!-- tab-content -->
+                                </div> <!-- end #progressbarwizard-->
+                            </form>
+                            <!-- end comment box -->
+                        </div> <!-- end preview-->
+                    </div> <!-- end tab-content-->
+                </div>
+            </div>
+
+            <div class="app-search mb-3">
+                <form method="post">
+                    <div class="input-group">
+                        <input type="search" class="form-control bg-dark bg-gradient text-light" placeholder="Искать..."
+                               name="input_query" value="">
+                        <span class="mdi mdi-magnify search-icon text-light"></span>
+                        <button name="btn_feed" value="search_records" class="input-group-text btn btn-primary"
+                                type="submit">Искать
+                        </button>
                     </div>
+                </form>
+            </div>
+
+            <div>
+
+                {% if records | length > 0 %}
+
+                    {% if query != None and query | length > 0 %}
+                        <div class="alert alert-success" role="alert">
+                            По запросу <strong>{{ query }}</strong> найдено записей
+                            <strong>{{ records | length }}</strong>.
+                        </div>
+                    {% endif %}
+                    <div id="records">
+                        <!-- start news feeds -->
+                        {% for record in records[:5] %}
+                            <div class="card">
+                                <div class="card-body pb-1">
+                                    <a href="{{ url_for('networking.profile', user_id=record['user_id']) }}"
+                                       class="d-flex">
+                                        <img class="me-2 rounded"
+                                             src="{{ url_for('api.get_avatar', user_id=record['user_id']) }}"
+                                             alt="avatar"
+                                             height="32">
+                                        <div class="w-100">
+                                            <h5 class="m-0">{{ record['author'] }}</h5>
+                                            <p class="text-muted"><small>{{ record['time'] }}</small></p>
+                                        </div> <!-- end w-100-->
+                                    </a> <!-- end d-flex -->
+
+                                    <hr class="m-0">
+
+                                    <div class="my-3">
+                                        <p style="white-space:pre-wrap">{{ record['text'] }}</p>
+                                    </div>
+
+                                </div> <!-- end card-body -->
+                            </div>
+                        {% endfor %}
+                        <!-- end news feeds -->
+                    </div>
+                    <div class="text-center mb-3" id="load_more">
+                        <a onclick="fetchRecords()" class="text-danger"><i
+                                class="mdi mdi-spin mdi-loading me-1 font-16"></i>
+                            Загрузить еще </a>
+                    </div>
+
+                {% else %}
+                    {% if query != None and query | length > 0 %}
+                        <div class="alert alert-primary" role="alert">
+                            По запросу <strong>{{ query }}</strong> ничего не найдено.
+                        </div>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+
+            </div>
 
         </div>
 
+        <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-2">
+            <div class="card">
+                <div class="card-body pb-0">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span
+                            class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
+                        {{ friends | length }}
+                    </span>
+                        <h4 class="header-title">Связи</h4>
+                    </div>
+
+                    <div class="inbox-widget">
+                        <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
+                            {% for req in friends %}
+                                <form action="" method="post">
+                                    <div class="inbox-item">
+                                        <input type="hidden" name="friend_request_id" value="{{ req.id }}">
+                                        <a href="{{ url_for('networking.profile', user_id=req.friend.id) }}">
+                                            <div class="inbox-item-img"><img
+                                                    src="{{ url_for('api.get_avatar', user_id=req.friend.id) }}"
+                                                    class="rounded-circle"
+                                                    alt=""></div>
+                                            <p class="inbox-item-author">{{ req.friend.last_name }}</p>
+                                            <p class="inbox-item-text">{{ req.friend.first_name }}</p>
+                                        </a>
+                                        <p class="inbox-item-date">
+                                            <button name="btn_feed" value="delete_friend" type="submit"
+                                                    class="btn btn-sm btn-outline-danger px-1 py-0"><i
+                                                    class="uil uil-user-minus font-16"></i></button>
+                                        </p>
+                                    </div>
+                                </form>
+                            {% endfor %}
+                        </div>
+                    </div> <!-- end inbox-widget -->
+
+
+                </div> <!-- end card-body -->
+            </div>
+            <!-- end video -->
+        </div> <!-- end col -->
     </div>
 
-    <div class="col-xxl-3 col-lg-6 order-lg-1 order-xxl-2">
-        <div class="card">
-            <div class="card-body pb-0">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span
-                        class="position-absolute top-0 start-0 translate-middle badge rounded-pill bg-dark">
-                        {{friends | length}}
-                    </span>
-                    <h4 class="header-title">Связи</h4>
-                </div>
+    <script>
 
-                <div class="inbox-widget">
-                    <div class="card-body py-0" data-simplebar data-simplebar-primary style="max-height: 300px;">
-                        {% for req in friends %}
-                         <form action="" method="post">
-                             <div class="inbox-item">
-                                 <input type="hidden" name="friend_request_id" value="{{req.id}}">
-                                  <a href="{{url_for('networking.profile', user_id=req.friend.id)}}">
-                                    <div class="inbox-item-img"><img src="{{url_for('api.get_avatar', user_id=req.friend.id)}}"
-                                                                     class="rounded-circle"
-                                                                     alt=""></div>
-                                    <p class="inbox-item-author">{{req.friend.last_name}}</p>
-                                     <p class="inbox-item-text">{{req.friend.first_name}}</p>
-                                  </a>
-                                <p class="inbox-item-date">
-                                    <button name="btn_feed" value="delete_friend" type="submit" class="btn btn-sm btn-outline-danger px-1 py-0"><i
-                                            class="uil uil-user-minus font-16"></i></button>
-                                </p>
-                            </div>
-                      </form>
-                        {% endfor %}
-                    </div>
-                </div> <!-- end inbox-widget -->
+        let records = {{records | safe}};
 
+        let counter = 5;
 
-            </div> <!-- end card-body -->
-        </div>
-        <!-- end video -->
-    </div> <!-- end col -->
-</div>
+        if (counter >= records.length) document.getElementById("load_more").remove();
 
-<script>
-
-    let records = {{records | safe}};
-
-    let counter = 5;
-
-    if (counter >= records.length) document.getElementById("load_more").remove();
-
-    function appendRecord(index) {
-        let recs = document.getElementById("records");
-        const rec_html = "<div class=\"card\">" +
-            "                <div class=\"card-body pb-1\">" +
-            "                    <div class=\"d-flex\">" +
-            "                        <img class=\"me-2 rounded\" src=\"/api/avatar/" + records[index]['user_id'] + "\"" +
-            "                             alt=\"avatar\"" +
-            "                             height=\"32\">" +
-            "                        <div class=\"w-100\">" +
-            "                            <h5 class=\"m-0\">" + records[index]['author'] + "</h5>" +
-            "                            <p class=\"text-muted\"><small>" + records[index]['time'] + "</small></p>" +
-            "                        </div> <!-- end w-100-->" +
-            "                    </div> <!-- end d-flex -->" +
-            "                    <hr class=\"m-0\">" +
-            "                    <div class=\"my-3\">" +
-            "                        <p style=\"white-space:pre\">" + records[index]['text'] + "</p>" +
-            "                    </div>" +
-            "                </div> <!-- end card-body -->" +
-            "            </div>"
-        recs.innerHTML += rec_html;
-    }
-
-    function fetchRecords() {
-        let i = 0;
-        while (i < 5 && counter + i < records.length) {
-            appendRecord(counter + i);
-            i++;
+        function appendRecord(index) {
+            let recs = document.getElementById("records");
+            const rec_html = "<div class=\"card\">" +
+                "                <div class=\"card-body pb-1\">" +
+                "                    <div class=\"d-flex\">" +
+                "                        <img class=\"me-2 rounded\" src=\"/api/avatar/" + records[index]['user_id'] + "\"" +
+                "                             alt=\"avatar\"" +
+                "                             height=\"32\">" +
+                "                        <div class=\"w-100\">" +
+                "                            <h5 class=\"m-0\">" + records[index]['author'] + "</h5>" +
+                "                            <p class=\"text-muted\"><small>" + records[index]['time'] + "</small></p>" +
+                "                        </div> <!-- end w-100-->" +
+                "                    </div> <!-- end d-flex -->" +
+                "                    <hr class=\"m-0\">" +
+                "                    <div class=\"my-3\">" +
+                "                        <p style=\"white-space:pre\">" + records[index]['text'] + "</p>" +
+                "                    </div>" +
+                "                </div> <!-- end card-body -->" +
+                "            </div>"
+            recs.innerHTML += rec_html;
         }
-        counter += i;
-        if (counter >= records.length) {
-            document.getElementById("load_more").remove();
-            return;
+
+        function fetchRecords() {
+            let i = 0;
+            while (i < 5 && counter + i < records.length) {
+                appendRecord(counter + i);
+                i++;
+            }
+            counter += i;
+            if (counter >= records.length) {
+                document.getElementById("load_more").remove();
+                return;
+            }
         }
-    }
 
 
-</script>
+    </script>
 
 {% endblock %}

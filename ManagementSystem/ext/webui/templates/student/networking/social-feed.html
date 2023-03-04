@@ -629,55 +629,59 @@ Feed
             </form>
         </div>
 
-        <div id="records">
+        <div>
 
-            {% if records | length > 0 %}
+                {% if records | length > 0 %}
 
-            {% if query != None and query | length > 0 %}
-                <div class="alert alert-success" role="alert">
-                    По запросу <strong>{{query}}</strong> найдено записей <strong>{{records | length}}</strong>.
-                </div>
-            {% endif %}
+                    {% if query != None and query | length > 0 %}
+                        <div class="alert alert-success" role="alert">
+                            По запросу <strong>{{ query }}</strong> найдено записей
+                            <strong>{{ records | length }}</strong>.
+                        </div>
+                    {% endif %}
+                    <div id="records">
+                        <!-- start news feeds -->
+                        {% for record in records[:5] %}
+                            <div class="card">
+                                <div class="card-body pb-1">
+                                    <a href="{{ url_for('networking.profile', user_id=record['user_id']) }}"
+                                       class="d-flex">
+                                        <img class="me-2 rounded"
+                                             src="{{ url_for('api.get_avatar', user_id=record['user_id']) }}"
+                                             alt="avatar"
+                                             height="32">
+                                        <div class="w-100">
+                                            <h5 class="m-0">{{ record['author'] }}</h5>
+                                            <p class="text-muted"><small>{{ record['time'] }}</small></p>
+                                        </div> <!-- end w-100-->
+                                    </a> <!-- end d-flex -->
 
-            <!-- start news feeds -->
-            {% for record in records[:5] %}
-            <div class="card">
-                <div class="card-body pb-1">
-                    <a href="{{url_for('networking.profile', user_id=record['user_id'])}}" class="d-flex">
-                        <img class="me-2 rounded" src="{{url_for('api.get_avatar', user_id=record['user_id'])}}"
-                             alt="avatar"
-                             height="32">
-                        <div class="w-100">
-                            <h5 class="m-0">{{record['author']}}</h5>
-                            <p class="text-muted"><small>{{record['time']}}</small></p>
-                        </div> <!-- end w-100-->
-                    </a> <!-- end d-flex -->
+                                    <hr class="m-0">
 
-                    <hr class="m-0">
+                                    <div class="my-3">
+                                        <p style="white-space:pre-wrap">{{ record['text'] }}</p>
+                                    </div>
 
-                    <div class="my-3">
-                        <p style="white-space:pre-wrap">{{record['text']}}</p>
+                                </div> <!-- end card-body -->
+                            </div>
+                        {% endfor %}
+                        <!-- end news feeds -->
+                    </div>
+                    <div class="text-center mb-3" id="load_more">
+                        <a onclick="fetchRecords()" class="text-danger"><i
+                                class="mdi mdi-spin mdi-loading me-1 font-16"></i>
+                            Загрузить еще </a>
                     </div>
 
-                </div> <!-- end card-body -->
-            </div>
-            {% endfor %}
-            <!-- end news feeds -->
-
-             <div class="text-center mb-3" id="load_more">
-                <a onclick="fetchRecords()" class="text-danger"><i class="mdi mdi-spin mdi-loading me-1 font-16"></i>
-                    Загрузить еще </a>
-            </div>
-
-            {% else %}
-                {% if query != None and query | length > 0 %}
-                    <div class="alert alert-primary" role="alert">
-                        По запросу <strong>{{query}}</strong> ничего не найдено.
-                    </div>
+                {% else %}
+                    {% if query != None and query | length > 0 %}
+                        <div class="alert alert-primary" role="alert">
+                            По запросу <strong>{{ query }}</strong> ничего не найдено.
+                        </div>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
 
-        </div>
+            </div>
 
     </div>
 

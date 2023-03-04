@@ -64,7 +64,7 @@ class LettersGame {
             }
             let keys = document.getElementsByClassName("Game-keyboard-button");
             for (let key of keys) {
-                //key.onclick = null;
+                key.onclick = null;
                 key.classList.add(`bg-success-lighten`);
             }
             Swal.fire({
@@ -115,7 +115,7 @@ class LettersGame {
         if (this.#row === this.#rows) {
             let keys = document.getElementsByClassName("Game-keyboard-button");
             for (let key of keys) {
-                //key.onclick = null;
+                key.onclick = null;
                 key.classList.add(`bg-danger-lighten`);
             }
             $.ajax({

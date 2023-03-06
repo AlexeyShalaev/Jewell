@@ -1,3 +1,5 @@
+from bson.json_util import dumps
+
 from ManagementSystem.ext.models.userModel import *
 from . import db, MongoDBResult
 
@@ -33,6 +35,11 @@ def get_users() -> MongoDBResult:
         return MongoDBResult(True, users)
     else:
         return MongoDBResult(False, [])
+
+
+# получение записей о всех пользователях в формате json
+def get_users_json():
+    return dumps(list(db.users.find()))
 
 
 # получение записей о всех пользователях по роли

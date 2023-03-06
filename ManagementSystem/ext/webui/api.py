@@ -7,7 +7,7 @@ from flask import *
 from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
-from ManagementSystem.ext.database.courses import get_courses, Time
+from ManagementSystem.ext.database.courses import get_courses, Time, get_courses_json
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
 from ManagementSystem.ext.database.offers import get_offers
 from ManagementSystem.ext.database.orders import get_orders
@@ -15,7 +15,8 @@ from ManagementSystem.ext.database.products import get_products
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType, delete_record
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
-from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications, Reward, Role
+from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications, Reward, Role, \
+    get_users_json
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.snapshotting import backup, restore, get_sorted_backups
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, get_month
@@ -677,4 +678,33 @@ def records_delete():
         notify_user(user_id, 'Удалена запись', '', 'mdi mdi-delete-clock', 'primary',
                     f'Удалена одна из ваших записей, у которой вы установили временное ограничение.')
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              users
+# База данных:          users
+# HTML:                 -
+@api.route('/users', methods=['POST'])
+def api_get_users():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            return json.dumps({'success': True, 'data': get_users_json()}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        print(ex)
+        pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              courses
+# База данных:          courses
+# HTML:                 -
+@api.route('/courses', methods=['POST'])
+def api_get_courses():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            return json.dumps({'success': True, 'data': get_courses_json()}), 200, {'ContentType': 'application/json'}
+    except:
+        pass
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

@@ -1,3 +1,5 @@
+from bson.json_util import dumps
+
 from ManagementSystem.ext.models.course import *
 from . import db, MongoDBResult
 
@@ -25,6 +27,11 @@ def get_courses() -> MongoDBResult:
         return MongoDBResult(True, courses)
     else:
         return MongoDBResult(False, [])
+
+
+# получение записей о всех курсах в формате json
+def get_courses_json():
+    return dumps(list(db.courses.find()))
 
 
 # получение курса по ID

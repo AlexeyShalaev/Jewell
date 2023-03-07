@@ -6,7 +6,7 @@ from flask import *
 
 from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
-from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
+from ManagementSystem.ext.database.attendances import get_attendances_by_user_id, add_attendance
 from ManagementSystem.ext.database.courses import get_courses, Time, get_courses_json
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
 from ManagementSystem.ext.database.offers import get_offers
@@ -646,6 +646,31 @@ def attendance_student():
                                         "visits_dataset": visits_dataset,
                                         "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {
                        'ContentType': 'application/json'}
+    except:
+        pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/update
+# База данных:          Attendance
+# HTML:                 -
+@api.route('/attendance/update', methods=['POST'])
+def attendance_update():
+    try:
+        token = request.json['token']
+        status = False
+        if token == api_token:
+            user_id = request.json['user_id']
+            date = request.json['date']
+            count = request.json['count']
+            r = get_user_by_id(user_id)
+            if r.success:
+                user = r.data
+                if user.role == Role.STUDENT and user.reward != Reward.NULL:
+                    count = int(count)
+                    if count > 0:
+                        add_attendance(user_id, count, date)
+                        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except:
         pass
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

@@ -3,8 +3,12 @@ import os
 import queue
 import random
 import re
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 
+import face_recognition
+import numpy as np
 import requests
 
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
@@ -313,3 +317,33 @@ def convert_markdown_to_html(text: str) -> str:
         for match in matches:
             text = re.sub(f'<{tag}>{match}<{tag}>', f'<{tag}>{match}</{tag}>', text)
     return text
+
+
+# face id
+
+class FaceRecognitionStatus(Enum):
+    ERROR = 'error'
+    SUCCESS = 'success'
+    MANY_FACES = 'many_faces'
+    NO_FACES = 'no_faces'
+
+
+@dataclass
+class FaceRecognitionResult:
+    success: bool
+    status: FaceRecognitionStatus
+    encodings: np.array
+
+
+def make_embedding(image_path: str) -> FaceRecognitionResult:
+    try:
+        item = face_recognition.load_image_file(image_path)
+        encodings = face_recognition.face_encodings(item)
+        if len(encodings) == 1:
+            return FaceRecognitionResult(True, FaceRecognitionStatus.SUCCESS, encodings[0])
+        elif len(encodings) > 1:
+            return FaceRecognitionResult(False, FaceRecognitionStatus.MANY_FACES, np.array(0))
+        else:
+            return FaceRecognitionResult(False, FaceRecognitionStatus.NO_FACES, np.array(0))
+    except:
+        return FaceRecognitionResult(False, FaceRecognitionStatus.ERROR, np.array(0))

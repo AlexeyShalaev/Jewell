@@ -60,7 +60,7 @@ def load_user(id):
 
 def main():
     logger.info("Starting app")
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
 
 
 if __name__ == "__main__":

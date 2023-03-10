@@ -6,3 +6,4 @@ flask-script
 cryptocode
 environs
 requests
+face-recognition

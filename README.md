@@ -64,3 +64,25 @@
 * Автоматическое создание резервных копий
 * Проверка состояния работы сайта
 * Удаление записей пользователей по времени
+
+## Устновка
+
+### Сервер и ОС
+
+Минимальная конфигурация сервера
+- *Процессор*: 2 ядра
+- *Память*: 4 GB
+- *Диск*: 40 GB
+
+### Настройка среды
+
+1. [MongoDB](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/)
+2. [Git](https://git-scm.com/download/linux)
+
+### Установка пакетов
+
+1. `sudo apt-get install build-essential cmake pkg-config`
+2. `sudo apt-get install libx11-dev libatlas-base-dev`
+3. `sudo apt-get install libgtk-3-dev libboost-python-dev`
+4. `sudo apt-get install python-dev python-pip python3-dev python3-pip`
+5. `pip install python-dev-tools`

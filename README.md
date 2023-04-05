@@ -89,6 +89,14 @@
 
 ### Настройка [сервисов](https://dzen.ru/media/cyber/sozdaem-systemd-iunit-unit-na-primere-telegram-bota-62383c5d55ea3027de06d7ed?utm_referer=away.vk.com)
 
+0. Подготовка
+* Сервер с установленной операционной системой Ubuntu 18.04 и пользователь без привилегий root и с привилегиями sudo. Следуйте указаниям нашего [руководства по начальной настройке сервера.](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-18-04)
+* Веб-сервер Nginx, установленный в соответствии с шагами 1 и 2 модуля [Установка Nginx в Ubuntu 18.04.](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-18-04)
+* Доменное имя, настроенное так, чтобы указывать на ваш сервер. Обязательно создайте следующие записи DNS: 
+  * Запись A, где your_domain указывает на публичный IP-адрес вашего сервера.
+  * Запись A, где www.your_domain указывает на публичный IP-адрес вашего сервера.
+
+
 1. jms_assistant
 ```
 [Unit]
@@ -125,4 +133,4 @@ Restart=always
 WantedBy=multi-user.target
 ```
 
-3. jms_site
+3. jms_site [Инструкция](https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04-ru)

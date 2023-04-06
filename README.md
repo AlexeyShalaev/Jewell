@@ -91,6 +91,13 @@
 
 0. Подготовка
 * Сервер с установленной операционной системой Ubuntu 18.04 и пользователь без привилегий root и с привилегиями sudo. Следуйте указаниям нашего [руководства по начальной настройке сервера.](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-18-04)
+```
+adduser jewell
+usermod -aG sudo jewell
+ufw allow OpenSSH
+ufw enable
+```
+
 * Веб-сервер Nginx, установленный в соответствии с шагами 1 и 2 модуля [Установка Nginx в Ubuntu 18.04.](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-18-04)
 * Доменное имя, настроенное так, чтобы указывать на ваш сервер. Обязательно создайте следующие записи DNS: 
   * Запись A, где your_domain указывает на публичный IP-адрес вашего сервера.

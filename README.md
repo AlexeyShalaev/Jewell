@@ -99,6 +99,13 @@ ufw enable
 ```
 
 * Веб-сервер Nginx, установленный в соответствии с шагами 1 и 2 модуля [Установка Nginx в Ubuntu 18.04.](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-18-04)
+```
+// выполняем под пользователем jewell
+sudo apt update
+sudo apt install nginx
+sudo ufw allow 'Nginx HTTP'
+```
+
 * Доменное имя, настроенное так, чтобы указывать на ваш сервер. Обязательно создайте следующие записи DNS: 
   * Запись A, где your_domain указывает на публичный IP-адрес вашего сервера.
   * Запись A, где www.your_domain указывает на публичный IP-адрес вашего сервера.

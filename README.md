@@ -209,8 +209,8 @@ After=network.target
 User=jewell
 Group=www-data
 WorkingDirectory=/home/jewell/Jewell
-Environment="PATH=/home/jewell/Jewell/webenv/bin"
-ExecStart=/home/jewell/Jewell/webenv/bin/uwsgi --ini jms_site.ini
+Environment="PATH=/home/jewell/Jewell/ManagementSystem/webenv/bin"
+ExecStart=/home/jewell/Jewell/ManagementSystem/webenv/bin/uwsgi --ini jms_site.ini
 
 [Install]
 WantedBy=multi-user.target

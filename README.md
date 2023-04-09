@@ -169,10 +169,10 @@ nano wsgi.py
 ```
 wsgi.py
 ```
-from app import app as site
+from app import app
 
 if __name__ == "__main__":
-    site.run()
+    app.run()
 ```
 - Шаг 4 — Настройка uWSGI
 ```

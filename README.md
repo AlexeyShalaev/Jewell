@@ -148,3 +148,20 @@ WantedBy=multi-user.target
 ```
 
 3. jms_site [Инструкция](https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04-ru)
+- Шаг 1 — Установка компонентов из хранилищ Ubuntu
+```
+sudo apt update
+sudo apt install python3-pip python3-dev build-essential libssl-dev libffi-dev python3-setuptools
+```
+- Шаг 2 — Создание виртуальной среды Python
+```
+sudo apt install python3-venv
+python3.8 -m venv webenv
+source webenv/bin/activate
+```
+- Шаг 3 — Настройка приложения Flask
+```
+pip install wheel
+pip install uwsgi
+pip install -r requirements.txt
+```

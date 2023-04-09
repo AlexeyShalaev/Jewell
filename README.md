@@ -164,4 +164,74 @@ source webenv/bin/activate
 pip install wheel
 pip install uwsgi
 pip install -r requirements.txt
+sudo ufw allow 5000
+nano wsgi.py
+```
+wsgi.py
+```
+from app import app as site
+
+if __name__ == "__main__":
+    site.run()
+```
+- Шаг 4 — Настройка uWSGI
+```
+uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
+deactivate
+nano jms_site.ini
+```
+jms_site.ini
+```
+[uwsgi]
+module = wsgi:app
+
+master = true
+processes = 5
+
+socket = jms_site.sock
+chmod-socket = 660
+vacuum = true
+
+die-on-term = true
+```
+- Шаг 5 — Создание файла элементов systemd
+```
+sudo nano /etc/systemd/system/jms_site.service
+sudo systemctl enable myproject
+```
+jms_site.service
+```
+[Unit]
+Description=uWSGI instance to serve jms_site
+After=network.target
+
+[Service]
+User=jewell
+Group=www-data
+WorkingDirectory=/home/jewell/Jewell
+Environment="PATH=/home/jewell/Jewell/webenv/bin"
+ExecStart=/home/jewell/Jewell/webenv/bin/uwsgi --ini jms_site.ini
+
+[Install]
+WantedBy=multi-user.target
+```
+- Шаг 6 — Настройка Nginx для работы с запросами прокси-сервера
+```
+sudo nano /etc/nginx/sites-available/jms_site
+sudo ln -s /etc/nginx/sites-available/jms_site /etc/nginx/sites-enabled
+sudo nginx -t
+sudo ufw delete allow 5000
+sudo ufw allow 'Nginx Full'
+```
+jms_site
+```
+server {
+    listen 80;
+    server_name your_domain www.your_domain;
+
+    location / {
+        include uwsgi_params;
+        uwsgi_pass unix:/home/jewell/Jewell/jms_site.sock;
+    }
+}
 ```

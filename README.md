@@ -121,8 +121,8 @@ After=network.target
 [Service]
 Type=simple
 User=jewell
-WorkingDirectory=/jewell/Jewell/Assistant
-ExecStart=/usr/bin/python3 /jewell/Jewell/Assistant/main.py
+WorkingDirectory=/home/jewell/Jewell/Assistant
+ExecStart=/usr/bin/python3 /home/jewell/Jewell/Assistant/main.py
 Restart=always
 
 [Install]
@@ -139,8 +139,8 @@ After=network.target
 [Service]
 Type=simple
 User=jewell
-WorkingDirectory=/jewell/Jewell/TelegramBot
-ExecStart=/usr/bin/python3 /jewell/Jewell/TelegramBot/bot.py
+WorkingDirectory=/home/jewell/Jewell/TelegramBot
+ExecStart=/usr/bin/python3 /home/jewell/Jewell/TelegramBot/bot.py
 Restart=always
 
 [Install]

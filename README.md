@@ -231,7 +231,7 @@ server {
 
     location / {
         include uwsgi_params;
-        uwsgi_pass unix:/home/jewell/Jewell/jms_site.sock;
+        uwsgi_pass unix:/home/jewell/Jewell/ManagementSystem/jms_site.sock;
     }
 }
 ```

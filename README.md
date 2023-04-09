@@ -76,8 +76,8 @@
 
 ### Настройка среды
 
-1. [MongoDB](https://www.mongodb.com/docs/manual/tutorial/install-mongodb-on-ubuntu/)
-2. [Git](https://git-scm.com/download/linux)
+1. [MongoDB](https://www.mongodb.com/docs/v4.4/tutorial/install-mongodb-on-ubuntu/)
+2. [Git](https://www.digitalocean.com/community/tutorials/how-to-install-git-on-ubuntu-20-04-ru)
 
 ### Установка пакетов
 

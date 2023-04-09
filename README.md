@@ -208,7 +208,7 @@ After=network.target
 [Service]
 User=jewell
 Group=www-data
-WorkingDirectory=/home/jewell/Jewell
+WorkingDirectory=/home/jewell/Jewell/ManagementSystem
 Environment="PATH=/home/jewell/Jewell/ManagementSystem/webenv/bin"
 ExecStart=/home/jewell/Jewell/ManagementSystem/webenv/bin/uwsgi --ini jms_site.ini
 

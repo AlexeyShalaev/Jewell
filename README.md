@@ -197,7 +197,7 @@ die-on-term = true
 - Шаг 5 — Создание файла элементов systemd
 ```
 sudo nano /etc/systemd/system/jms_site.service
-sudo systemctl enable myproject
+sudo systemctl enable jms_site
 ```
 jms_site.service
 ```

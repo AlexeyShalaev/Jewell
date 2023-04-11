@@ -185,6 +185,8 @@ jms_site.ini
 [uwsgi]
 module = wsgi:app
 
+env = LANG=en_US.UTF-8
+
 master = true
 processes = 5
 

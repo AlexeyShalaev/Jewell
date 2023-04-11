@@ -90,14 +90,6 @@
 ### Настройка [сервисов](https://dzen.ru/media/cyber/sozdaem-systemd-iunit-unit-na-primere-telegram-bota-62383c5d55ea3027de06d7ed?utm_referer=away.vk.com)
 
 0. Подготовка
-* Сервер с установленной операционной системой Ubuntu 18.04 и пользователь без привилегий root и с привилегиями sudo. Следуйте указаниям нашего [руководства по начальной настройке сервера.](https://www.digitalocean.com/community/tutorials/initial-server-setup-with-ubuntu-18-04)
-```
-adduser jewell
-usermod -aG sudo jewell
-ufw allow OpenSSH
-ufw enable
-```
-
 * Веб-сервер Nginx, установленный в соответствии с шагами 1 и 2 модуля [Установка Nginx в Ubuntu 18.04.](https://www.digitalocean.com/community/tutorials/how-to-install-nginx-on-ubuntu-18-04)
 ```
 // выполняем под пользователем jewell
@@ -120,9 +112,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=jewell
-WorkingDirectory=/home/jewell/Jewell/Assistant
-ExecStart=/usr/bin/python3 /home/jewell/Jewell/Assistant/main.py
+User=root
+WorkingDirectory=/root/Jewell/Assistant
+ExecStart=/usr/bin/python3 /root/Jewell/Assistant/main.py
 Restart=always
 
 [Install]
@@ -138,9 +130,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=jewell
-WorkingDirectory=/home/jewell/Jewell/TelegramBot
-ExecStart=/usr/bin/python3 /home/jewell/Jewell/TelegramBot/bot.py
+User=root
+WorkingDirectory=/root/Jewell/TelegramBot
+ExecStart=/usr/bin/python3 /root/Jewell/TelegramBot/bot.py
 Restart=always
 
 [Install]
@@ -206,11 +198,11 @@ Description=uWSGI instance to serve jms_site
 After=network.target
 
 [Service]
-User=jewell
+User=root
 Group=www-data
-WorkingDirectory=/home/jewell/Jewell/ManagementSystem
-Environment="PATH=/home/jewell/Jewell/ManagementSystem/webenv/bin"
-ExecStart=/home/jewell/Jewell/ManagementSystem/webenv/bin/uwsgi --ini jms_site.ini
+WorkingDirectory=/root/Jewell/ManagementSystem
+Environment="PATH=/root/Jewell/ManagementSystem/webenv/bin"
+ExecStart=/root/Jewell/ManagementSystem/webenv/bin/uwsgi --ini jms_site.ini
 
 [Install]
 WantedBy=multi-user.target
@@ -231,7 +223,7 @@ server {
 
     location / {
         include uwsgi_params;
-        uwsgi_pass unix:/home/jewell/Jewell/ManagementSystem/jms_site.sock;
+        uwsgi_pass unix:/root/Jewell/ManagementSystem/jms_site.sock;
     }
 }
 ```

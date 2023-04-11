@@ -120,7 +120,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=jewell
 WorkingDirectory=/home/jewell/Jewell/Assistant
 ExecStart=/usr/bin/python3 /home/jewell/Jewell/Assistant/main.py
 Restart=always
@@ -138,7 +138,7 @@ After=network.target
 
 [Service]
 Type=simple
-User=root
+User=jewell
 WorkingDirectory=/home/jewell/Jewell/TelegramBot
 ExecStart=/usr/bin/python3 /home/jewell/Jewell/TelegramBot/bot.py
 Restart=always

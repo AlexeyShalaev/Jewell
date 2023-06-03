@@ -2,7 +2,7 @@ import requests
 
 from Assistant import jewell_token, links
 
-snapshot_url = f'{links.jewell}/api/snapshot'
+snapshot_url = f'{links.server}/api/snapshot'
 
 
 def snapshot_dump(chat_id='') -> bool:
@@ -18,7 +18,7 @@ def snapshot_dump(chat_id='') -> bool:
 
 def delete_record(record) -> bool:
     try:
-        r = requests.post(f'{links.jewell}/api/records/delete',
+        r = requests.post(f'{links.server}/api/records/delete',
                           json={"token": jewell_token, "record_id": str(record.id), "user_id": str(record.author)})
         if r.ok:
             res = r.json()

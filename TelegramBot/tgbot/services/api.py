@@ -2,8 +2,8 @@ import requests
 
 from TelegramBot.tgbot import links, jewell_token
 
-attendance_url = f'{links.jewell}/api/attendance'
-snapshot_url = f'{links.jewell}/api/snapshot'
+attendance_url = f'{links.server}/api/attendance'
+snapshot_url = f'{links.server}/api/snapshot'
 
 
 def get_admin_attendance() -> (bool, ...):

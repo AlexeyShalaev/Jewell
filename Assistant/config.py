@@ -20,6 +20,7 @@ class API:
 
 @dataclass
 class Links:
+    server: str
     jewell: str
 
 
@@ -46,6 +47,7 @@ def load_config(path: str = ".env"):
             jewell=env.str('JEWELL_TOKEN')
         ),
         links=Links(
+            server=env.str('URL_SERVER'),
             jewell=env.str('URL_JEWELL')
         )
     )

@@ -179,7 +179,17 @@ def bfs(s, t, users):
         return []
 
 
+shabbat_cache = {
+    "week": -1,
+    "res": {"candle": "", "havdalah": ""}
+}
+
+
 def shabbat(geo_name_id: int = 524901) -> dict:
+    global shabbat_cache
+    if datetime.now().isocalendar().week == shabbat_cache['week']:
+        return shabbat_cache['res']
+
     # https://www.hebcal.com/home/197/shabbat-times-rest-api
     url = f'https://www.hebcal.com/shabbat?cfg=json&geonameid={geo_name_id}'
     res = {"candle": "", "havdalah": ""}
@@ -207,6 +217,12 @@ def shabbat(geo_name_id: int = 524901) -> dict:
                     pass
     except Exception as ex:
         logger.error(ex)
+
+    shabbat_cache = {
+        "week": datetime.now().isocalendar().week,
+        "res": res
+    }
+
     return res
 
 

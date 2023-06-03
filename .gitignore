@@ -1,6 +1,10 @@
 # custom ignores
 .idea/
 .env
+jms_site.ini
+wsgi.py
+ManagementSystem/storage
+ManagementSystem/webenv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

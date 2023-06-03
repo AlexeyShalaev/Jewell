@@ -187,7 +187,7 @@ shabbat_cache = {
 
 def shabbat(geo_name_id: int = 524901) -> dict:
     global shabbat_cache
-    if datetime.now().isocalendar().week == shabbat_cache['week']:
+    if datetime.now().isocalendar()[1] == shabbat_cache['week']:
         return shabbat_cache['res']
 
     # https://www.hebcal.com/home/197/shabbat-times-rest-api
@@ -219,7 +219,7 @@ def shabbat(geo_name_id: int = 524901) -> dict:
         logger.error(ex)
 
     shabbat_cache = {
-        "week": datetime.now().isocalendar().week,
+        "week": datetime.now().isocalendar()[1],
         "res": res
     }
 

@@ -2,7 +2,6 @@ import os
 from logging import getLogger
 from random import choice
 
-import numpy as np
 from flask import *
 from flask_login import *
 from flask_toastr import *
@@ -12,7 +11,7 @@ from ManagementSystem.ext.crypt import check_password_hash, crypt_pass, create_t
 from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip
 from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by_phone, delete_recovers_by_user_id
 from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, check_user_by_phone, add_user, \
-    Role, update_registered_user, get_user_by_access_token, update_password_by_access_token
+    Role, update_registered_user, get_user_by_access_token, update_password_by_access_token, get_user_by_id
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.telegram.message import send_message
@@ -217,8 +216,24 @@ def register(version):
         else:
             crypt_status, crypted_pass = crypt_pass(password)
             if crypt_status:
-                add_user(input_phone_number, crypted_pass)
-                flash('Вы успешно зарегистрированы')
+                inserted_user = add_user(input_phone_number, crypted_pass)
+                flash('Ваш аккаунт появился в базе')
+                try:
+                    user_id = inserted_user.inserted_id
+                    user = get_user_by_id(user_id)
+                    if user.success:
+                        delete_flask_session(session.get('_id'))
+                        logout_user()
+                        login_user(user.data)
+                        add_flask_session(id=session.get('_id'),
+                                          user_id=session.get('_user_id'),
+                                          user_agent=request.user_agent,
+                                          fresh=session.get('_fresh'),
+                                          ip=get_info_by_ip(request.remote_addr))
+                        update_user(user.data.id, 'access_token', '')
+                except Exception as ex:
+                    logger.error(ex)
+                    flash('Зайдите еще раз и заполните анкету')
                 return redirect("/login")
             else:
                 flash('Не удалось зарегистрировать вас, возможно вы вводите недопустимый пароль!')
@@ -282,8 +297,8 @@ def registered_token():
             if status:
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'icon': 'info', 'title': 'Telegram',
-                                   'text': 'Отправьте данный токен нашему телеграмм боту и он привяжет ваш аккаунт.',
-                                   'footer': f'<a onclick="clipboard(\'{token}\');" href="{system_variables["tg_bot"]}" target="_blank">{token}</a>'}), 200, {
+                                   'text': f'Отправьте данный токен (код снизу) нашему телеграмм боту в личные сообщения и он привяжет ваш аккаунт. \n{system_variables["tg_bot"]}',
+                                   'footer': f'<a onclick="clipboard(\'{token}\');">{token}</a>'}), 200, {
                            'ContentType': 'application/json'}
             else:
                 return json.dumps({'icon': 'warning', 'title': 'Telegram',

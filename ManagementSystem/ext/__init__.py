@@ -15,4 +15,4 @@ directories = {
     'records': 'storage/database/records'
 }
 
-valid_images = ['jpeg', 'jpg', 'png']
+valid_images = ['jpeg', 'jpg', 'png', 'heic']

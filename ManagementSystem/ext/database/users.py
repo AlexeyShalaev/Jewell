@@ -89,7 +89,7 @@ def get_user_by_access_token(access_token: str) -> MongoDBResult:
 
 # добавление пользователя
 def add_user(phone_number: str, password: str):
-    db.users.insert_one({
+    return db.users.insert_one({
         "phone_number": phone_number,
         "password": password,
         "telegram_id": None,

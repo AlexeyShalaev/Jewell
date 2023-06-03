@@ -69,7 +69,7 @@
                                 <div class="mb-3">
                                     <label for="first_name" class="form-label">Имя</label>
                                     <input type="text" id="first_name" name="first_name"
-                                           class="form-control" value="{{ current_user['first_name'] }}"
+                                           class="form-control" value="{{ current_user['first_name'] if current_user['first_name'] else '' }}"
                                            placeholder="Введите ваше имя"
                                            pattern="[\u0400-\u04ff]{1,32}"
                                            required>
@@ -79,7 +79,7 @@
                                 <div class="mb-3">
                                     <label for="last_name" class="form-label">Фамилия</label>
                                     <input type="text" id="last_name" name="last_name"
-                                           class="form-control" value="{{ current_user['last_name'] }}"
+                                           class="form-control" value="{{ current_user['last_name'] if current_user['last_name'] else '' }}"
                                            placeholder="Введите вашу фамилию" pattern="[\u0400-\u04ff]{1,32}"
                                            required>
                                 </div>
@@ -93,7 +93,7 @@
                                            data-date-autoclose="true"
                                            pattern="\d{2}.\d{2}.\d{4}"
                                            required id="birthday" name="birthday"
-                                           value="{{ current_user['birthday'] }}">
+                                           value="{{ current_user['birthday'] if current_user['birthday'] else '' }}">
                                 </div>
 
                             </div> <!-- end col-->

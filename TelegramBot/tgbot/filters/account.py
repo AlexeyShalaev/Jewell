@@ -3,7 +3,10 @@ import typing
 from aiogram import types
 from aiogram.dispatcher.filters import BoundFilter
 
+from TelegramBot.tgbot import links
 from TelegramBot.tgbot.services.MongoDB.users import check_user_by_telegram_id
+
+reg_url = f'{links.jewell}/register'
 
 
 class AccountFilter(BoundFilter):
@@ -17,7 +20,7 @@ class AccountFilter(BoundFilter):
             return False
         if not check_user_by_telegram_id(obj.from_user.id):
             await obj.reply(
-                "Вы не [зарегистрированы в системе](http://103.57.251.140:5000/register/) или у вас не привязан телеграмм аккаунт в настройках.",
+                f"Вы не [зарегистрированы в системе]({reg_url}) или у вас не привязан телеграмм аккаунт в настройках.",
                 parse_mode=types.ParseMode.MARKDOWN)
             return False
         return True

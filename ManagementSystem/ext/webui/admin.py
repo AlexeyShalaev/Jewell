@@ -575,7 +575,11 @@ def user_attendance(user_id):
         logger.error(ex)
         return render_template("error-500.html")
 
-    return render_template("admin/courses/user-attendance.html", user=resp.data)
+    user_data = resp.data
+    if user_data.reward == Reward.NULL:
+        return redirect(url_for("admin.admin_home"))
+
+    return render_template("admin/courses/user-attendance.html", user=user_data)
 
 
 # Уровень:              admin/offers

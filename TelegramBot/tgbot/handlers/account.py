@@ -15,7 +15,7 @@ async def bot_account_login(message: types.Message):
         status, token = create_token()
         if status:
             update_auth_token(r.data.id, token)
-            await message.answer(f'[Вход]({login_url}/{token})', parse_mode=types.ParseMode.MARKDOWN)
+            await message.answer(f'[Вход]({login_url}/{token})', parse_mode=types.ParseMode.MARKDOWN, disable_web_page_preview=True)
         else:
             await message.answer(f"[Не удалось создать ссылку для авторизации]({login_url})",
                                  parse_mode=types.ParseMode.MARKDOWN)

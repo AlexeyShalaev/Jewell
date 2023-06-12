@@ -468,7 +468,8 @@ def face_id_greeting():
                        'ContentType': 'application/json'}
 
         update_user(current_user.id, 'face_id.greeting', greeting)
-        return json.dumps({'success': True, "info": f"Приветствие изменено: {greeting}"}), 200, {
-            'ContentType': 'application/json'}
+        return json.dumps({'success': True,
+                           "info": f"Приветствие изменено: '{greeting}, {current_user.first_name}!'"}), 200, {
+                   'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

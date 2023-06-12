@@ -69,7 +69,8 @@
                                 <div class="mb-3">
                                     <label for="first_name" class="form-label">Имя</label>
                                     <input type="text" id="first_name" name="first_name"
-                                           class="form-control" value="{{ current_user['first_name'] if current_user['first_name'] else '' }}"
+                                           class="form-control"
+                                           value="{{ current_user['first_name'] if current_user['first_name'] else '' }}"
                                            placeholder="Введите ваше имя"
                                            pattern="[\u0400-\u04ff]{1,32}"
                                            required>
@@ -79,7 +80,8 @@
                                 <div class="mb-3">
                                     <label for="last_name" class="form-label">Фамилия</label>
                                     <input type="text" id="last_name" name="last_name"
-                                           class="form-control" value="{{ current_user['last_name'] if current_user['last_name'] else '' }}"
+                                           class="form-control"
+                                           value="{{ current_user['last_name'] if current_user['last_name'] else '' }}"
                                            placeholder="Введите вашу фамилию" pattern="[\u0400-\u04ff]{1,32}"
                                            required>
                                 </div>
@@ -154,7 +156,7 @@
                     Swal.fire({
                         icon: res.icon,
                         title: res.title,
-                        text: res.text,
+                        html: res.text,
                         footer: res.footer
                     });
                 }

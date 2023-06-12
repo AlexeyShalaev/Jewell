@@ -15,6 +15,7 @@ from ManagementSystem.ext.database.users import get_user_by_phone_number, update
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.telegram.message import send_message
+from ManagementSystem.ext.text_filter import TextFilter
 from ManagementSystem.ext.tools import normal_phone_number, make_embedding, FaceRecognitionStatus
 
 logger = getLogger(__name__)  # logging
@@ -86,6 +87,8 @@ def tg_login(access_token):
     try:
         user = get_user_by_access_token(access_token)
         if user.success:
+            delete_flask_session(session.get('_id'))
+            logout_user()
             # авторизуем пользователя
             login_user(user.data)
             add_flask_session(id=session.get('_id'),
@@ -265,21 +268,24 @@ def registered():
             if status:
                 return redirect(url)
 
+            input_first_name = request.form.get("first_name")
+            input_last_name = request.form.get("last_name")
+            input_birthday = request.form.get("birthday")
+            update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
+                                   birthday=input_birthday)
+
             if current_user.telegram_id is None:
-                flash('Сначала привяжите телеграмм аккаунт.', 'warning')
+                flash('Привяжите телеграмм аккаунт.', 'warning')
             else:
-                input_first_name = request.form.get("first_name")
-                input_last_name = request.form.get("last_name")
-                input_birthday = request.form.get("birthday")
-                update_registered_user(current_user.id, first_name=input_first_name, last_name=input_last_name,
-                                       birthday=input_birthday)
                 flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
                 notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning',
                               f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
 
         except Exception as ex:
             logger.error(ex)
-        return redirect(url_for('view.landing'))
+            return redirect(url_for('view.landing'))
+
+        return redirect(url_for('view.registered'))
 
     return render_template("authentication/auth-registered.html",
                            telegram_validated=(current_user.telegram_id is not None))
@@ -297,7 +303,7 @@ def registered_token():
             if status:
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'icon': 'info', 'title': 'Telegram',
-                                   'text': f'Отправьте данный токен (код снизу) нашему телеграмм боту в личные сообщения и он привяжет ваш аккаунт. \n{system_variables["tg_bot"]}',
+                                   'text': f'Отправьте данный токен (код снизу) нашему <a href="{system_variables["tg_bot"]}" target="_blank"> телеграмм боту </a> в личные сообщения и он привяжет ваш аккаунт.',
                                    'footer': f'<a onclick="clipboard(\'{token}\');">{token}</a>'}), 200, {
                            'ContentType': 'application/json'}
             else:
@@ -413,7 +419,7 @@ def face_id():
     if request.method == "POST":
         try:
             if request.form['btn_face_id'] == 'clear':
-                update_user(current_user.id, 'encodings', [])
+                update_user(current_user.id, 'face_id.encodings', [])
             else:
                 new_encodings = []
                 files = request.files
@@ -434,15 +440,35 @@ def face_id():
                                 flash(f'Не добавлен {file.filename}: обнаружено несколько лиц', 'warning')
                         if os.path.exists(path):
                             os.remove(path)
-                flash(f'Добавлено {len(new_encodings)} лиц', 'info')
                 if len(new_encodings) > 0:
                     if request.form['btn_face_id'] == 'append':
-                        update_user(current_user.id, 'encodings',
-                                    [i.tolist() for i in current_user.encodings] + new_encodings)
+                        update_user(current_user.id, 'face_id.encodings',
+                                    [i.tolist() for i in current_user.face_id.encodings] + new_encodings)
                     elif request.form['btn_face_id'] == 'exchange':
-                        update_user(current_user.id, 'encodings', new_encodings)
+                        update_user(current_user.id, 'face_id.encodings', new_encodings)
+                    flash(f'Добавлено {len(new_encodings)} лиц', 'info')
         except Exception as ex:
             logger.error(ex)
-        # return redirect(url_for('view.landing'))
+        return redirect(url_for('view.face_id'))
 
     return render_template("face_id.html")
+
+
+# Уровень:              faceid/greeting
+# База данных:          User
+# HTML:                 -
+@view.route('/faceid/greeting', methods=['POST'])
+@login_required
+def face_id_greeting():
+    try:
+        greeting = request.form.get("greeting")
+        if len(TextFilter(greeting).find_bad_words()) > 0:
+            return json.dumps(
+                {'success': False, "info": "Запрещено использовать нецензурную лексику в приветствиях"}), 200, {
+                       'ContentType': 'application/json'}
+
+        update_user(current_user.id, 'face_id.greeting', greeting)
+        return json.dumps({'success': True, "info": f"Приветствие изменено: {greeting}"}), 200, {
+            'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

@@ -92,6 +92,15 @@
                             <p class="text-muted mb-4">Добавьте или обновите биометрические данные к аккаунту, чтобы
                                 отмечаться при посещении курсов.</p>
                         </div>
+
+
+                        <div class="text-center w-50 m-auto mb-3">
+                            <label for="input_greeting" class="form-label font-16">Приветствие в зеркале</label>
+                            <input type="text" id="input_greeting" class="form-control font-14"
+                                   placeholder="Шалом" maxlength="16"
+                                   onchange="update_greeting();" value="{{ current_user.face_id.greeting }}">
+                        </div>
+
                         <form method="post" enctype="multipart/form-data">
                             <div class="col">
 
@@ -106,31 +115,9 @@
                                     </div>
                                 </div>
 
-                                <div class="mb-3 center">
-                                    <div class="form-input">
-                                        <div class="preview">
-                                            <img id="file-ip-2-preview" src="../../assets/images/faces/left.jpg">
-                                        </div>
-                                        <label for="file-ip-2">Профиль лево</label>
-                                        <input type="file" id="file-ip-2" accept="image/*" name="left_face"
-                                               onchange="showPreview(event, 'file-ip-2-preview');">
-                                    </div>
-                                </div>
-
-                                <div class="mb-4 center">
-                                    <div class="form-input">
-                                        <div class="preview">
-                                            <img id="file-ip-3-preview" src="../../assets/images/faces/right.jpg">
-                                        </div>
-                                        <label for="file-ip-3">Профиль право</label>
-                                        <input type="file" id="file-ip-3" accept="image/*" name="right_face"
-                                               onchange="showPreview(event, 'file-ip-3-preview');">
-                                    </div>
-                                </div>
-
                                 <div class="mb-3 text-center">
                                     <button class="btn btn-dark" type="submit" name="btn_face_id" value="append">
-                                        Добавить к имеющимся в базе
+                                        Добавить к {{ current_user.face_id.encodings | length }} имеющимся в базе
                                     </button>
                                 </div>
 
@@ -141,7 +128,9 @@
                                 </div>
 
                                 <div class="mb-3 text-center">
-                                    <button class="btn btn-danger" onclick='return confirm("Вы точно хотите удалить биометрию?");' type="submit" name="btn_face_id" value="clear">
+                                    <button class="btn btn-danger"
+                                            onclick='return confirm("Вы точно хотите удалить биометрию?");'
+                                            type="submit" name="btn_face_id" value="clear">
                                         Удалить биометрию из базы
                                     </button>
                                 </div>
@@ -185,6 +174,23 @@
             preview.src = src;
         }
     }
+
+    function update_greeting() {
+        const greeting = document.getElementById("input_greeting").value;
+        $.ajax({
+            type: 'POST',
+            url: '/faceid/greeting',
+            data:
+                {
+                    "greeting": greeting,
+                },
+            success: function (result) {
+                const res = JSON.parse(result);
+                alert(res.info);
+            }
+        });
+    }
+
 </script>
 
 <!-- Vendor js -->

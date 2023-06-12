@@ -94,7 +94,7 @@ def add_user(phone_number: str, password: str):
         "password": password,
         "telegram_id": None,
         "telegram_username": None,
-        "telegram_auth": False,
+        "telegram_auth": True,
         "first_name": None,
         "last_name": None,
         "sex": "null",
@@ -102,14 +102,17 @@ def add_user(phone_number: str, password: str):
         "role": Role.REGISTERED.value,
         "reward": Reward.NULL.value,
         "access_token": None,
-        "profession": None,
-        "university": None,
+        "profession": '',
+        "university": '',
         "languages": None,
-        "location": None,
-        "tags": None,
+        "location": 'Москва',
+        "tags": 'община',
         "notifications": [],
         "points": 0,
-        "encodings": []
+        "face_id": {
+            'greeting': 'Шалом',
+            'encodings': []
+        }
     })
 
 

@@ -81,19 +81,23 @@ Feed
                     <h4 class="header-title">Теги</h4>
                 </div>
 
-                {% if current_user.tags != None %}
-                <ul class="list-group list-group-flush">
-                    {% for tag in current_user.tags %}
-                    <li class="list-group-item">{{tag}}</li>
-                    {% endfor %}
-                </ul>
-                {% else%}
-                <div class="ribbon ribbon-warning float-start"><i class="mdi mdi-access-point me-1"></i>Предупреждение
-                </div>
-                <div class="ribbon-content">
-                    Заполните теги для лучшей работы сервиса Net Working
-                </div>
-                {% endif %}
+                {% if current_user.tags != None and current_user.tags | length > 0 %}
+                        <ul class="list-group list-group-flush">
+                            {% for tag in current_user.tags %}
+                                <li class="list-group-item">{{ tag }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="ribbon ribbon-warning float-start"><i class="mdi mdi-access-point me-1"></i>Предупреждение
+                        </div>
+                        <div class="ribbon-content">
+                            Заполните теги для лучшей работы сервиса Net Working
+                            <br>
+                            Теги должны характеризовать вас, пример:
+                            <br>
+                            'молодость община стоматолог'
+                        </div>
+                    {% endif %}
 
 
             </div> <!-- end card-body-->
@@ -568,8 +572,7 @@ Feed
                                                     <label class="col-md-3 col-form-label" for="editTags"> Теги (пишите
                                                         через пробел)</label>
                                                     <div class="col-md-9">
-                                                        <textarea class="form-control" name="editTags" id="editTags"
-                                                                  rows="5">{% if current_user.tags != None %}{% for tag in current_user.tags %}{{tag}} {% endfor %}{% endif %}</textarea>
+                                                        <textarea class="form-control" name="editTags" id="editTags" rows="5">{% if current_user.tags != None %}{% for tag in current_user.tags %}{{ tag }} {% endfor %}{% endif %}</textarea>
                                                     </div>
                                                 </div>
                                             </div> <!-- end col -->

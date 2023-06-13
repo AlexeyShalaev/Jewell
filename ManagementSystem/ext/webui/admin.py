@@ -1502,8 +1502,10 @@ def configuration_backup():
                     status, file = backup()
                     if not status:
                         flash('Не удалось создать резервную копию', 'error')
+                        return redirect(url_for('admin.configuration_backup'))
                     if len(file) == 0:
                         flash('Не удалось создать архив с данными', 'error')
+                        return redirect(url_for('admin.configuration_backup'))
                     flash(f'Вы успешно создали резервную копию: {file}', 'success')
                     notify_admins('Резервное копирование',
                                   url_for('admin.configuration_backup'),

@@ -106,7 +106,7 @@ def add_user(phone_number: str, password: str):
         "university": '',
         "languages": None,
         "location": 'Москва',
-        "tags": 'община',
+        "tags": ['община'],
         "notifications": [],
         "points": 0,
         "face_id": {

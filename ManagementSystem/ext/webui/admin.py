@@ -91,7 +91,7 @@ def admin_home():
                            map=trip_map)
 
 
-# Уровень:              courses/schedule
+# Уровень:              news
 # База данных:          User
 # HTML:                 schedule
 @admin.route('/news', methods=['POST', 'GET'])
@@ -370,8 +370,9 @@ def admin_schedule():
             flash('Произошла какая-то ошибка', 'error')
 
     teachers = []
-    for teacher in get_users_by_role(Role.TEACHER).data:
-        teachers.append({"name": f'{teacher.first_name} {teacher.last_name}', "id": str(teacher.id)})
+    for teacher in get_users().data:
+        if teacher.role == Role.ADMIN or teacher.role == Role.TEACHER:
+            teachers.append({"name": f'{teacher.first_name} {teacher.last_name}', "id": str(teacher.id)})
     return render_template("admin/courses/schedule.html", courses=get_courses().data, teachers=teachers)
 
 

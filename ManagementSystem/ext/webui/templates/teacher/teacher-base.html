@@ -1095,10 +1095,17 @@
             title: `<strong><a href="${notification.link}">${notification.region}</a></strong>`,
             html: nHTML,
             showCloseButton: true,
+            showDenyButton: true,
             focusConfirm: false,
-            confirmButtonText: '<i class="fa-solid fa-trash pe-2"></i>Прочитано',
+            confirmButtonText: '<i class="fa-solid fa-arrow-right pe-2"></i>Перейти',
+            denyButtonText: '<i class="fa-solid fa-trash pe-2"></i>Прочитано'
         }).then((result) => {
             if (result.isConfirmed) {
+                 let link = location.href.toString();
+                 link = link.substring(0, link.indexOf("/", 10));
+                 delete_notification(notification.id);
+                 location.replace(link+notification.link);
+            } else if (result.isDenied) {
                 delete_notification(notification.id);
             }
         })

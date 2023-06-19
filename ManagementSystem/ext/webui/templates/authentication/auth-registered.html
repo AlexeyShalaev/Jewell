@@ -56,10 +56,10 @@
                                 <!-- Номер телефона -->
                                 <div class="mb-3">
                                     <label for="phonenumber" class="form-label">Номер телефона</label>
-                                    <div class="input-group input-group-merge">
+                                    <div id="tg_group" class="input-group input-group-merge" onclick="link_telegram()">
                                         <input type="text" id="phonenumber" class="form-control"
                                                disabled value="{{ current_user['phone_number'] }}">
-                                        <div class="input-group-text" onclick="link_telegram()">
+                                        <div class="input-group-text">
                                             <span class="ri-telegram-fill"></span>
                                         </div>
                                     </div>
@@ -148,6 +148,12 @@
 
     function link_telegram() {
         try {
+            document.getElementById("tg_group").onclick = null;
+            setTimeout(function () {
+                document.getElementById("tg_group").onclick = function () {
+                    link_telegram();
+                };
+            }, 1000);
             $.ajax({
                 type: 'POST',
                 url: '/registered/token',
@@ -158,6 +164,8 @@
                         title: res.title,
                         html: res.text,
                         footer: res.footer
+                    }).then((result) => {
+                        location.reload();
                     });
                 }
             });

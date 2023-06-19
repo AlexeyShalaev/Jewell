@@ -107,6 +107,29 @@
     </div>
     <!-- end row-->
 
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <h4 class="page-title">Ваши курсы</h4>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for course in courses %}
+            {% if current_user.id in course.teachers %}
+                <div class="col-md-4">
+                    <div id="your_course_{{ course.name }}" class="card" style="border: 2px solid black">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ course.name }}</h5>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+            {% endif %}
+        {% endfor %}
+    </div>
+    <!-- end row-->
+
     <div id="course-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -241,8 +264,11 @@
                                 table.appendChild(row);
                             }
                             for (let i = 0; i < courses.length; ++i) {
-                                //setting colors for teachers's courses
+                                //setting colors for admin's courses
                                 let course = document.getElementById("course_" + courses[i].name);
+                                let your_course = document.getElementById("your_course_" + courses[i].name);
+
+                                your_course.style.borderColor = colors[courses[i].name];
                                 course.style.borderColor = colors[courses[i].name];
 
                                 let tt = courses[i]['timetable'];
@@ -261,7 +287,9 @@
                                     let p = document.createElement("p");
                                     p.setAttribute('class', 'card-text');
                                     p.innerText = `${to_rus(key)} ${('0' + value.hours).slice(-2)}:${('0' + value.minutes).slice(-2)}`;
+
                                     course.children[0].appendChild(p);
+                                    your_course.children[0].appendChild(p);
                                 }
 
                                 //teachers

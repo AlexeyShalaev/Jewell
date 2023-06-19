@@ -575,7 +575,11 @@ def user_attendance(user_id):
         logger.error(ex)
         return render_template("error-500.html")
 
-    return render_template("admin/courses/user-attendance.html", user=resp.data)
+    user_data = resp.data
+    if user_data.reward == Reward.NULL:
+        return redirect(url_for("admin.admin_home"))
+
+    return render_template("admin/courses/user-attendance.html", user=user_data)
 
 
 # Уровень:              admin/offers
@@ -1498,8 +1502,10 @@ def configuration_backup():
                     status, file = backup()
                     if not status:
                         flash('Не удалось создать резервную копию', 'error')
+                        return redirect(url_for('admin.configuration_backup'))
                     if len(file) == 0:
                         flash('Не удалось создать архив с данными', 'error')
+                        return redirect(url_for('admin.configuration_backup'))
                     flash(f'Вы успешно создали резервную копию: {file}', 'success')
                     notify_admins('Резервное копирование',
                                   url_for('admin.configuration_backup'),

@@ -481,26 +481,25 @@ def attendance_admin():
                 4: 'april',
                 5: 'may'
             }
-            if now >= trip_date:
-                return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
-            for user in get_users().data:
-                try:
-                    if user.role == Role.STUDENT and user.reward == Reward.TRIP:
-                        visits_count = 0
-                        for i in get_attendances_by_user_id(user.id).data:
-                            date = i.date
-                            if (date.year == start and date.month >= 9) or (
-                                    date.year == end and date.month < 9):
-                                if date.month in months.keys():
-                                    visits_count += 1
-                        if visits_count + weeks_remaining < 25:
-                            users_with_bad_attendance.append({
-                                "name": f'{user.first_name} {user.last_name}',
-                                "href": f'{request.url_root[:-1]}{url_for("admin.user_attendance", user_id=str(user.id))}',
-                                "visits": visits_count
-                            })
-                except:
-                    pass
+            if now <= trip_date:
+                for user in get_users().data:
+                    try:
+                        if user.role == Role.STUDENT and user.reward == Reward.TRIP:
+                            visits_count = 0
+                            for i in get_attendances_by_user_id(user.id).data:
+                                date = i.date
+                                if (date.year == start and date.month >= 9) or (
+                                        date.year == end and date.month < 9):
+                                    if date.month in months.keys():
+                                        visits_count += 1
+                            if visits_count + weeks_remaining < 25:
+                                users_with_bad_attendance.append({
+                                    "name": f'{user.first_name} {user.last_name}',
+                                    "href": f'{request.url_root[:-1]}{url_for("admin.user_attendance", user_id=str(user.id))}',
+                                    "visits": visits_count
+                                })
+                    except:
+                        pass
             return json.dumps({'success': True, 'data': users_with_bad_attendance}), 200, {
                 'ContentType': 'application/json'}
     except:

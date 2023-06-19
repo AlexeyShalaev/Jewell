@@ -28,7 +28,7 @@ async def bot_menu_attendance(message: types.Message):
             if not status:
                 await message.answer("Сервер не вернул положительный результат.")
             else:
-                msg = 'Список студентов, выбравших поездку, с плохой посещаемостью\n\n'
+                msg = 'Список студентов, выбравших поездку, с плохой посещаемостью:\n\n'
                 for i in data:
                     msg += f'[{i["name"]}]({i["href"]}): {i["visits"]}\n'
                 await message.answer(msg, parse_mode=types.ParseMode.MARKDOWN)

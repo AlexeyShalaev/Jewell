@@ -1,4 +1,5 @@
 import json
+from dataclasses import dataclass
 from enum import Enum
 
 import numpy as np
@@ -29,6 +30,16 @@ class Sex(Enum):
     NULL = 'null'  # ничего
 
 
+@dataclass
+class FaceID:
+    encodings: list  # face encodings
+    greeting: str  # приветствие
+
+    def __init__(self, data):
+        self.encodings = [np.array(i) for i in data.get('encodings', [])]
+        self.greeting = data.get('greeting', None)
+
+
 class User(UserMixin):
     id: ObjectId
     phone_number: str  # 89854839731
@@ -50,30 +61,33 @@ class User(UserMixin):
     tags: list  # теги
     notifications: list  # уведомления
     points: int
-    encodings: list  # face encodings
+    face_id: FaceID
 
     def __init__(self, data):
-        self.id = data['_id']
-        self.phone_number = data['phone_number']
-        self.password = data['password']
-        self.telegram_id = data['telegram_id']
-        self.telegram_username = data['telegram_username']
-        self.telegram_auth = data['telegram_auth']
-        self.first_name = data['first_name']
-        self.last_name = data['last_name']
-        self.sex = Sex(data['sex'])
-        self.birthday = data['birthday']
-        self.role = Role(data['role'])
-        self.reward = Reward(data['reward'])
-        self.access_token = data['access_token']
-        self.profession = data['profession']
-        self.university = data['university']
-        self.languages = data['languages']
-        self.location = data['location']
-        self.tags = data['tags']
-        self.notifications = [Notification(i) for i in data['notifications']]
-        self.points = data['points']
-        self.encodings = [np.array(i) for i in data['encodings']]
+        try:
+            self.id = data.get('_id', None)
+            self.phone_number = data.get('phone_number', None)
+            self.password = data.get('password', None)
+            self.telegram_id = data.get('telegram_id', None)
+            self.telegram_username = data.get('telegram_username', None)
+            self.telegram_auth = data.get('telegram_auth', None)
+            self.first_name = data.get('first_name', None)
+            self.last_name = data.get('last_name', None)
+            self.sex = Sex(data.get('sex', 'null'))
+            self.birthday = data.get('birthday', None)
+            self.role = Role(data.get('role', 'null'))
+            self.reward = Reward(data.get('reward', 'null'))
+            self.access_token = data.get('access_token', None)
+            self.profession = data.get('profession', None)
+            self.university = data.get('university', None)
+            self.languages = data.get('languages', None)
+            self.location = data.get('location', None)
+            self.tags = data.get('tags', None)
+            self.notifications = [Notification(i) for i in data.get('notifications', [])]
+            self.points = data.get('points', 0)
+            self.face_id = FaceID(data.get('face_id', {}))
+        except Exception as ex:
+            print(ex)
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),
@@ -95,7 +109,8 @@ class User(UserMixin):
                            "location": self.location,
                            "tags": self.tags,
                            "notifications": [i.to_json() for i in self.notifications],
-                           "points": self.points
+                           "points": self.points,
+                           "face_id": self.face_id
                            })
 
     def to_document(self):

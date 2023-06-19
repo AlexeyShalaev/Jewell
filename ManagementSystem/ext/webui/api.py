@@ -6,7 +6,7 @@ from flask import *
 
 from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
-from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
+from ManagementSystem.ext.database.attendances import get_attendances_by_user_id, add_attendance
 from ManagementSystem.ext.database.courses import get_courses, Time, get_courses_json
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
 from ManagementSystem.ext.database.offers import get_offers
@@ -167,15 +167,10 @@ def networking_search():
         query = request.form['query']
         users = get_users().data
         if len(query) != 0:
-            print(1)
             docs = [user.to_document() for user in users]
-            print(2)
             result = search_documents(documents=docs, query=query, max_result_document_count=-1)
-            print(3)
             users = list(filter(lambda user: str(user.id) in result, users))
-            print(4)
             users.sort(key=lambda user: result.index(str(user.id)))
-            print(5)
         return json.dumps({'success': True, 'users': [user.to_net() for user in users]}), 200, {
             'ContentType': 'application/json'}
     except Exception as ex:
@@ -646,6 +641,31 @@ def attendance_student():
                                         "visits_dataset": visits_dataset,
                                         "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {
                        'ContentType': 'application/json'}
+    except:
+        pass
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/update
+# База данных:          Attendance
+# HTML:                 -
+@api.route('/attendance/update', methods=['POST'])
+def attendance_update():
+    try:
+        token = request.json['token']
+        status = False
+        if token == api_token:
+            user_id = request.json['user_id']
+            date = request.json['date']
+            count = request.json['count']
+            r = get_user_by_id(user_id)
+            if r.success:
+                user = r.data
+                if user.role == Role.STUDENT and user.reward != Reward.NULL:
+                    count = int(count)
+                    if count > 0:
+                        add_attendance(user_id, count, date)
+                        return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except:
         pass
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

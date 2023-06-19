@@ -40,15 +40,16 @@ class SearchEngine:
     def add_document(self, document_id: str, document: str):
         document = document.lower()
         words = self.__split_into_words_no_stop(document)
-        inv_word_count = 1 / len(words)
-        for word in words:
-            if word not in self._word_to_document_freqs.keys():
-                self._word_to_document_freqs[word] = dict()
-            if document_id in self._word_to_document_freqs[word].keys():
-                self._word_to_document_freqs[word][document_id] += inv_word_count
-            else:
-                self._word_to_document_freqs[word][document_id] = inv_word_count
-        self._documents.add(document_id)
+        if len(words) > 0:
+            inv_word_count = 1 / len(words)
+            for word in words:
+                if word not in self._word_to_document_freqs.keys():
+                    self._word_to_document_freqs[word] = dict()
+                if document_id in self._word_to_document_freqs[word].keys():
+                    self._word_to_document_freqs[word][document_id] += inv_word_count
+                else:
+                    self._word_to_document_freqs[word][document_id] = inv_word_count
+            self._documents.add(document_id)
 
     def find_top_documents(self, raw_query: str):
         raw_query = raw_query.lower()

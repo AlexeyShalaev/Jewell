@@ -3,7 +3,6 @@ from Assistant.ext.notifier import notify_admins
 
 
 def dump():
-    print('1')
     if snapshot_dump():
         notify_admins('Резервное копирование',
                       f'/admin/configuration/backup',

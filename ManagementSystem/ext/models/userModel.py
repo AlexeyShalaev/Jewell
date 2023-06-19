@@ -73,9 +73,7 @@ class User(UserMixin):
         self.tags = data['tags']
         self.notifications = [Notification(i) for i in data['notifications']]
         self.points = data['points']
-        encodings = []
-        for i in data['encodings']:
-            encodings.append(np.fromstring(i, dtype=float, sep=","))
+        self.encodings = [np.array(i) for i in data['encodings']]
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),

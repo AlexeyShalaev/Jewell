@@ -1,6 +1,8 @@
+import os
 from logging import getLogger
 from random import choice
 
+import numpy as np
 from flask import *
 from flask_login import *
 from flask_toastr import *
@@ -14,10 +16,11 @@ from ManagementSystem.ext.database.users import get_user_by_phone_number, update
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.telegram.message import send_message
-from ManagementSystem.ext.tools import normal_phone_number
+from ManagementSystem.ext.tools import normal_phone_number, make_embedding, FaceRecognitionStatus
 
 logger = getLogger(__name__)  # logging
 view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
+temporary_folder = 'storage/broker'
 
 
 # Уровень:              Главная страница
@@ -379,3 +382,52 @@ def set_telegram_auth():
     except Exception as ex:
         logger.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              faceid
+# База данных:          User
+# HTML:                 faceid
+@view.route('/faceid', methods=['POST', 'GET'])
+@login_required
+def face_id():
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_face_id'] == 'clear':
+                update_user(current_user.id, 'encodings', [])
+            else:
+                new_encodings = []
+                files = request.files
+                for filename in files:
+                    file = files[filename]
+                    if file.filename != '':
+                        path = os.path.join(temporary_folder, file.filename)
+                        file.save(path)
+                        r = make_embedding(path)
+                        if r.success:
+                            new_encodings.append(r.encodings.tolist())
+                        else:
+                            if r.status == FaceRecognitionStatus.ERROR:
+                                flash(f'Не удалось добавить {file.filename}', 'error')
+                            elif r.status == FaceRecognitionStatus.NO_FACES:
+                                flash(f'Не добавлен {file.filename}: не обнаружено лицо', 'warning')
+                            elif r.status == FaceRecognitionStatus.MANY_FACES:
+                                flash(f'Не добавлен {file.filename}: обнаружено несколько лиц', 'warning')
+                        if os.path.exists(path):
+                            os.remove(path)
+                flash(f'Добавлено {len(new_encodings)} лиц', 'info')
+                if len(new_encodings) > 0:
+                    if request.form['btn_face_id'] == 'append':
+                        update_user(current_user.id, 'encodings',
+                                    [i.tolist() for i in current_user.encodings] + new_encodings)
+                    elif request.form['btn_face_id'] == 'exchange':
+                        update_user(current_user.id, 'encodings', new_encodings)
+        except Exception as ex:
+            logger.error(ex)
+        # return redirect(url_for('view.landing'))
+
+    return render_template("face_id.html")

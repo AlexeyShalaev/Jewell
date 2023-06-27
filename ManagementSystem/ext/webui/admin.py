@@ -373,6 +373,7 @@ def admin_schedule():
     for teacher in get_users().data:
         if teacher.role == Role.ADMIN or teacher.role == Role.TEACHER:
             teachers.append({"name": f'{teacher.first_name} {teacher.last_name}', "id": str(teacher.id)})
+
     return render_template("admin/courses/schedule.html", courses=get_courses().data, teachers=teachers)
 
 

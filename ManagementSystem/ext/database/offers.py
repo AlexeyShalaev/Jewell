@@ -1,3 +1,5 @@
+import logging
+
 from ManagementSystem.ext.models.offer import *
 from . import db, MongoDBResult
 
@@ -87,7 +89,7 @@ def delete_offers_by_user_id(user_id):
             'author': ObjectId(user_id)
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
 
 # удаление офера по ID

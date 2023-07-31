@@ -1,4 +1,5 @@
 import requests
+import logging
 
 from Assistant import jewell_token, links
 
@@ -11,8 +12,8 @@ def snapshot_dump(chat_id='') -> bool:
         if r.ok:
             res = r.json()
             return res['success']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False
 
 
@@ -23,6 +24,6 @@ def delete_record(record) -> bool:
         if r.ok:
             res = r.json()
             return res['success']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False

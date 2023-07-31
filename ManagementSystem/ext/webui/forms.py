@@ -21,7 +21,8 @@ def submitting_form(form_id):
             add_form_answer(form_id, answers)
             flash('Форма успешно отправлена!', 'success')
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-        except:
+        except Exception as ex:
+            logging.error(ex)
             flash('Не удалось отправить форму!', 'error')
             return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 

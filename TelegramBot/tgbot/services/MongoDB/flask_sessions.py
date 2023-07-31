@@ -1,3 +1,5 @@
+import logging
+
 from TelegramBot.tgbot.models.flask_session import *
 from . import db, MongoDBResult
 
@@ -26,7 +28,7 @@ def delete_flask_session(id):
             '_id': id
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
 
 # удаление сессий по user_id
@@ -36,4 +38,4 @@ def delete_flask_sessions_by_user_id(user_id):
             'user_id': ObjectId(user_id)
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)

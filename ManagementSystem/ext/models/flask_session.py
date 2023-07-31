@@ -1,4 +1,5 @@
 import json
+import logging
 from dataclasses import dataclass
 
 import requests
@@ -33,6 +34,7 @@ def get_info_by_ip(ip: str) -> dict:
     url = f'http://ip-api.com/json/{ip}'
     try:
         response = requests.get(url).json()
-    except Exception:
+    except Exception as ex:
+        logging.error(ex)
         response = {"ip": ip}
     return response

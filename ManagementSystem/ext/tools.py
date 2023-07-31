@@ -173,7 +173,8 @@ def bfs(s, t, users):
 
         path.reverse()
         return path
-    except Exception:
+    except Exception as ex:
+        logging.error(ex)
         return []
 
 
@@ -211,8 +212,8 @@ def shabbat(geo_name_id: int = 524901) -> dict:
                     elif title.startswith('Havdalah'):
                         res[
                             'havdalah'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{"0" * (2 - len(str(date.minute))) + str(date.minute)}'
-                except Exception:
-                    pass
+                except Exception as ex:
+                    logging.error(ex)
     except Exception as ex:
         logging.error(ex)
 
@@ -359,5 +360,6 @@ def make_embedding(image_path: str) -> FaceRecognitionResult:
             return FaceRecognitionResult(False, FaceRecognitionStatus.MANY_FACES, np.array(0))
         else:
             return FaceRecognitionResult(False, FaceRecognitionStatus.NO_FACES, np.array(0))
-    except:
+    except Exception as ex:
+        logging.error(ex)
         return FaceRecognitionResult(False, FaceRecognitionStatus.ERROR, np.array(0))

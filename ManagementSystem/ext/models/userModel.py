@@ -1,4 +1,5 @@
 import json
+import logging
 from dataclasses import dataclass
 from enum import Enum
 
@@ -87,7 +88,7 @@ class User(UserMixin):
             self.points = data.get('points', 0)
             self.face_id = FaceID(data.get('face_id', {}))
         except Exception as ex:
-            print(ex)
+            logging.error(ex)
 
     def to_json(self):
         return json.dumps({"_id": str(self.id),

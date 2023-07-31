@@ -1,3 +1,5 @@
+import logging
+
 from ManagementSystem.ext.models.order import *
 from . import db, MongoDBResult
 
@@ -98,7 +100,7 @@ def delete_orders_by_user_id(user_id):
             'client': ObjectId(user_id)
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
 
 # удаление заказов по product_id
@@ -108,7 +110,7 @@ def delete_orders_by_product_id(user_id):
             'product': ObjectId(user_id)
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
 
 # удаление заказа по ID

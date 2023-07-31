@@ -45,7 +45,6 @@ from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage, convert_markdown_to_html, rus2eng
 
-logging = getlogging(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
 
 
@@ -465,8 +464,8 @@ def admin_attendance():
                                             "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.first_name} {user.last_name}</a>',
                                             "visits": visits_count
                                         })
-                    except:
-                        pass
+                    except Exception as ex:
+                        logging.error(ex)
                 return json.dumps({'success': True, 'users': users,
                                    'users_with_bad_attendance': users_with_bad_attendance}), 200, {
                            'ContentType': 'application/json'}
@@ -1256,6 +1255,7 @@ def security_users_delete():
             logging.error(ex)
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
+        logging.error(ex)
         return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
 
@@ -1300,7 +1300,7 @@ def security_recover_link():
             recover_url = request.host_url + 'password/reset/' + token
             return json.dumps({'success': True, 'url': recover_url}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        pass
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -1350,6 +1350,7 @@ def security_session_delete():
         delete_flask_session(session_id)
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
+        logging.error(ex)
         return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
 
@@ -1426,6 +1427,7 @@ def configuration_files():
                 os.remove(path)
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
+            logging.error(ex)
             return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
     avatars = get_files_from_storage('avatars', ['undraw_avatar'])
@@ -1618,6 +1620,7 @@ def forms_constructor():
                           f'{current_user.first_name} создал новую форму {name}.')
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
+            logging.error(ex)
             return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
     return render_template("admin/forms/constructor.html")

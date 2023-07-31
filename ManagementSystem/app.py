@@ -3,8 +3,6 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-import logging
-
 from flask import *
 from flask_login import *
 from flask_toastr import *
@@ -24,13 +22,6 @@ from ext import system_variables
 from config import load_config
 
 config = load_config()  # config
-
-logging.basicConfig(
-    filename='website.log',
-    format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
-    datefmt='%H:%M:%S',
-    level=logging.INFO,
-)
 
 # flask
 app = Flask(config.flask.app_name)

@@ -198,8 +198,8 @@ def get_schedule():
                         if r.success:
                             teachers.append(
                                 f'<a href="{url_for("networking.profile", user_id=r.data.id)}" target="_blank">{r.data.first_name} {r.data.last_name}</a>')
-                except Exception:
-                    pass
+                except Exception as ex:
+                    logging.error(ex)
                 filtered_courses.append({
                     "name": course.name,
                     "timetable": course.timetable,
@@ -497,12 +497,12 @@ def attendance_admin():
                                     "href": f'{request.url_root[:-1]}{url_for("admin.user_attendance", user_id=str(user.id))}',
                                     "visits": visits_count
                                 })
-                    except:
-                        pass
+                    except Exception as ex:
+                        logging.error(ex)
             return json.dumps({'success': True, 'data': users_with_bad_attendance}), 200, {
                 'ContentType': 'application/json'}
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -639,8 +639,8 @@ def attendance_student():
                                         "visits_dataset": visits_dataset,
                                         "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {
                        'ContentType': 'application/json'}
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -664,8 +664,8 @@ def attendance_update():
                     if count > 0:
                         add_attendance(user_id, count, date)
                         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -709,8 +709,7 @@ def api_get_users():
         if token == api_token:
             return json.dumps({'success': True, 'data': get_users_json()}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        print(ex)
-        pass
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -723,6 +722,6 @@ def api_get_courses():
         token = request.json['token']
         if token == api_token:
             return json.dumps({'success': True, 'data': get_courses_json()}), 200, {'ContentType': 'application/json'}
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

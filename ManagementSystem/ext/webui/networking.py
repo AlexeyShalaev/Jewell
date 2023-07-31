@@ -1,4 +1,4 @@
-from logging import getLogger
+import logging
 from datetime import datetime
 
 from flask import *
@@ -16,7 +16,6 @@ from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.text_filter import TextFilter
 from ManagementSystem.ext.tools import set_relations, set_records, get_friends
 
-logger = getLogger(__name__)  # logging
 networking = Blueprint('networking', __name__, url_prefix='/networking', template_folder='templates',
                        static_folder='assets')
 
@@ -157,7 +156,7 @@ def feed():
                 else:
                     return render_template(render_html)
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     user_records = []
@@ -278,7 +277,7 @@ def profile(user_id):
             else:
                 return redirect(url_for('networking.feed'))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     render_status, render_html = auto_render()
@@ -305,7 +304,7 @@ def networking_relations():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     render_status, render_html = auto_render()

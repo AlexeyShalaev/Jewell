@@ -1,12 +1,8 @@
-import logging
-
 from flask import session
 from flask_login import current_user
 
 from ManagementSystem.ext.database.flask_sessions import get_flask_session_by_id
 from ManagementSystem.ext.database.users import Role
-
-logger = logging.getLogger(__name__)  # logging
 
 
 def auto_redirect(ignore_role=Role.NULL):

@@ -1,5 +1,5 @@
 from datetime import datetime
-from logging import getLogger
+import logging
 
 from flask import *
 from flask_login import *
@@ -10,7 +10,6 @@ from ManagementSystem.ext.database.products import get_products, check_product_b
 from ManagementSystem.ext.logistics import check_session, auto_render
 from ManagementSystem.ext.notifier import notify_admins
 
-logger = getLogger(__name__)  # logging
 other = Blueprint('other', __name__, url_prefix='/other', template_folder='templates', static_folder='assets')
 
 
@@ -29,7 +28,7 @@ def offers():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     render_status, render_html = auto_render()
@@ -79,7 +78,7 @@ def products():
                               'danger', f'Отменен заказ ID={order_id} от пользователя ID={current_user.id}')
                 flash('Ваш заказ отменен', 'success')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     render_status, render_html = auto_render()

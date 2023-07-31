@@ -15,8 +15,6 @@ from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.relationships import get_relationships, RelationStatus
 from ManagementSystem.ext.database.users import get_user_by_id, MongoDBResult
 
-logger = logging.getLogger(__name__)  # logging
-
 
 def normal_phone_number(phone_number: str) -> str:
     # функция возвращает номер телефона в формате 8XXXXXXXXXX
@@ -216,7 +214,7 @@ def shabbat(geo_name_id: int = 524901) -> dict:
                 except Exception:
                     pass
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
 
     shabbat_cache = {
         "week": datetime.now().isocalendar()[1],
@@ -301,7 +299,7 @@ def rus2eng(word: str) -> str:
 
         return word
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return word
 
 
@@ -315,7 +313,7 @@ def get_files_from_storage(folder: str, ignoring_files: list = []) -> list:
                 if filename not in ignoring_files:
                     files.append(file)
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
     return files
 
 

@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-from logging import getLogger
+import logging
 
 from flask import *
 from flask_login import *
@@ -24,7 +24,13 @@ from ext import system_variables
 from config import load_config
 
 config = load_config()  # config
-logger = getLogger(__name__)  # logging
+
+logging.basicConfig(
+    filename='website.log',
+    format="%(asctime)s - %(module)s - %(levelname)s - %(funcName)s: %(lineno)d - %(message)s",
+    datefmt='%H:%M:%S',
+    level=logging.INFO,
+)
 
 # flask
 app = Flask(config.flask.app_name)
@@ -59,7 +65,7 @@ def load_user(id):
 
 
 def main():
-    logger.info("Starting app")
+    logging.info("Starting app")
     app.run(host='0.0.0.0')
 
 

@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from logging import getLogger
+import logging
 
 from flask import *
 from flask_login import *
@@ -15,7 +15,6 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, get_month
 
-logger = getLogger(__name__)  # logging
 student = Blueprint('student', __name__, url_prefix='/student', template_folder='templates/student',
                     static_folder='assets')
 
@@ -83,7 +82,7 @@ def student_account():
                         os.remove(os.path.join(directory, filename))
                     avatar.save(os.path.join(directory, user_id + '.' + img_type))
             except Exception as ex:
-                logger.error(ex)
+                logging.error(ex)
             flash('Аватарка успешно обновлена', category='success')
             return redirect(url_for('student.student_account'))
         else:

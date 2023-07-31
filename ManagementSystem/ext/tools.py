@@ -15,8 +15,6 @@ from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.relationships import get_relationships, RelationStatus
 from ManagementSystem.ext.database.users import get_user_by_id, MongoDBResult
 
-logger = logging.getLogger(__name__)  # logging
-
 
 def normal_phone_number(phone_number: str) -> str:
     # функция возвращает номер телефона в формате 8XXXXXXXXXX
@@ -175,7 +173,8 @@ def bfs(s, t, users):
 
         path.reverse()
         return path
-    except Exception:
+    except Exception as ex:
+        logging.error(ex)
         return []
 
 
@@ -213,10 +212,10 @@ def shabbat(geo_name_id: int = 524901) -> dict:
                     elif title.startswith('Havdalah'):
                         res[
                             'havdalah'] = f'{date.day} {get_month(date.month, False)} в {date.hour}:{"0" * (2 - len(str(date.minute))) + str(date.minute)}'
-                except Exception:
-                    pass
+                except Exception as ex:
+                    logging.error(ex)
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
 
     shabbat_cache = {
         "week": datetime.now().isocalendar()[1],
@@ -301,7 +300,7 @@ def rus2eng(word: str) -> str:
 
         return word
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return word
 
 
@@ -315,7 +314,7 @@ def get_files_from_storage(folder: str, ignoring_files: list = []) -> list:
                 if filename not in ignoring_files:
                     files.append(file)
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
     return files
 
 
@@ -361,5 +360,6 @@ def make_embedding(image_path: str) -> FaceRecognitionResult:
             return FaceRecognitionResult(False, FaceRecognitionStatus.MANY_FACES, np.array(0))
         else:
             return FaceRecognitionResult(False, FaceRecognitionStatus.NO_FACES, np.array(0))
-    except:
+    except Exception as ex:
+        logging.error(ex)
         return FaceRecognitionResult(False, FaceRecognitionStatus.ERROR, np.array(0))

@@ -1,3 +1,5 @@
+import logging
+
 from ManagementSystem.ext.models.recover_pw import *
 from . import db, MongoDBResult
 
@@ -71,7 +73,7 @@ def delete_recovers_by_user_id(user_id):
             'user_id': ObjectId(user_id)
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
 
 # удаление запроса по ID

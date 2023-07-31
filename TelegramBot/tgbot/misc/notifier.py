@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 
 from TelegramBot.tgbot.services.MongoDB.users import update_notifications, get_users, get_users_by_role
@@ -16,8 +17,8 @@ def notify_user(user, region, link, icon, color, text, date=datetime.now()):
                                                         date)
         notifications.append(notification)
         update_notifications(user.id, notifications)
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
 
 
 def notify_users(region, link, icon, color, text, date=datetime.now()):
@@ -32,8 +33,8 @@ def notify_users(region, link, icon, color, text, date=datetime.now()):
                                                             date)
             notifications.append(notification)
             update_notifications(user.id, notifications)
-        except:
-            pass
+        except Exception as ex:
+            logging.error(ex)
 
 
 def notify_admins(region, link, icon, color, text, date=datetime.now()):
@@ -48,5 +49,5 @@ def notify_admins(region, link, icon, color, text, date=datetime.now()):
                                                             date)
             notifications.append(notification)
             update_notifications(admin.id, notifications)
-        except:
-            pass
+        except Exception as ex:
+            logging.error(ex)

@@ -5,8 +5,6 @@ from ManagementSystem.ext.database.users import update_notifications, get_users,
 from ManagementSystem.ext.models.notification import Notification
 from ManagementSystem.ext.models.userModel import Role
 
-logger = logging.getLogger(__name__)  # logging
-
 
 def notify_user(user, region, link, icon, color, text, date=datetime.now()):
     try:
@@ -20,7 +18,7 @@ def notify_user(user, region, link, icon, color, text, date=datetime.now()):
         notifications.append(notification)
         update_notifications(user.id, notifications)
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
 
 
 def notify_users(region, link, icon, color, text, date=datetime.now()):
@@ -36,7 +34,7 @@ def notify_users(region, link, icon, color, text, date=datetime.now()):
             notifications.append(notification)
             update_notifications(user.id, notifications)
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
 
 
 def notify_admins(region, link, icon, color, text, date=datetime.now()):
@@ -52,4 +50,4 @@ def notify_admins(region, link, icon, color, text, date=datetime.now()):
             notifications.append(notification)
             update_notifications(admin.id, notifications)
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)

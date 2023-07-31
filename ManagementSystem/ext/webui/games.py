@@ -1,5 +1,5 @@
 import random
-from logging import getLogger
+import logging
 
 from flask import *
 from flask_login import login_required, logout_user, current_user
@@ -9,7 +9,6 @@ from ManagementSystem.ext.crypt import decode_word, encode_word
 from ManagementSystem.ext.database.users import update_user, get_users, get_user_by_id
 from ManagementSystem.ext.logistics import check_session
 
-logger = getLogger(__name__)  # logging
 games = Blueprint('games', __name__, url_prefix='/games', template_folder='templates/games', static_folder='assets')
 game_5letters_path = f'{directories["games"]}/5letters/rus2130.txt'
 
@@ -37,7 +36,7 @@ def games_rating():
             elif number + 1 <= top_limit:
                 top.append(info)
     except Exception as ex:
-        logger.error(f'games_rating: {ex}')
+        logging.error(f'games_rating: {ex}')
     return json.dumps({'top': top}), 200, {'ContentType': 'application/json'}
 
 
@@ -62,7 +61,7 @@ def five_letters():
             return render_template("5letters.html", encrypted_word=encrypted_word)
 
     except Exception as ex:
-        logger.error(f'5letters_check: {ex}')
+        logging.error(f'5letters_check: {ex}')
     return render_template("error-500.html")
 
 
@@ -104,7 +103,7 @@ def five_letters_check():
                 status = 'not_found'
     except Exception as ex:
         status = 'error'
-        logger.error(f'5letters_check: {ex}')
+        logging.error(f'5letters_check: {ex}')
     return json.dumps({'status': status, 'extra': extra}), 200, {'ContentType': 'application/json'}
 
 

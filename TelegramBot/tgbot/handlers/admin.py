@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import types, Dispatcher
 
 from TelegramBot.tgbot.keyboards.snapshots import create_backups_keyboard
@@ -10,6 +12,7 @@ async def bot_admin_reload_website(message: types.Message):
         restart_website()
         await message.answer("Сайт перезагружен")
     except Exception as ex:
+        logging.error(ex)
         await message.answer(f'Ошибка: {ex}')
 
 

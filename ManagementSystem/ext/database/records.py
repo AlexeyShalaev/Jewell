@@ -1,3 +1,5 @@
+import logging
+
 from ManagementSystem.ext.models.record import *
 from . import db, MongoDBResult
 
@@ -90,7 +92,7 @@ def delete_records_by_user_id(user_id):
             'author': ObjectId(user_id)
         })
     except Exception as ex:
-        print(ex)
+        logging.error(ex)
 
 
 # удаление записи по ID

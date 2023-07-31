@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 
 from Assistant.MongoDB.users import update_notifications, get_users_by_role
 from Assistant.models.notification import Notification
@@ -16,8 +17,8 @@ def notify_user(user, region, link, icon, color, text, date=datetime.now()):
                                                         date)
         notifications.append(notification)
         update_notifications(user.id, notifications)
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
 
 
 def notify_admins(region, link, icon, color, text, date=datetime.now()):
@@ -32,5 +33,5 @@ def notify_admins(region, link, icon, color, text, date=datetime.now()):
                                                             date)
             notifications.append(notification)
             update_notifications(admin.id, notifications)
-        except:
-            pass
+        except Exception as ex:
+            logging.error(ex)

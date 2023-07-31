@@ -15,15 +15,9 @@ from tgbot.filters.__init__ import register_filters
 from tgbot.handlers.__init__ import register_handlers
 from tgbot.middlewares.__init__ import register_middlewares
 
-logger = logging.getLogger(__name__)
-
 
 async def main():
-    logging.basicConfig(
-        level=logging.INFO,
-        format=u'%(filename)s:%(lineno)d #%(levelname)-8s [%(asctime)s] - %(name)s - %(message)s',
-    )
-    logger.info("Starting bot")
+    logging.info("Starting bot")
     config = load_config()
 
     storage = MemoryStorage()
@@ -49,4 +43,4 @@ if __name__ == '__main__':
     try:
         asyncio.run(main())
     except (KeyboardInterrupt, SystemExit):
-        logger.error("Bot stopped!")
+        logging.error("Bot stopped!")

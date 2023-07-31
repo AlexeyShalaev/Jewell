@@ -1,5 +1,5 @@
 import os
-from logging import getLogger
+import logging
 from random import choice
 
 from flask import *
@@ -18,7 +18,6 @@ from ManagementSystem.ext.telegram.message import send_message
 from ManagementSystem.ext.text_filter import TextFilter
 from ManagementSystem.ext.tools import normal_phone_number, make_embedding, FaceRecognitionStatus
 
-logger = getLogger(__name__)  # logging
 view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
 temporary_folder = 'storage/broker'
 
@@ -60,7 +59,7 @@ def login():
                                       ip=get_info_by_ip(request.remote_addr))
                     update_user(user.data.id, 'access_token', '')
                     flash('Вы успешно авторизовались!', 'success')
-                    logger.info(f'авторизован пользователь {input_phone_number}')
+                    logging.info(f'авторизован пользователь {input_phone_number}')
                     if user.data.telegram_id is not None:
                         msg = f'Совершен вход в ваш аккаунт. (IP: {request.remote_addr})\n' \
                               'Если это не вы срочно смените пароль в настройках и завершите все сессии.'
@@ -69,7 +68,7 @@ def login():
                 else:
                     flash('Неверный пароль!', 'warning')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
     templates = ['auth-login.html', 'auth-login-2.html']  # для случайной генерации шаблона
     return render_template("authentication/" + choice(templates))
 
@@ -99,7 +98,7 @@ def tg_login(access_token):
             flash('Вы успешно авторизовались!', 'success')
             update_user(user.data.id, 'access_token', '')
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
     return redirect(request.args.get("next") or url_for("view.login"))
 
 
@@ -158,7 +157,7 @@ def recoverpw(version):
                             flash('Не удалось отправить ссылку на восстановление пароля!', 'warning')
                 return redirect("/login")
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
     if version == "2":
         return render_template("authentication/auth-recoverpw-2.html")
     else:
@@ -196,7 +195,7 @@ def reset_password(access_token):
                     flash('Вы успешно сменили пароль.', 'success')
                     return redirect(url_for("view.landing"))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
 
     return render_template("authentication/auth-reset-password.html")
 
@@ -235,7 +234,7 @@ def register(version):
                                           ip=get_info_by_ip(request.remote_addr))
                         update_user(user.data.id, 'access_token', '')
                 except Exception as ex:
-                    logger.error(ex)
+                    logging.error(ex)
                     flash('Зайдите еще раз и заполните анкету')
                 return redirect("/login")
             else:
@@ -282,7 +281,7 @@ def registered():
                               f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
 
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             return redirect(url_for('view.landing'))
 
         return redirect(url_for('view.registered'))
@@ -366,7 +365,7 @@ def change_password():
                            }), 200, {
                    'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return json.dumps({'icon': 'error', 'title': 'Ошибка',
                            'text': str(ex)
                            }), 200, {'ContentType': 'application/json'}
@@ -385,7 +384,7 @@ def get_telegram_token():
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'success': True, 'token': token}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -401,7 +400,7 @@ def set_telegram_auth():
             update_user(current_user.id, 'telegram_auth', status)
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -448,7 +447,7 @@ def face_id():
                         update_user(current_user.id, 'face_id.encodings', new_encodings)
                     flash(f'Добавлено {len(new_encodings)} лиц', 'info')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
         return redirect(url_for('view.face_id'))
 
     return render_template("face_id.html")

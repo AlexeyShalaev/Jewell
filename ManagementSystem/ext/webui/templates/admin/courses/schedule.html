@@ -268,7 +268,9 @@
                                 let course = document.getElementById("course_" + courses[i].name);
                                 let your_course = document.getElementById("your_course_" + courses[i].name);
 
-                                your_course.style.borderColor = colors[courses[i].name];
+                                if (your_course != null) {
+                                    your_course.style.borderColor = colors[courses[i].name];
+                                }
                                 course.style.borderColor = colors[courses[i].name];
 
                                 let tt = courses[i]['timetable'];
@@ -289,7 +291,9 @@
                                     p.innerText = `${to_rus(key)} ${('0' + value.hours).slice(-2)}:${('0' + value.minutes).slice(-2)}`;
 
                                     course.children[0].appendChild(p);
-                                    your_course.children[0].appendChild(p);
+                                    if (your_course != null) {
+                                        your_course.style.borderColor = colors[courses[i].name];
+                                    }
                                 }
 
                                 //teachers

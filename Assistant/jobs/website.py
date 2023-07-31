@@ -1,4 +1,5 @@
 import time
+import logging
 
 from Assistant import links
 from Assistant.MongoDB.users import get_users_by_role
@@ -19,5 +20,5 @@ def check_website(attempts=10):
             if admin.telegram_id is not None:
                 send_message(f'Сайт {links.jewell} не работает. Не удалось перезапустить после {attempts} попыток.',
                              admin.telegram_id)
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)

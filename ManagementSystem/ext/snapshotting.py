@@ -10,7 +10,6 @@ from pymongo import MongoClient
 from ManagementSystem.config import load_config
 
 config = load_config()  # config
-logger = logging.getLogger(__name__)  # logging
 
 db = MongoClient(config.db.conn).jewell  # jewell - название БД
 
@@ -39,7 +38,7 @@ def check_content(file: str) -> bool:
         tar.close()
         return database_folder_flag
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return False
 
 
@@ -82,7 +81,7 @@ def backup() -> (bool, str):
         export_database_to_json()
         filename = archive_data()
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return False, None
     clear_temporary_folder()
     return True, filename
@@ -97,7 +96,7 @@ def restore(filename: str = 'latest') -> bool:
         extract_data_from_backup(filename)
         import_database_from_json()
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return False
     clear_temporary_folder()
     return True
@@ -142,7 +141,7 @@ def import_database_from_json():
                 db[collection_name].drop()
                 db[collection_name].insert_many(file_data)
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
 
 
 def clear_temporary_folder():
@@ -150,4 +149,4 @@ def clear_temporary_folder():
         for file in os.listdir(temporary_folder):
             os.remove(os.path.join(temporary_folder, file))
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)

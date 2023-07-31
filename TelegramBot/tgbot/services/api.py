@@ -1,3 +1,5 @@
+import logging
+
 import requests
 
 from TelegramBot.tgbot import links, jewell_token
@@ -13,8 +15,8 @@ def get_admin_attendance() -> (bool, ...):
             res = r.json()
             if res['success']:
                 return True, res['data']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False, None
 
 
@@ -25,8 +27,8 @@ def get_student_attendance(user_id) -> (bool, ...):
             res = r.json()
             if res['success']:
                 return True, res['data']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False, None
 
 
@@ -36,8 +38,8 @@ def snapshot_dump(chat_id: int) -> bool:
         if r.ok:
             res = r.json()
             return res['success']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False
 
 
@@ -47,8 +49,8 @@ def snapshot_restore(filename: str) -> bool:
         if r.ok:
             res = r.json()
             return res['success']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False
 
 
@@ -59,6 +61,6 @@ def snapshot_backups() -> (bool, ...):
             res = r.json()
             if res['success']:
                 return True, res['files']
-    except:
-        pass
+    except Exception as ex:
+        logging.error(ex)
     return False, None

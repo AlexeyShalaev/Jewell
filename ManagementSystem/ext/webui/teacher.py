@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from logging import getLogger
+import logging
 
 from flask import *
 from flask_login import *
@@ -17,7 +17,6 @@ from ManagementSystem.ext.models.userModel import Role
 from ManagementSystem.ext.telegram.message import send_news
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends
 
-logger = getLogger(__name__)  # logging
 teacher = Blueprint('teacher', __name__, url_prefix='/teacher', template_folder='templates/teacher',
                     static_folder='assets')
 
@@ -110,7 +109,7 @@ def teacher_news():
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось прикрепить изображение.', 'warning')
-                    logger.error(ex)
+                    logging.error(ex)
 
                 if send_in_telegram is not None:
                     send_news(record_text, filename)
@@ -171,7 +170,7 @@ def teacher_news():
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось изменить изображение.', 'warning')
-                    logger.error(ex)
+                    logging.error(ex)
 
             elif request.form['btn_news'] == 'delete_record':
                 rec_id = request.form.get("record_id")
@@ -188,13 +187,13 @@ def teacher_news():
                     if filename != '':
                         os.remove(os.path.join(directory, filename))
                 except Exception as ex:
-                    logger.error(ex)
+                    logging.error(ex)
 
                 delete_record(rec_id)
                 flash('Вы удалили новость.', 'success')
 
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     user_news = []
@@ -249,7 +248,7 @@ def teacher_account():
                         os.remove(os.path.join(directory, filename))
                     avatar.save(os.path.join(directory, user_id + '.' + img_type))
             except Exception as ex:
-                logger.error(ex)
+                logging.error(ex)
             flash('Аватарка успешно обновлена', category='success')
             return redirect(url_for('teacher.teacher_account'))
         else:

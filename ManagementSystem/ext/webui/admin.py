@@ -2,7 +2,7 @@ import os
 import re
 import time
 from datetime import datetime
-from logging import getLogger
+import logging
 
 from flask import *
 from flask_login import *
@@ -45,7 +45,6 @@ from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
     get_month, get_files_from_storage, convert_markdown_to_html, rus2eng
 
-logger = getLogger(__name__)  # logging
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
 
 
@@ -76,7 +75,7 @@ def admin_home():
                              'mdi mdi-map-marker',
                              'info', f'Обновлена карта поездок.')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     trip_map = {"values": {}, "colors": {}}
@@ -155,7 +154,7 @@ def admin_news():
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось прикрепить изображение.', 'warning')
-                    logger.error(ex)
+                    logging.error(ex)
 
                 if send_in_telegram is not None:
                     send_news(record_text, filename)
@@ -224,7 +223,7 @@ def admin_news():
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось изменить изображение.', 'warning')
-                    logger.error(ex)
+                    logging.error(ex)
             elif request.form['btn_news'] == 'delete_record':
                 rec_id = request.form.get("record_id")
                 try:
@@ -243,13 +242,13 @@ def admin_news():
                     else:
                         flash('Не удалось обработать данные.', 'warning')
                 except Exception as ex:
-                    logger.error(ex)
+                    logging.error(ex)
 
                 delete_record(rec_id)
                 flash('Вы удалили новость.', 'success')
 
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     user_news = []
@@ -304,7 +303,7 @@ def admin_account():
                         os.remove(os.path.join(directory, filename))
                     avatar.save(os.path.join(directory, user_id + '.' + img_type))
             except Exception as ex:
-                logger.error(ex)
+                logging.error(ex)
             flash('Аватарка успешно обновлена', category='success')
             return redirect(url_for('admin.admin_account'))
         else:
@@ -366,13 +365,14 @@ def admin_schedule():
                              'mdi mdi-book-education',
                              'primary', f'Обновлен курс {course_name}.')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     teachers = []
     for teacher in get_users().data:
         if teacher.role == Role.ADMIN or teacher.role == Role.TEACHER:
             teachers.append({"name": f'{teacher.first_name} {teacher.last_name}', "id": str(teacher.id)})
+
     return render_template("admin/courses/schedule.html", courses=get_courses().data, teachers=teachers)
 
 
@@ -464,13 +464,13 @@ def admin_attendance():
                                             "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.first_name} {user.last_name}</a>',
                                             "visits": visits_count
                                         })
-                    except:
-                        pass
+                    except Exception as ex:
+                        logging.error(ex)
                 return json.dumps({'success': True, 'users': users,
                                    'users_with_bad_attendance': users_with_bad_attendance}), 200, {
                            'ContentType': 'application/json'}
         except Exception as ex:
-            logger.error(f'get_attendance: {ex}')
+            logging.error(f'get_attendance: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
     students = []
@@ -562,10 +562,10 @@ def user_attendance(user_id):
                     return json.dumps({'success': True, 'data': d}), 200, {
                         'ContentType': 'application/json'}
                 except Exception as ex:
-                    logger.error(f'get_user_attendance: {ex}')
+                    logging.error(f'get_user_attendance: {ex}')
                 return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     try:
@@ -573,7 +573,7 @@ def user_attendance(user_id):
         if not resp.success:
             return render_template("error-500.html")
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return render_template("error-500.html")
 
     user_data = resp.data
@@ -627,7 +627,7 @@ def admin_offers():
                 delete_offer(offer_id)
                 flash('Вы успешно удалили оффер', 'success')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     return render_template("admin/other/offers.html", offers=get_offers().data)
@@ -684,7 +684,7 @@ def admin_products():
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось прикрепить изображение.', 'warning')
-                    logger.error(ex)
+                    logging.error(ex)
 
                 notify_users('Товары',
                              url_for('other.products'),
@@ -724,7 +724,7 @@ def admin_products():
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
                     flash('Не удалось изменить изображение.', 'warning')
-                    logger.error(ex)
+                    logging.error(ex)
 
                 notify_users('Товары',
                              url_for('other.products'),
@@ -749,7 +749,7 @@ def admin_products():
                     else:
                         flash('Не удалось обработать данные.', 'warning')
                 except Exception as ex:
-                    logger.error(ex)
+                    logging.error(ex)
 
                 delete_product(prod_id)
                 delete_orders_by_product_id(prod_id)
@@ -798,7 +798,7 @@ def admin_products():
                             color,
                             f'Статус вашего заказа обновлен на {status} ID={order_id}.')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     orders = []
@@ -862,7 +862,7 @@ def users_admins():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     return render_template("admin/users/admins.html", admins=get_users_by_role(Role.ADMIN).data)
@@ -887,7 +887,7 @@ def users_teachers():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     return render_template("admin/users/teachers.html", teachers=get_users_by_role(Role.TEACHER).data)
@@ -912,7 +912,7 @@ def users_students():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     students = []
@@ -964,7 +964,7 @@ def users_student_profile(user_id):
                 flash('Вы успешно изменили данные пользователя', 'success')
                 return redirect(url_for('admin.users_student_profile', user_id=user_id))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     try:
@@ -1080,7 +1080,7 @@ def users_student_profile(user_id):
             else:
                 extra_info = f'Посещаемость идеальна :)'
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
         return render_template("error-500.html")
 
     return render_template("admin/users/student-profile.html", user=user, friends=get_friends(str(user_id)),
@@ -1122,7 +1122,7 @@ def users_registered():
                 flash('Вы успешно отклонили заявку пользователя', 'success')
                 return redirect(url_for('admin.users_registered'))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     registered = []
@@ -1160,7 +1160,7 @@ def security_users():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     users = []
@@ -1199,7 +1199,7 @@ def security_users_auth():
             return json.dumps({'success': True, 'url': request.host_url + 'login'}), 200, {
                 'ContentType': 'application/json'}
     except Exception as ex:
-        logger.error(ex)
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -1226,7 +1226,7 @@ def security_users_delete():
                 if file.split('.')[0] in recs:
                     os.remove(os.path.join(directory, file))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
         delete_recovers_by_user_id(user_id)
         for i in get_relationships_by_sender(user_id).data:
             delete_relationship(i.id)
@@ -1252,9 +1252,10 @@ def security_users_delete():
                 if filename != '':
                     os.remove(os.path.join(directory, filename))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
+        logging.error(ex)
         return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
 
@@ -1280,7 +1281,7 @@ def security_recovers():
                 delete_recover(recover_id)
                 flash('Вы удалили запрос.', 'success')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     return render_template("admin/security/recovers.html", recovers=get_recovers().data)
@@ -1299,7 +1300,7 @@ def security_recover_link():
             recover_url = request.host_url + 'password/reset/' + token
             return json.dumps({'success': True, 'url': recover_url}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
-        pass
+        logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
 
 
@@ -1322,7 +1323,7 @@ def security_sessions():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash('Произошла какая-то ошибка', 'error')
 
     sessions = []
@@ -1349,6 +1350,7 @@ def security_session_delete():
         delete_flask_session(session_id)
         return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
+        logging.error(ex)
         return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
 
@@ -1397,7 +1399,7 @@ def security_database():
                 flash('Данные пользователя обновлены', 'success')
 
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash(str(ex), 'error')
 
     return render_template("admin/security/database.html")
@@ -1425,6 +1427,7 @@ def configuration_files():
                 os.remove(path)
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
+            logging.error(ex)
             return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
     avatars = get_files_from_storage('avatars', ['undraw_avatar'])
@@ -1457,7 +1460,7 @@ def configuration_variables():
             system_variables.write_variables()
             flash(f'Вы обновили переменную {key}', 'success')
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash(str(ex), 'error')
 
     return render_template("admin/configuration/variables.html")
@@ -1538,7 +1541,7 @@ def configuration_backup():
                         flash('Содержимое архива не удовлетворяет образцу', 'warning')
                     return "importing"
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash(str(ex), 'error')
 
     files = get_sorted_backups()
@@ -1579,7 +1582,7 @@ def configuration_timemachine():
                     {'success': False, "error": 'Не удалось восстановить данные из резервной копии. '}), 200, {
                            'ContentType': 'application/json'}
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             return json.dumps({'success': False, "error": str(ex)}), 200, {'ContentType': 'application/json'}
 
     files = get_sorted_backups()
@@ -1617,6 +1620,7 @@ def forms_constructor():
                           f'{current_user.first_name} создал новую форму {name}.')
             return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
+            logging.error(ex)
             return json.dumps({'success': False, 'error': ex}), 200, {'ContentType': 'application/json'}
 
     return render_template("admin/forms/constructor.html")
@@ -1641,7 +1645,7 @@ def forms_overview():
         try:
             pass
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash(str(ex), 'error')
 
     forms = []
@@ -1705,7 +1709,7 @@ def forms_analyze(form_id):
                               f'{current_user.first_name} удалил форму ID={form_id}.')
                 return redirect(url_for('admin.forms_overview'))
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash(str(ex), 'error')
 
     resp = get_form_by_id(form_id)
@@ -1802,7 +1806,7 @@ def admin_telegram():
                               f'{current_user.first_name} отправил рассылку Telegram ботом {counter} пользователям.')
                 return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
         except Exception as ex:
-            logger.error(ex)
+            logging.error(ex)
             flash(str(ex), 'error')
 
     bot_status = get_telegram_bot_status()

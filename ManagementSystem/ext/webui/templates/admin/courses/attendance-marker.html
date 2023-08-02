@@ -1,0 +1,181 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance Marker
+{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_attendance') }}">Посещаемость</a>
+                        </li>
+                        <li class="breadcrumb-item active"><a href="{{ url_for('admin.admin_attendance_markers') }}">Временная</a>
+                        </li>
+                    </ol>
+                </div>
+                <h4 class="page-title" id="page-header">Посещаемость по ссылке</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <form method="post">
+        <div class="row">
+            <div class="col-md-6 col-xxl-3">
+                <div class="card d-block">
+                    <div class="card-body">
+
+                        <h5>Название:</h5>
+
+                        <input placeholder="Название" type="text" required minlength="3" name="name"
+                               class="form-control me-3" value="{{ marker.name }}">
+
+                        <h5>Начало и конец</h5>
+
+                        <input id="daterangepicker" type="text" class="form-control date" required
+                               name="date_range">
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <button type="submit" name="btn_marker" value="save_marker"
+                                        class="btn btn-warning mt-2"><i
+                                        class="mdi mdi-pen-minus me-1"></i> <span>Сохранить</span></button>
+                            </div>
+                            <div class="col-md-6">
+                                <button onclick="return confirm('Удаляя, студентам из этого списка не будет проставлена посещаемость?')"
+                                        type="submit" name="btn_marker" value="delete_marker"
+                                        class="btn btn-danger mt-2"><i
+                                        class="mdi mdi-trash-can me-1"></i> <span>Удалить</span></button>
+                            </div>
+                        </div>
+
+                    </div> <!-- end card-body-->
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3 mb-3">
+                <div class="card mb-0 h-100">
+                    <div class="card-body">
+                        <div class="border-dashed border-2 border h-100 w-100 rounded d-flex align-items-center justify-content-center">
+                            <button type="submit" name="btn_marker" value="commit_marker"
+                                    class="text-center text-muted p-2"
+                                    style="background: transparent; border: transparent; height: 100%">
+                                <i class="mdi mdi-plus h3 my-0"></i> <h4 class="font-16 mt-1 mb-0 d-block">Проставить
+                                посещаемость и удалить ссылку</h4>
+                            </button>
+                        </div>
+                    </div> <!-- end card-body -->
+                </div> <!-- end card -->
+            </div>
+
+            <div class="col-sm-6 col-xl-3 mb-3">
+                <div id="qrcodeContainer"></div>
+            </div>
+
+        </div>
+        <div class="row">
+            <table id="marker_table" class="table table-striped" style="width:100%">
+                <thead>
+                <tr>
+                    <th>Выбрать</th>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>Выбрать</th>
+                    <th>ID</th>
+                    <th>Имя</th>
+                    <th>Фамилия</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrious@4.0.2/dist/qrious.min.js"></script>
+
+    <!-- Daterangepicker js -->
+    <script src="../../../assets/vendor/daterangepicker/moment.min.js"></script>
+    <script src="../../../assets/vendor/daterangepicker/daterangepicker.js"></script>
+
+    <script>
+        $('#daterangepicker').daterangepicker({
+            timePicker: true,
+            startDate: "{{ marker.start_str }}",
+            endDate: "{{ marker.finish_str }}",
+            locale: {
+                format: 'DD.MM.YYYY hh:mm:ss'
+            }
+        });
+
+        $(document).ready(function () {
+            render();
+            generateQR(location.href);
+        });
+
+        function render() {
+            $('#marker_table').DataTable().destroy();
+            const table = $('#marker_table').DataTable({
+                data: {{ students | safe }},
+                columns: [
+                    {data: "check"},
+                    {data: "id"},
+                    {data: "first_name"},
+                    {data: "last_name"}
+                ],
+                autofill: true,
+                responsive: true,
+                lengthMenu: [10, 25, 50, 100],
+                language: {
+                    "lengthMenu": "Показывать _MENU_ записей",
+                    "zeroRecords": "Ничего не найдено",
+                    "info": "Показано _PAGE_ из _PAGES_",
+                    "infoEmpty": "Нет доступных записей",
+                    "infoFiltered": "(отфильтровано из _MAX_  общих записей)",
+                    "paginate": {
+                        "first": "Первый",
+                        "last": "Последний",
+                        "next": "Следующий",
+                        "previous": "Предыдущий"
+                    },
+                    "loadingRecords": "Загрузка...",
+                    "processing": "",
+                    "search": "Искать:",
+                    "zeroRecords": "Совпадающих записей не найдено"
+                }
+            });
+        }
+
+        function generateQR(link) {
+            var qr = new QRious({
+                value: link,
+                size: 200 // размер QR-кода в пикселях
+            });
+
+            var qrContainer = document.getElementById('qrcodeContainer');
+            qrContainer.innerHTML = ''; // Очищаем контейнер, если уже был создан QR-код
+
+            // Создаем img элемент и устанавливаем его src равным data URL QR-кода
+            var qrImage = document.createElement('img');
+            qrImage.src = qr.toDataURL();
+            qrContainer.appendChild(qrImage);
+        }
+    </script>
+
+{% endblock %}

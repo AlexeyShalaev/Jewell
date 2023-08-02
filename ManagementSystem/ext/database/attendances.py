@@ -72,3 +72,51 @@ def delete_attendance(id):
 # очистка Документа
 def truncate():
     db.attendances.drop()
+
+
+# Markers
+
+def add_attendance_marker(name, start, finish):
+    db.attendance_markers.insert_one({
+        "name": name,
+        "start": start,
+        "finish": finish,
+        "students": []
+    })
+
+
+def update_attendance_marker(id, name, start, finish):
+    db.attendance_markers.update_one({'_id': ObjectId(id)}, {"$set": {
+        "name": name,
+        "start": start,
+        "finish": finish
+    }})
+
+
+def join_attendance_marker(id, student_id):
+    db.attendance_markers.update_one({'_id': ObjectId(id)}, {'$addToSet': {'students': student_id}})
+
+
+def get_attendance_markers() -> MongoDBResult:
+    res = db.attendance_markers.find()
+    if res:
+        attendance_markers = []
+        for i in list(res):
+            attendance_markers.append(AttendanceMarker(i))
+        return MongoDBResult(True, attendance_markers)
+    else:
+        return MongoDBResult(False, [])
+
+
+def get_attendance_marker_by_id(id) -> MongoDBResult:
+    r = db.attendance_markers.find_one({'_id': ObjectId(id)})
+    if r:
+        return MongoDBResult(True, AttendanceMarker(r))
+    else:
+        return MongoDBResult(False, None)
+
+
+def delete_attendance_marker(id):
+    db.attendance_markers.delete_one({
+        '_id': ObjectId(id)
+    })

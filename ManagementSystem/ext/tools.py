@@ -353,7 +353,8 @@ class FaceRecognitionResult:
 def make_embedding(image_path: str) -> FaceRecognitionResult:
     try:
         item = face_recognition.load_image_file(image_path)
-        encodings = face_recognition.face_encodings(item)
+        face_locations = face_recognition.face_locations(item)
+        encodings = face_recognition.face_encodings(item, face_locations, model="large")
         if len(encodings) == 1:
             return FaceRecognitionResult(True, FaceRecognitionStatus.SUCCESS, encodings[0])
         elif len(encodings) > 1:

@@ -35,7 +35,7 @@
 
                     <!-- Logo -->
                     <div class="card-header pt-4 pb-4 text-center bg-primary">
-                        <a class="logo-dark" href="{{url_for('view.landing')}}">
+                        <a class="logo-dark" href="{{ url_for('view.landing') }}">
                             <span><img src="../../assets/images/logo-dark.png" alt="logo"></span>
                         </a>
                     </div>
@@ -47,17 +47,18 @@
                             <p class="text-muted mb-4">Введите ваш телефон и пароль для входа в аккаунт.</p>
                         </div>
 
-                        <form action="{{ url_for('view.login')}}" method="post">
+                        <form class="mb-3" action="{{ url_for('view.login') }}" method="post">
 
                             <div class="mb-3">
                                 <label for="phonenumber" class="form-label">Номер телефона</label>
-                                <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
-                                       pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                <input class="form-control" type="tel" id="phonenumber" name="phonenumber" required=""
+                                       data-tel-input
                                        placeholder="Введите номер">
                             </div>
 
                             <div class="mb-3">
-                                <a href="{{url_for('view.recoverpw', version=1)}}" class="text-muted float-end"><small>Забыли
+                                <a href="{{ url_for('view.recoverpw', version=1) }}"
+                                   class="text-muted float-end"><small>Забыли
                                     пароль?</small></a>
                                 <label for="password" class="form-label">Пароль</label>
                                 <div class="input-group input-group-merge">
@@ -70,22 +71,23 @@
                                 </div>
                             </div>
 
-                            <div class="mb-3 mb-0 text-center">
+                            <div class="text-center">
                                 <button class="btn btn-primary" type="submit">Войти</button>
                             </div>
 
                         </form>
+
+                        <div class="row">
+                            <div class="col-12 text-center">
+                                <p class="text-muted">Нет аккаунта? <a href="{{ url_for('view.register', version=1) }}"
+                                                                       class="text-muted ms-1"><b>Зарегистрироваться</b></a>
+                                </p>
+                            </div> <!-- end col -->
+                        </div>
+                        <!-- end row -->
                     </div> <!-- end card-body -->
                 </div>
                 <!-- end card -->
-
-                <div class="row mt-3">
-                    <div class="col-12 text-center">
-                        <p class="text-muted">Нет аккаунта? <a href="{{url_for('view.register', version=1)}}"
-                                                               class="text-muted ms-1"><b>Зарегистрироваться</b></a></p>
-                    </div> <!-- end col -->
-                </div>
-                <!-- end row -->
 
             </div> <!-- end col -->
         </div>
@@ -108,6 +110,8 @@
 
 <!-- App js -->
 <script src="../../assets/js/app.min.js"></script>
+
+<script src="../../assets/js/phoneinput.js"></script>
 
 </body>
 </html>

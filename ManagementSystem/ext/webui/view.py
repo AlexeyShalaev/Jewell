@@ -415,41 +415,6 @@ def face_id():
         logout_user()
         return redirect(url_for("view.landing"))
 
-    if request.method == "POST":
-        try:
-            if request.form['btn_face_id'] == 'clear':
-                update_user(current_user.id, 'face_id.encodings', [])
-            else:
-                new_encodings = []
-                files = request.files
-                for filename in files:
-                    file = files[filename]
-                    if file.filename != '':
-                        path = os.path.join(temporary_folder, file.filename)
-                        file.save(path)
-                        r = make_embedding(path)
-                        if r.success:
-                            new_encodings.append(r.encodings.tolist())
-                        else:
-                            if r.status == FaceRecognitionStatus.ERROR:
-                                flash(f'Не удалось добавить {file.filename}', 'error')
-                            elif r.status == FaceRecognitionStatus.NO_FACES:
-                                flash(f'Не добавлен {file.filename}: не обнаружено лицо', 'warning')
-                            elif r.status == FaceRecognitionStatus.MANY_FACES:
-                                flash(f'Не добавлен {file.filename}: обнаружено несколько лиц', 'warning')
-                        if os.path.exists(path):
-                            os.remove(path)
-                if len(new_encodings) > 0:
-                    if request.form['btn_face_id'] == 'append':
-                        update_user(current_user.id, 'face_id.encodings',
-                                    [i.tolist() for i in current_user.face_id.encodings] + new_encodings)
-                    elif request.form['btn_face_id'] == 'exchange':
-                        update_user(current_user.id, 'face_id.encodings', new_encodings)
-                    flash(f'Добавлено {len(new_encodings)} лиц', 'info')
-        except Exception as ex:
-            logging.error(ex)
-        return redirect(url_for('view.face_id'))
-
     return render_template("face_id.html")
 
 

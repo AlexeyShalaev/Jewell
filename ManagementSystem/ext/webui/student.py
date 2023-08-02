@@ -8,7 +8,8 @@ from flask_toastr import *
 
 from ManagementSystem.ext import system_variables, directories, valid_images
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
-from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
+from ManagementSystem.ext.database.attendances import get_attendances_by_user_id, get_attendance_marker_by_id, \
+    join_attendance_marker
 from ManagementSystem.ext.database.maps import get_map_by_name
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.logistics import auto_redirect, check_session
@@ -234,6 +235,52 @@ def student_attendance():
                            progress_color=progress_color, percent=percent, frequency=frequency,
                            extra_info=extra_info,
                            visits_dataset=visits_dataset)
+
+
+# Уровень:              attendance
+# База данных:          User
+# HTML:                 attendance
+@student.route('/attendance_markers/<marker_id>', methods=['POST', 'GET'])
+@login_required
+def student_attendance_marker(marker_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    r = get_attendance_marker_by_id(marker_id)
+    if not r.success:
+        return redirect(url_for('student.student_home'))
+    marker = r.data
+
+    now = datetime.now()
+
+    if now < marker.start or now > marker.finish:
+        flash('Данная страница не доступна', 'info')
+        return redirect(url_for('student.student_home'))
+
+    if current_user.id in marker.students:
+        flash('Данную ссылку можно использовать только один раз', 'info')
+        return redirect(url_for('student.student_home'))
+
+    if current_user.reward == Reward.NULL:
+        flash('У вас нет награды, обратитесь к администрации', 'warning')
+        return redirect(url_for('student.student_home'))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_marker'] == 'join_marker':
+                join_attendance_marker(marker_id, current_user.id)
+                flash('Вы добавлены в список участников, ожидайте подтверждения вашего участия', 'success')
+                return redirect(url_for('admin.admin_attendance_markers'))
+        except Exception as ex:
+            logging.error(ex)
+
+    return render_template("student/courses/attendance-marker.html", marker=marker)
 
 
 # Уровень:              courses/schedule

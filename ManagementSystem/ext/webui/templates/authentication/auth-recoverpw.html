@@ -50,8 +50,8 @@
                         <form action="{{ url_for('view.recoverpw', version=1)}}" method="post">
                             <div class="mb-3">
                                 <label for="phonenumber" class="form-label">Номер телефона</label>
-                                <input class="form-control" type="phone" id="phonenumber" name="phonenumber" required=""
-                                       pattern="^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{7,10}$"
+                                <input class="form-control" type="tel" id="phonenumber" name="phonenumber" required=""
+                                       data-tel-input
                                        placeholder="Введите номер">
                             </div>
                             <div class="mb-0 text-center">
@@ -91,6 +91,8 @@
 
 <!-- App js -->
 <script src="../../assets/js/app.min.js"></script>
+
+<script src="../../assets/js/phoneinput.js"></script>
 
 </body>
 </html>

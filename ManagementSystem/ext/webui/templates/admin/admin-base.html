@@ -372,6 +372,13 @@
                 </li>
 
                 <li class="side-nav-item">
+                    <a href="{{ url_for('admin.admin_face_id') }}" class="side-nav-link">
+                        <i class="mdi mdi-baby-face me-1"></i>
+                        <span> Face ID </span>
+                    </a>
+                </li>
+
+                <li class="side-nav-item">
                     <a data-bs-toggle="collapse" href="#users" aria-expanded="false" aria-controls="users"
                        class="side-nav-link collapsed">
                         <i class="fa-solid fa-users"></i>
@@ -421,6 +428,12 @@
                                 <a href="{{ url_for('admin.admin_attendance') }}" class="side-nav-link">
                                     <i class="fa-regular fa-calendar-check"></i>
                                     <span> Посещаемость </span>
+                                </a>
+                            </li>
+                            <li class="side-nav-item">
+                                <a href="{{ url_for('admin.admin_attendance_markers') }}" class="side-nav-link">
+                                    <i class="fa-regular fa-business-time"></i>
+                                    <span> Посещаемость по ссылке </span>
                                 </a>
                             </li>
                             <li class="side-nav-item">

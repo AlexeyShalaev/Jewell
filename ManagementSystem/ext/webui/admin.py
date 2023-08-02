@@ -12,7 +12,8 @@ from ManagementSystem.ext import system_variables, directories, valid_images
 from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
-    get_attendances_by_user_id
+    get_attendances_by_user_id, add_attendance_marker, get_attendance_markers, get_attendance_marker_by_id, \
+    update_attendance_marker, delete_attendance_marker
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name, get_courses_by_teacher, update_course_teachers
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
@@ -42,8 +43,9 @@ from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_dat
     temporary_folder, check_filename, check_content, clear_temporary_folder
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
+from ManagementSystem.ext.text_filter import TextFilter
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
-    get_month, get_files_from_storage, convert_markdown_to_html, rus2eng
+    get_month, get_files_from_storage, convert_markdown_to_html, rus2eng, make_embedding, FaceRecognitionStatus
 
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
 
@@ -581,6 +583,96 @@ def user_attendance(user_id):
         return redirect(url_for("admin.admin_home"))
 
     return render_template("admin/courses/user-attendance.html", user=user_data)
+
+
+# Уровень:              attendance_markers
+# База данных:          -
+# HTML:                 attendance-markers
+@admin.route('/attendance_markers', methods=['POST', 'GET'])
+@login_required
+def admin_attendance_markers():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_markers'] == 'add_marker':
+                name = request.form.get('name')
+                date_range = request.form.get('date_range').split(' - ')
+                add_attendance_marker(name,
+                                      datetime.strptime(date_range[0], "%d.%m.%Y %H:%M:%S"),
+                                      datetime.strptime(date_range[1], "%d.%m.%Y %H:%M:%S"))
+                flash('Вы успешно добавили посещаемость по ссылке', 'success')
+        except Exception as ex:
+            logging.error(ex)
+
+    return render_template("admin/courses/attendance-markers.html", attendance_markers=get_attendance_markers().data)
+
+
+# Уровень:              attendance_markers
+# База данных:          -
+# HTML:                 attendance-marker
+@admin.route('/attendance_markers/<marker_id>', methods=['POST', 'GET'])
+@login_required
+def admin_attendance_marker(marker_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_marker'] == 'save_marker':
+                name = request.form.get('name')
+                date_range = request.form.get('date_range').split(' - ')
+                update_attendance_marker(marker_id,
+                                         name,
+                                         datetime.strptime(date_range[0], "%d.%m.%Y %H:%M:%S"),
+                                         datetime.strptime(date_range[1], "%d.%m.%Y %H:%M:%S"))
+                flash('Вы успешно обновили посещаемость по ссылке', 'success')
+            elif request.form['btn_marker'] == 'delete_marker':
+                delete_attendance_marker(marker_id)
+                flash('Вы успешно удалили посещаемость по ссылке', 'success')
+            elif request.form['btn_marker'] == 'commit_marker':
+                checked_students = request.form.getlist('checked_students')
+                date = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
+                for student_id in checked_students:
+                    add_attendance(student_id, 1, date)
+                delete_attendance_marker(marker_id)
+                flash('Вы успешно проставили посещаемость и удалили ссылку', 'success')
+                return redirect(url_for('admin.admin_attendance_markers'))
+        except Exception as ex:
+            logging.error(ex)
+
+    r = get_attendance_marker_by_id(marker_id)
+    if not r.success:
+        return redirect(url_for('admin.admin_attendance_markers'))
+    marker = r.data
+
+    students = []
+    for student_id in marker.students:
+        r = get_user_by_id(student_id)
+        if r.success:
+            student = r.data
+            # str необходим для избежания исключений с None
+            students.append({
+                "check": f'<div class="form-check"><input type="checkbox" class="form-check-input dt-checkboxes" name="checked_students" value="{student_id}" checked><label class="form-check-label"></label></div>',
+                "id": f'<a href="{url_for("networking.profile", user_id=student_id)}" target="_blank">{student_id}</a>',
+                "first_name": student.first_name,
+                "last_name": student.last_name
+            })
+
+    return render_template("admin/courses/attendance-marker.html", students=students, marker=marker)
 
 
 # Уровень:              admin/offers
@@ -1182,6 +1274,7 @@ def security_users():
 # База данных:          User
 # HTML:                 -
 @admin.route('/security/users/auth', methods=['POST'])
+@login_required
 def security_users_auth():
     try:
         user_id = request.form['user_id']
@@ -1207,6 +1300,7 @@ def security_users_auth():
 # База данных:          User
 # HTML:                 -
 @admin.route('/security/users/delete', methods=['POST'])
+@login_required
 def security_users_delete():
     try:
         user_id = request.form['user_id']
@@ -1291,6 +1385,7 @@ def security_recovers():
 # База данных:          User
 # HTML:                 -
 @admin.route('/security/recovers/link', methods=['POST'])
+@login_required
 def security_recover_link():
     try:
         user_id = request.form['user_id']
@@ -1344,6 +1439,7 @@ def security_sessions():
 # База данных:          flask-sessions
 # HTML:                 -
 @admin.route('/security/session/delete', methods=['POST'])
+@login_required
 def security_session_delete():
     try:
         session_id = request.form['id']
@@ -1812,3 +1908,120 @@ def admin_telegram():
     bot_status = get_telegram_bot_status()
 
     return render_template("admin/telegram.html", bot_status=bot_status)
+
+
+# Уровень:              face_id
+# База данных:
+# HTML:
+@admin.route('/face_id', methods=['POST', 'GET'])
+@login_required
+def admin_face_id():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logging.error(ex)
+            flash(str(ex), 'error')
+
+    users = []
+    for i in get_users().data:
+        # str необходим для избежания исключений с None
+        users.append({
+            "id": f'<a href="{url_for("admin.admin_face_id_user", user_id=i.id)}" target="_blank">{i.id}</a>',
+            "phone_number": str(i.phone_number),
+            "greeting": str(i.face_id.greeting),
+            "encodings_count": len(i.face_id.encodings),
+            "edit_face_id": f'<a type="button" class="btn btn-outline-dark" href="{url_for("admin.admin_face_id_user", user_id=i.id)}" target="_blank"><i class="mdi mdi-wrench"></i></a>',
+        })
+
+    return render_template("admin/face_id/face_id.html", users=users)
+
+
+# Уровень:              face_id
+# База данных:
+# HTML:
+@admin.route('/face_id/<user_id>', methods=['POST', 'GET'])
+@login_required
+def admin_face_id_user(user_id):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    r = get_user_by_id(user_id)
+    if not r.success:
+        flash('Пользователь не найден!', 'error')
+        return redirect(url_for('admin.admin_face_id'))
+    user = r.data
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_face_id'] == 'clear':
+                update_user(user_id, 'face_id.encodings', [])
+            else:
+                new_encodings = []
+                files = request.files
+                for filename in files:
+                    file = files[filename]
+                    if file.filename != '':
+                        path = os.path.join(temporary_folder, file.filename)
+                        file.save(path)
+                        r = make_embedding(path)
+                        if r.success:
+                            new_encodings.append(r.encodings.tolist())
+                        else:
+                            if r.status == FaceRecognitionStatus.ERROR:
+                                flash(f'Не удалось добавить {file.filename}', 'error')
+                            elif r.status == FaceRecognitionStatus.NO_FACES:
+                                flash(f'Не добавлен {file.filename}: не обнаружено лицо', 'warning')
+                            elif r.status == FaceRecognitionStatus.MANY_FACES:
+                                flash(f'Не добавлен {file.filename}: обнаружено несколько лиц', 'warning')
+                        if os.path.exists(path):
+                            os.remove(path)
+                if len(new_encodings) > 0:
+                    if request.form['btn_face_id'] == 'append':
+                        update_user(user_id, 'face_id.encodings',
+                                    [i.tolist() for i in user.face_id.encodings] + new_encodings)
+                    elif request.form['btn_face_id'] == 'exchange':
+                        update_user(user_id, 'face_id.encodings', new_encodings)
+                    flash(f'Добавлено {len(new_encodings)} лиц', 'info')
+        except Exception as ex:
+            logging.error(ex)
+        return redirect(url_for('admin.admin_face_id_user', user_id=user_id))
+
+    return render_template("admin/face_id/face_id_settings.html", user=user)
+
+
+# Уровень:              face_id
+# База данных:
+# HTML:
+@admin.route('/face_id/greeting', methods=['POST'])
+@login_required
+def admin_face_id_user_greeting():
+    try:
+        user_id = request.form.get("user_id")
+        greeting = request.form.get("greeting")
+        if len(TextFilter(greeting).find_bad_words()) > 0:
+            return json.dumps(
+                {'success': False, "info": "Запрещено использовать нецензурную лексику в приветствиях"}), 200, {
+                       'ContentType': 'application/json'}
+
+        update_user(user_id, 'face_id.greeting', greeting)
+        return json.dumps({'success': True,
+                           "info": f"Приветствие изменено: {greeting}"}), 200, {
+                   'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

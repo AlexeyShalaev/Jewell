@@ -24,7 +24,9 @@
                         </li>
                     </ol>
                 </div>
-                <h4 class="page-title" id="page-header">Посещаемость по ссылке</h4>
+                <h4 onclick="clipboard(this.textContent)"
+                    class="page-title link-dark text-decoration-underline link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover"
+                    id="link_copy"></h4>
             </div>
         </div>
     </div>
@@ -35,7 +37,6 @@
             <div class="col-md-6 col-xxl-3">
                 <div class="card d-block">
                     <div class="card-body">
-
                         <h5>Название:</h5>
 
                         <input placeholder="Название" type="text" required minlength="3" name="name"
@@ -126,7 +127,10 @@
 
         $(document).ready(function () {
             render();
-            generateQR(location.href);
+
+            const link = new URL(location.href).origin + '{{ url_for('student.student_attendance_marker', marker_id=marker.id) }}';
+            document.getElementById("link_copy").innerText = link;
+            generateQR(link);
         });
 
         function render() {
@@ -175,6 +179,29 @@
             var qrImage = document.createElement('img');
             qrImage.src = qr.toDataURL();
             qrContainer.appendChild(qrImage);
+        }
+
+        function clipboard(copyText) {
+            try {
+                // text area method
+                let textArea = document.createElement("textarea");
+                textArea.value = copyText;
+                // make the textarea out of viewport
+                textArea.style.position = "fixed";
+                textArea.style.left = "-999999px";
+                textArea.style.top = "-999999px";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                new Promise((res, rej) => {
+                    // here the magic happens
+                    document.execCommand('copy') ? res() : rej();
+                    textArea.remove();
+                });
+                alert("Ссылка скопирована в буфер обмена");
+            } catch (e) {
+                console.log(e);
+            }
         }
     </script>
 

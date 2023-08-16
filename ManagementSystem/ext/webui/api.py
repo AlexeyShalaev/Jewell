@@ -338,7 +338,8 @@ def get_user_attendance():
             "february": [],
             "march": [],
             "april": [],
-            "may": []
+            "may": [],
+            "june": []
         }
 
         months = {
@@ -350,7 +351,8 @@ def get_user_attendance():
             2: 'february',
             3: 'march',
             4: 'april',
-            5: 'may'
+            5: 'may',
+            6: 'june'
         }
 
         for i in get_attendances_by_user_id(user_id).data:
@@ -478,7 +480,8 @@ def attendance_admin():
                 2: 'february',
                 3: 'march',
                 4: 'april',
-                5: 'may'
+                5: 'may',
+                6: 'june'
             }
             if now <= trip_date:
                 for user in get_users().data:

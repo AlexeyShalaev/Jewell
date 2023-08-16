@@ -17,7 +17,7 @@ async def bot_messages(message: types.Message):
             else:
                 update_telegram_data(r.data.id, message.from_user.id, message.from_user.username)
                 await message.answer(
-                    'Ваш телеграм успешно привязан к аккаунту.\nСовет: включите в настройках сайта авторизацию через телеграм.',
+                    'Ваш телеграм успешно привязан к аккаунту.',
                     reply_markup=menu.categories)
 
 

@@ -81,7 +81,7 @@
                     <!-- Logo -->
                     <div class="card-header pt-4 pb-4 text-center bg-primary">
                         <a class="logo-dark" href="{{ url_for('view.landing') }}">
-                            <span><img src="../assets/images/logo-dark.png" alt="logo"></span>
+                            <span><img src="../assets/images/logo-white-new.png" alt="logo" width="25%"></span>
                         </a>
                     </div>
 
@@ -91,12 +91,15 @@
                             <h4 class="text-dark-50 text-center pb-0 fw-bold">FACE ID</h4>
                         </div>
 
-
                         <div class="text-center w-50 m-auto mb-3">
                             <label for="input_greeting" class="form-label font-16">Приветствие в зеркале</label>
                             <input type="text" id="input_greeting" class="form-control font-14"
                                    placeholder="Шалом" maxlength="16"
                                    onchange="update_greeting();" value="{{ current_user.face_id.greeting }}">
+                        </div>
+
+                        <div class="mb-3 text-center">
+                            <button class="btn btn-dark" onclick="history.back();">Назад</button>
                         </div>
 
                     </div> <!-- end card-body -->

@@ -53,7 +53,7 @@
         </div>
     </div>
 
-    <div class="row">
+    <div class="row mb-3">
         <div class="col-xl-3 col-lg-4">
             <div class="card tilebox-one">
                 <div class="card-body">
@@ -105,6 +105,38 @@
                 </div>
             </div>
             <!-- end card body-->
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="d-flex card-header justify-content-between align-items-center">
+                    <h4 class="header-title">Список посещаемости</h4>
+                </div>
+
+                <div class="card-body pt-0">
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-centered mb-0 font-14">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Дата</th>
+                                <th style="width: 30%;">Количество</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in attendance %}
+                                <tr>
+                                    <td>{{ i.date.strftime('%d.%m.%Y %H:%M:%S') }}</td>
+                                    <td>{{ i.count }}</td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- end table-responsive-->
+                </div> <!-- end card-body-->
+            </div>
         </div>
     </div>
 
@@ -161,7 +193,7 @@
             sel.innerHTML = "";
             let date = new Date();
             let latest = date.getFullYear();
-            if (date.getMonth() >= 8) {
+            if (date.getMonth() + 1 >= 9) {
                 ++latest;
             }
             for (let year = latest; year > 2020; --year) {
@@ -175,11 +207,11 @@
             }
         }
 
-        function change_years(submit=true) {
+        function change_years(submit = true) {
             const years = document.getElementById("select_years").value.split("/");
             document.getElementById("start_year").value = years[0];
             document.getElementById("end_year").value = years[1];
-            if(submit) document.getElementById("filter_years_form").submit();
+            if (submit) document.getElementById("filter_years_form").submit();
         }
 
     </script>

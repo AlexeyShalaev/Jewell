@@ -129,7 +129,6 @@ def admin_news():
                 inserted_record = add_record(current_user.id, record_text, datetime.now(), type=RecordType.NEWS,
                                              lifetime=lifetime)
                 flash('Вы добавили новость.', 'success')
-
                 # image
                 filename = ''
                 try:
@@ -155,8 +154,8 @@ def admin_news():
                         else:
                             flash('Недопустимый тип файла.', 'warning')
                 except Exception as ex:
-                    flash('Не удалось прикрепить изображение.', 'warning')
                     logging.error(ex)
+                    flash('Не удалось прикрепить изображение.', 'warning')
 
                 if send_in_telegram is not None:
                     send_news(record_text, filename)
@@ -430,7 +429,8 @@ def admin_attendance():
                     2: 'february',
                     3: 'march',
                     4: 'april',
-                    5: 'may'
+                    5: 'may',
+                    6: 'june'
                 }
 
                 for user in get_users().data:
@@ -447,6 +447,7 @@ def admin_attendance():
                                 "march": 0,
                                 "april": 0,
                                 "may": 0,
+                                "june": 0,
                                 "all": 0
                             }
                             for i in get_attendances_by_user_id(user.id).data:
@@ -470,7 +471,7 @@ def admin_attendance():
                         logging.error(ex)
                 return json.dumps({'success': True, 'users': users,
                                    'users_with_bad_attendance': users_with_bad_attendance}), 200, {
-                           'ContentType': 'application/json'}
+                    'ContentType': 'application/json'}
         except Exception as ex:
             logging.error(f'get_attendance: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
@@ -539,7 +540,8 @@ def user_attendance(user_id):
                         "february": [],
                         "march": [],
                         "april": [],
-                        "may": []
+                        "may": [],
+                        "june": []
                     }
 
                     months = {
@@ -551,7 +553,8 @@ def user_attendance(user_id):
                         2: 'february',
                         3: 'march',
                         4: 'april',
-                        5: 'may'
+                        5: 'may',
+                        6: 'june'
                     }
 
                     for i in get_attendances_by_user_id(user_id).data:
@@ -1206,6 +1209,11 @@ def users_registered():
                 birthday = request.form.get("birthday")
                 role = request.form.get("role")
                 update_new_user(user_id, first_name, last_name, birthday, role)
+
+                r = get_user_by_id(user_id)
+                if r.success:
+                    send_message('Ваш аккаунт одобрен администрацией. Теперь у вас есть доступ к сайту :)', r.data.telegram_id)
+
                 flash('Вы успешно добавили нового пользователя', 'success')
                 return redirect(url_for('networking.profile', user_id=user_id))
             elif request.form['btn_registered'] == 'delete':
@@ -1676,7 +1684,7 @@ def configuration_timemachine():
             else:
                 return json.dumps(
                     {'success': False, "error": 'Не удалось восстановить данные из резервной копии. '}), 200, {
-                           'ContentType': 'application/json'}
+                    'ContentType': 'application/json'}
         except Exception as ex:
             logging.error(ex)
             return json.dumps({'success': False, "error": str(ex)}), 200, {'ContentType': 'application/json'}
@@ -1936,7 +1944,8 @@ def admin_face_id():
     for i in get_users().data:
         # str необходим для избежания исключений с None
         users.append({
-            "id": f'<a href="{url_for("admin.admin_face_id_user", user_id=i.id)}" target="_blank">{i.id}</a>',
+            "first_name": f'<a href="{url_for("admin.admin_face_id_user", user_id=i.id)}" target="_blank">{i.first_name}</a>',
+            "last_name": i.last_name,
             "phone_number": str(i.phone_number),
             "greeting": str(i.face_id.greeting),
             "encodings_count": len(i.face_id.encodings),
@@ -2017,11 +2026,11 @@ def admin_face_id_user_greeting():
         if len(TextFilter(greeting).find_bad_words()) > 0:
             return json.dumps(
                 {'success': False, "info": "Запрещено использовать нецензурную лексику в приветствиях"}), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
 
         update_user(user_id, 'face_id.greeting', greeting)
         return json.dumps({'success': True,
                            "info": f"Приветствие изменено: {greeting}"}), 200, {
-                   'ContentType': 'application/json'}
+            'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

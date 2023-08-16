@@ -1,8 +1,7 @@
-import os
 import logging
 from random import choice
 
-from flask import *
+from flask import Blueprint, redirect, request, session, flash, url_for, json
 from flask_login import *
 from flask_toastr import *
 
@@ -16,7 +15,7 @@ from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.notifier import notify_admins
 from ManagementSystem.ext.telegram.message import send_message
 from ManagementSystem.ext.text_filter import TextFilter
-from ManagementSystem.ext.tools import normal_phone_number, make_embedding, FaceRecognitionStatus
+from ManagementSystem.ext.tools import normal_phone_number
 
 view = Blueprint('view', __name__, template_folder='templates', static_folder='assets')  # route
 temporary_folder = 'storage/broker'
@@ -279,6 +278,7 @@ def registered():
                 flash('Ваш профиль изменен. Ожидайте подтверждения администрации.', 'success')
                 notify_admins('Новый пользователь', url_for('admin.users_registered'), 'mdi mdi-head-plus', 'warning',
                               f'Новый пользователь подал заявку на регистрацию ID={current_user.id}')
+                return redirect(url_for('view.landing'))
 
         except Exception as ex:
             logging.error(ex)
@@ -286,8 +286,7 @@ def registered():
 
         return redirect(url_for('view.registered'))
 
-    return render_template("authentication/auth-registered.html",
-                           telegram_validated=(current_user.telegram_id is not None))
+    return render_template("authentication/auth-registered.html")
 
 
 # Уровень:              registered/token
@@ -302,22 +301,25 @@ def registered_token():
             if status:
                 update_user(current_user.id, 'access_token', token)
                 return json.dumps({'icon': 'info', 'title': 'Telegram',
-                                   'text': f'Отправьте данный токен (код снизу) нашему <a href="{system_variables["tg_bot"]}" target="_blank"> телеграмм боту </a> в личные сообщения и он привяжет ваш аккаунт.',
-                                   'footer': f'<a onclick="clipboard(\'{token}\');">{token}</a>'}), 200, {
-                           'ContentType': 'application/json'}
+                                   'text': f'<ol><li>Скопируй код снизу</li><li>Отправь его нашему <a href="{system_variables["tg_bot"]}" target="_blank"> телеграмм боту </a></li>',
+                                   'footer': f'<a onclick="clipboard(\'{token}\');">{token}</a>',
+                                   'confirm_btn_text': f'<a href="{system_variables["tg_bot"]}" target="_blank" style="color: white"> Перейти к боту </a>'}), 200, {
+                    'ContentType': 'application/json'}
             else:
                 return json.dumps({'icon': 'warning', 'title': 'Telegram',
                                    'text': 'Не удалось создать токен для привязывания вашего аккаунта к телеграм боту.',
+                                   'confirm_btn_text': 'OK'
                                    }), 200, {
-                           'ContentType': 'application/json'}
+                    'ContentType': 'application/json'}
         else:
             return json.dumps({'icon': 'success', 'title': 'Telegram',
                                'text': 'Ваш аккаунт уже привязан к телеграм боту.',
+                               'confirm_btn_text': 'OK'
                                }), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'icon': 'error', 'title': 'Ошибка',
-                           'text': str(ex)
+                           'text': str(ex), 'confirm_btn_text': 'OK'
                            }), 200, {'ContentType': 'application/json'}
 
 
@@ -337,33 +339,33 @@ def change_password():
             return json.dumps({'icon': 'warning', 'title': 'Смена пароля',
                                'text': 'Длина пароля должна быть больше 4.',
                                }), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
         if new_password != repeat_password:
             return json.dumps({'icon': 'warning', 'title': 'Смена пароля',
                                'text': 'Пароли не совпадают.',
                                }), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
         if new_password == old_password:
             return json.dumps({'icon': 'warning', 'title': 'Смена пароля',
                                'text': 'Новый пароль не отличается от старого.',
                                }), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
         if not check_password_hash(current_user.password, old_password):
             return json.dumps({'icon': 'warning', 'title': 'Смена пароля',
                                'text': 'Вы ввели неверный старый пароль.',
                                }), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
         crypt_status, crypted_pass = crypt_pass(new_password)
         if not crypt_status:
             return json.dumps({'icon': 'warning', 'title': 'Смена пароля',
                                'text': 'Не удалось сменить пароль, возможно вы вводите недопустимые символы.',
                                }), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
         update_user(current_user.id, 'password', crypted_pass)
         return json.dumps({'icon': 'success', 'title': 'Смена пароля',
                            'text': 'Вы успешно сменили пароль.',
                            }), 200, {
-                   'ContentType': 'application/json'}
+            'ContentType': 'application/json'}
     except Exception as ex:
         logging.error(ex)
         return json.dumps({'icon': 'error', 'title': 'Ошибка',
@@ -429,11 +431,11 @@ def face_id_greeting():
         if len(TextFilter(greeting).find_bad_words()) > 0:
             return json.dumps(
                 {'success': False, "info": "Запрещено использовать нецензурную лексику в приветствиях"}), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
 
         update_user(current_user.id, 'face_id.greeting', greeting)
         return json.dumps({'success': True,
                            "info": f"Приветствие изменено: '{greeting}, {current_user.first_name}!'"}), 200, {
-                   'ContentType': 'application/json'}
+            'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

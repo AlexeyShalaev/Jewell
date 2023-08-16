@@ -234,7 +234,7 @@ def student_attendance():
     return render_template("student/courses/attendance.html", visits_count=visits_count, visits_aim=visits_aim,
                            progress_color=progress_color, percent=percent, frequency=frequency,
                            extra_info=extra_info,
-                           visits_dataset=visits_dataset)
+                           visits_dataset=visits_dataset, attendance=attendance)
 
 
 # Уровень:              attendance

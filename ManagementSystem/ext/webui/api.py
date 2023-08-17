@@ -2,7 +2,7 @@ import logging
 import os
 from datetime import datetime
 
-from flask import *
+from flask import Blueprint, send_file, json, url_for, request
 
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
 from ManagementSystem.ext.attendance_visits import handle_visit

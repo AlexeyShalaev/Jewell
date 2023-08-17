@@ -328,7 +328,7 @@ def student_attendance_qr(qr_token):
         flash('Произошла какая-то ошибка :)', 'error')
         return redirect(url_for('student.student_home'))
 
-    if r.data.uri.split('/')[-1] != qr_id:
+    if r.data.uri.split('/')[-1] != qr_token:
         flash('Данной страницы не существует :)', 'error')
         return redirect(url_for('student.student_home'))
 

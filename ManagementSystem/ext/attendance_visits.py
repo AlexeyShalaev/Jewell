@@ -23,6 +23,7 @@ def handle_visit(user, date):
                   for visit in get_visits_by_user_id(user.id).data
                   if (date - visit.date).seconds < ONE_DAY
                   and date.weekday() == visit.date.weekday()]
+        visits.sort(key=lambda x: x.date, reverse=True)
 
         # поиск курсов по времени
         enter_courses = []
@@ -47,23 +48,32 @@ def handle_visit(user, date):
                 continue
 
         # поиск посещений
+        last_exit = None
+        last_enter = None
         for visit in visits:
-            if visit.visit_type == VisitType.ENTER and has_element(exit_courses, visit.courses):
-                add_visit(user.id, date, VisitType.EXIT, visit.courses)
-                add_attendance(user.id, 1, date)
-                res.append({"visit_type": VisitType.EXIT.value, "courses": visit.courses})
+            if last_exit is None and visit.visit_type == VisitType.EXIT:
+                last_exit = visit
+            elif last_enter is None and visit.visit_type == VisitType.ENTER:
+                last_enter = visit
+            elif last_enter and last_exit:
                 break
 
-        if not visits:
-            add_visit(user.id, date, VisitType.ENTER, enter_courses)
-            res.append({"visit_type": VisitType.ENTER.value, "courses": enter_courses})
-        else:
-            visits.sort(key=lambda x: x.date, reverse=True)
+        if exit_courses:
             for visit in visits:
-                if visit.visit_type == VisitType.ENTER:
-                    if (date - visit.date).seconds >= NEXT_VISIT_MIN_TIME:
-                        add_visit(user.id, date, VisitType.ENTER, enter_courses)
-                        res.append({"visit_type": VisitType.ENTER.value, "courses": enter_courses})
+                if visit.visit_type == VisitType.ENTER and has_element(exit_courses, visit.courses):
+                    if last_exit is None or (date - last_exit.date).seconds >= NEXT_VISIT_MIN_TIME:
+                        add_visit(user.id, date, VisitType.EXIT, visit.courses)
+                        add_attendance(user.id, 1, date.strftime("%d.%m.%Y %H:%M:%S"))
+                        res.append({"visit_type": VisitType.EXIT.value, "courses": visit.courses})
                     break
+
+        if enter_courses:
+            if not visits:
+                add_visit(user.id, date, VisitType.ENTER, enter_courses)
+                res.append({"visit_type": VisitType.ENTER.value, "courses": enter_courses})
+            else:
+                if (date - last_enter.date).seconds >= NEXT_VISIT_MIN_TIME:
+                    add_visit(user.id, date, VisitType.ENTER, enter_courses)
+                    res.append({"visit_type": VisitType.ENTER.value, "courses": enter_courses})
 
     return res

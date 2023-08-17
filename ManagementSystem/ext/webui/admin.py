@@ -34,6 +34,7 @@ from ManagementSystem.ext.database.relationships import get_relationships_by_sen
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
     update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
+from ManagementSystem.ext.database.visits import get_visits
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
@@ -586,6 +587,46 @@ def user_attendance(user_id):
         return redirect(url_for("admin.admin_home"))
 
     return render_template("admin/courses/user-attendance.html", user=user_data)
+
+
+# Уровень:              attendance_markers
+# База данных:          -
+# HTML:                 attendance-markers
+@admin.route('/attendance_mirror', methods=['POST', 'GET'])
+@login_required
+def admin_attendance_mirror():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    if request.method == "POST":
+        try:
+            pass
+        except Exception as ex:
+            logging.error(ex)
+
+    visits = get_visits().data
+    visits.sort(key=lambda x: x.date, reverse=True)
+    visits_json = []
+    for visit in visits:
+        try:
+            user = get_user_by_id(visit.user_id).data
+            js = {
+                'type': visit.visit_type.value,
+                'date': datetime.strftime(visit.date, f'%d.%m.%Y %H:%M:%S'),
+                'courses': '/'.join(visit.courses),
+                'user': f'{user.first_name} {user.last_name}'
+            }
+            visits_json.append(js)
+        except Exception:
+            pass
+
+    return render_template("admin/courses/attendance-mirror.html", visits=visits_json)
 
 
 # Уровень:              attendance_markers
@@ -1212,7 +1253,8 @@ def users_registered():
 
                 r = get_user_by_id(user_id)
                 if r.success:
-                    send_message('Ваш аккаунт одобрен администрацией. Теперь у вас есть доступ к сайту :)', r.data.telegram_id)
+                    send_message('Ваш аккаунт одобрен администрацией. Теперь у вас есть доступ к сайту :)',
+                                 r.data.telegram_id)
 
                 flash('Вы успешно добавили нового пользователя', 'success')
                 return redirect(url_for('networking.profile', user_id=user_id))

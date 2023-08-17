@@ -143,3 +143,24 @@ def get_courses_by_time(time: str) -> MongoDBResult:
         return MongoDBResult(True, filtered_courses)
     else:
         return MongoDBResult(False, [])
+
+
+def get_courses_timetable():
+    days = list()
+    for day in range(7):
+        days.append(list())
+    a = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday']
+    for course in list(db.courses.find()):
+        for k, v in course['timetable'].items():
+            time = json.loads(v)
+            day = days[a.index(k)]
+            flag = True
+            for i in day:
+                if i['hours'] == time['hours'] and i['minutes'] == time['minutes']:
+                    i['courses'].append(course['name'])
+                    flag = False
+                    break
+            if flag:
+                time['courses'] = [course['name']]
+                day.append(time)
+    return days

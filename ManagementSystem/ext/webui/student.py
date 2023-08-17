@@ -1,19 +1,22 @@
+import logging
 import os
 from datetime import datetime
-import logging
 
 from flask import *
 from flask_login import *
 from flask_toastr import *
 
 from ManagementSystem.ext import system_variables, directories, valid_images
+from ManagementSystem.ext.attendance_visits import handle_visit
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id, get_attendance_marker_by_id, \
     join_attendance_marker
 from ManagementSystem.ext.database.maps import get_map_by_name
+from ManagementSystem.ext.database.qr_codes import check_qr_code_by_id, get_qr_code_by_name
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
 from ManagementSystem.ext.logistics import auto_redirect, check_session
-from ManagementSystem.ext.models.userModel import Role, Reward
+from ManagementSystem.ext.models.userModel import Role, Reward, Sex
+from ManagementSystem.ext.models.visit import VisitType
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, get_month
 
 student = Blueprint('student', __name__, url_prefix='/student', template_folder='templates/student',
@@ -298,3 +301,45 @@ def student_schedule():
         logout_user()
         return redirect(url_for("view.landing"))
     return render_template("student/courses/schedule.html")
+
+
+# Уровень:              attendance
+# База данных:          User
+# HTML:                 attendance
+@student.route('/attendance_qr/<qr_token>', methods=['POST', 'GET'])
+@login_required
+def student_attendance_qr(qr_token):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.STUDENT)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    # if not check_qr_code_by_id(qr_id):
+    #    flash('Данной страницы не существует :)', 'error')
+    #    return redirect(url_for('student.student_home'))
+    qr_code_name = 'jewell_mirror_visits'
+    r = get_qr_code_by_name(qr_code_name)
+
+    if not r.success:
+        flash('Произошла какая-то ошибка :)', 'error')
+        return redirect(url_for('student.student_home'))
+
+    if r.data.uri.split('/')[-1] != qr_id:
+        flash('Данной страницы не существует :)', 'error')
+        return redirect(url_for('student.student_home'))
+
+    for i in handle_visit(current_user, datetime.now()):
+        if i['visit_type'] == VisitType.ENTER.value:
+            flash(
+                f"{current_user.first_name} {'пришла' if current_user.sex == Sex.FEMALE else 'пришел'} на занятие {'/'.join(i['courses'])}",
+                'success')
+        elif i['visit_type'] == VisitType.EXIT.value:
+            flash(
+                f"{current_user.first_name} {'ушла' if current_user.sex == Sex.FEMALE else 'ушел'} на занятие {'/'.join(i['courses'])}",
+                'success')
+
+    return redirect(url_for('student.student_home'))

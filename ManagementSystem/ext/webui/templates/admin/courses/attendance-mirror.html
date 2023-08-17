@@ -1,0 +1,49 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance Mirror
+{% endblock %}
+
+{% block css %}
+
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
+                        </li>
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_attendance') }}">Посещаемость</a>
+                        </li>
+                        <li class="breadcrumb-item active"><a href="{{ url_for('admin.admin_attendance_mirror') }}">Зеркало</a>
+                        </li>
+                    </ol>
+                </div>
+                <h4 class="page-title" id="page-header">Посещаемость Зеркало</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        <table class="table table-centered mb-0 display-6">
+            <tbody>
+            {% for visit in visits %}
+                <tr>
+                    <td><img alt="{{ visit['type'] }}" src="../../../assets/images/visits/{{ visit['type'] }}.png"
+                             style="max-height: 40px;"></td>
+                    <td>{{ visit['user'] }}</td>
+                    <td>{{ visit['date'] }}</td>
+                    <td>{{ visit['courses'] }}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

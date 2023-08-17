@@ -135,7 +135,19 @@
 
 <script>
 
-    function show_tg_modal(reload_after = true) {
+    $(document).ready(function () {
+        let telegram_validated = {{current_user.telegram_id is not none | lower}};
+        let phone = document.getElementById("phonenumber");
+        phone.style.borderWidth = "2px";
+        if (telegram_validated) {
+            phone.style.borderColor = "green";
+        } else {
+            phone.style.borderColor = "red";
+            show_tg_modal();
+        }
+    });
+
+    function show_tg_modal() {
         $.ajax({
             type: 'POST',
             url: '/registered/token',
@@ -145,27 +157,16 @@
                     icon: res.icon,
                     title: res.title,
                     html: res.text,
-                    footer: res.footer
+                    footer: res.footer,
+                    confirmButtonText: res.confirm_btn_text,
+                    allowOutsideClick: false,
+                    showCloseButton: true
                 }).then((result) => {
-                    if (reload_after) {
-                        location.reload();
-                    }
+                    //location.href = res.tg_bot;
                 });
             }
         });
     }
-
-    $(document).ready(function () {
-        let telegram_validated = "{{telegram_validated}}";
-        let phone = document.getElementById("phonenumber");
-        phone.style.borderWidth = "2px";
-        if (telegram_validated === 'True') {
-            phone.style.borderColor = "green";
-        } else {
-            phone.style.borderColor = "red";
-            show_tg_modal(false);
-        }
-    });
 
     function link_telegram() {
         try {

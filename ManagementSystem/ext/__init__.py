@@ -1,3 +1,5 @@
+import os
+
 from ManagementSystem.config import load_config
 from ManagementSystem.ext.configurator import SystemVariables
 
@@ -14,5 +16,8 @@ directories = {
     'products': 'storage/database/products',
     'records': 'storage/database/records'
 }
+
+for directory in directories.values():
+    os.makedirs(directory, exist_ok=True)
 
 valid_images = ['jpeg', 'jpg', 'png', 'heic']

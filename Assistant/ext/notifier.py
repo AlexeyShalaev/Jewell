@@ -6,7 +6,9 @@ from Assistant.models.notification import Notification
 from Assistant.models.userModel import Role
 
 
-def notify_user(user, region, link, icon, color, text, date=datetime.now()):
+def notify_user(user, region, link, icon, color, text, date=None):
+    if date is None:
+        date = datetime.now()
     try:
         notifications = user.notifications
         notification = Notification.create_notification(region,
@@ -21,7 +23,9 @@ def notify_user(user, region, link, icon, color, text, date=datetime.now()):
         logging.error(ex)
 
 
-def notify_admins(region, link, icon, color, text, date=datetime.now()):
+def notify_admins(region, link, icon, color, text, date=None):
+    if date is None:
+        date = datetime.now()
     for admin in get_users_by_role(Role.ADMIN).data:
         try:
             notifications = admin.notifications

@@ -1,22 +1,25 @@
+import logging
 import os
 from datetime import datetime
-import logging
 
-from flask import *
+from flask import Blueprint, send_file, json, url_for, request
 
-from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
+from ManagementSystem.ext.attendance_visits import handle_visit
+from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.database.attendances import get_attendances_by_user_id, add_attendance
 from ManagementSystem.ext.database.courses import get_courses, Time, get_courses_json
 from ManagementSystem.ext.database.flask_sessions import get_flask_sessions
 from ManagementSystem.ext.database.offers import get_offers
 from ManagementSystem.ext.database.orders import get_orders
 from ManagementSystem.ext.database.products import get_products
+from ManagementSystem.ext.database.qr_codes import get_qr_code_by_name, add_qr_code, update_qr_code
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType, delete_record
 from ManagementSystem.ext.database.recover_pw import get_recovers
 from ManagementSystem.ext.database.relationships import get_relationships_by_sender
 from ManagementSystem.ext.database.users import get_users, get_user_by_id, update_notifications, Reward, Role, \
     get_users_json
+from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.snapshotting import backup, restore, get_sorted_backups
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, get_month
@@ -215,7 +218,7 @@ def get_schedule():
             return json.dumps(
                 {'success': True, 'times': times, 'courses': filtered_courses,
                  'colors': colors}), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
     except Exception as ex:
         logging.error(f'get_schedule: {ex}')
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
@@ -338,7 +341,8 @@ def get_user_attendance():
             "february": [],
             "march": [],
             "april": [],
-            "may": []
+            "may": [],
+            "june": []
         }
 
         months = {
@@ -350,7 +354,8 @@ def get_user_attendance():
             2: 'february',
             3: 'march',
             4: 'april',
-            5: 'may'
+            5: 'may',
+            6: 'june'
         }
 
         for i in get_attendances_by_user_id(user_id).data:
@@ -478,7 +483,8 @@ def attendance_admin():
                 2: 'february',
                 3: 'march',
                 4: 'april',
-                5: 'may'
+                5: 'may',
+                6: 'june'
             }
             if now <= trip_date:
                 for user in get_users().data:
@@ -638,7 +644,7 @@ def attendance_student():
                                         "frequency": frequency, "extra_info": extra_info,
                                         "visits_dataset": visits_dataset,
                                         "href": f'{request.url_root[:-1]}{url_for("student.student_attendance")}'}}), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
     except Exception as ex:
         logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
@@ -722,6 +728,50 @@ def api_get_courses():
         token = request.json['token']
         if token == api_token:
             return json.dumps({'success': True, 'data': get_courses_json()}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logging.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/visit
+# База данных:          Attendance
+# HTML:                 -
+@api.route('/attendance/visit', methods=['POST'])
+def attendance_visit():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            user_id = request.json['user_id']
+            date = datetime.strptime(request.json['date'], "%d.%m.%Y %H:%M:%S")
+            r = get_user_by_id(user_id)
+            if r.success:
+                user = r.data
+                data = handle_visit(user, date)
+                return json.dumps({'success': True, 'data': data}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logging.error(ex)
+    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              attendance/visit
+# База данных:          Attendance
+# HTML:                 -
+@api.route('/attendance/qrcode', methods=['POST'])
+def attendance_qr_code():
+    qr_code_name = 'jewell_mirror_visits'
+    try:
+        token = request.json['token']
+        if token == api_token:
+            uri = url_for('view.landing')
+            status, token = create_token()
+            if status:
+                uri = url_for('student.student_attendance_qr', qr_token=token)
+            r = get_qr_code_by_name(qr_code_name)
+            if not r.success:
+                add_qr_code(qr_code_name, uri)
+            else:
+                update_qr_code(r.data.id, 'uri', uri)
+            return json.dumps({'success': True, 'uri': uri}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}

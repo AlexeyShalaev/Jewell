@@ -364,3 +364,10 @@ def make_embedding(image_path: str) -> FaceRecognitionResult:
     except Exception as ex:
         logging.error(ex)
         return FaceRecognitionResult(False, FaceRecognitionStatus.ERROR, np.array(0))
+
+
+def has_element(list_a, list_b):
+    for item in list_a:
+        if item in list_b:
+            return True
+    return False

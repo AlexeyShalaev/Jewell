@@ -78,6 +78,7 @@
                 <th>march</th>
                 <th>april</th>
                 <th>may</th>
+                <th>june</th>
                 <th>all</th>
             </tr>
             </thead>
@@ -95,6 +96,7 @@
                 <th>march</th>
                 <th>april</th>
                 <th>may</th>
+                <th>june</th>
                 <th>all</th>
             </tr>
             </tfoot>
@@ -178,7 +180,8 @@
                         <!-- Autoclose -->
                         <div class="mb-3 position-relative" id="datepicker">
                             <label for="date_attendance" class="form-label">Дата</label>
-                            <input id="date_attendance" name="date_attendance" type="text" class="form-control" data-date-format="dd.mm.yyyy" data-provide="datepicker" data-date-autoclose="true"
+                            <input id="date_attendance" name="date_attendance" type="text" class="form-control"
+                                   data-date-format="dd.mm.yyyy" data-provide="datepicker" data-date-autoclose="true"
                                    data-date-container="#datepicker" required>
                         </div>
 
@@ -241,6 +244,7 @@
                                 {data: "march"},
                                 {data: "april"},
                                 {data: "may"},
+                                {data: "june"},
                                 {data: "all"}
                             ],
                             autofill: true,
@@ -316,7 +320,7 @@
             sel.innerHTML = "";
             let date = new Date();
             let latest = date.getFullYear();
-            if (date.getMonth() >= 8) {
+            if (date.getMonth() + 1 >= 9) {
                 ++latest;
             }
             for (let year = latest; year > 2020; --year) {

@@ -204,6 +204,7 @@ def get_schedule():
                 except Exception as ex:
                     logging.error(ex)
                 filtered_courses.append({
+                    "id": str(course.id),
                     "name": course.name,
                     "timetable": course.timetable,
                     "teachers": teachers

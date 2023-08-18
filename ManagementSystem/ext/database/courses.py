@@ -106,8 +106,7 @@ def get_courses_by_teacher(teacher) -> MongoDBResult:
     resp = get_courses()
     if resp.success:
         filtered_courses = []
-        courses = resp.data
-        for course in courses:
+        for course in resp.data:
             if teacher in course.teachers:
                 filtered_courses.append(course)
         return MongoDBResult(True, filtered_courses)

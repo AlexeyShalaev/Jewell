@@ -137,7 +137,7 @@ class JewellNet {
                 },
             success: function (result) {
                 const res = JSON.parse(result);
-                if (res.success === true && res.way.length>0) {
+                if (res.success === true && res.way.length > 0) {
                     jewellNet.show_way(res.way);
                 } else {
                     $.NotificationApp.send("Связи", "Не удалось вычислить путь.", "top-right", "#FF5B5B", "error");
@@ -170,6 +170,14 @@ class JewellNet {
 }
 
 function setJewellNet(div_id) {
+    // Добавляем обработчик события для нажатия клавиши на всем документе
+    document.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Предотвращаем стандартное действие клавиши Enter
+            search_nodes();
+        }
+    });
+
     $.ajax({
         type: "POST",
         url: '/api/networking/dataset',

@@ -57,7 +57,11 @@ def update_map(id, key, value):
 
 # обновление данных карты поездок
 def update_trips(countries):
-    db.maps.update_one({'name': 'trips'}, {"$set": {'countries': countries}})
+    existing_map = db.maps.find_one({'name': 'trips'})
+    if existing_map:
+        db.maps.update_one({'name': 'trips'}, {"$set": {'countries': countries}})
+    else:
+        db.maps.insert_one({'name': 'trips', 'countries': countries})
 
 
 # удаление карты по ID

@@ -48,9 +48,9 @@ def teacher_home():
                            map=trip_map)
 
 
-# Уровень:              courses/schedule
+# Уровень:              news
 # База данных:          User
-# HTML:                 schedule
+# HTML:                 news
 @teacher.route('/news', methods=['POST', 'GET'])
 @login_required
 def teacher_news():

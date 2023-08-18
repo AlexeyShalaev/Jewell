@@ -21,7 +21,8 @@
                         <li class="breadcrumb-item active">Расписание</li>
                     </ol>
                 </div>
-                <h4 class="page-title">Расписание<a class="ms-3" href="{{ system_variables['courses_yahad'] }}" target="_blank">Подробнее</a></h4>
+                <h4 class="page-title">Расписание<a class="ms-3" href="{{ system_variables['courses_yahad'] }}"
+                                                    target="_blank">Подробнее</a></h4>
             </div>
         </div>
     </div>
@@ -63,7 +64,7 @@
     <div class="row">
         {% for course in courses %}
             <div class="col-md-4">
-                <div id="course_{{ course.name }}" class="card" style="border: 2px solid black">
+                <div id="course_{{ course.id }}" class="card" style="border: 2px solid black">
                     <div class="card-body">
                         <h5 class="card-title">{{ course.name }}</h5>
                     </div> <!-- end card-body-->
@@ -105,9 +106,10 @@
                             }
                             for (let i = 0; i < courses.length; ++i) {
                                 //setting colors for teacher's courses
-                                let course = document.getElementById("course_" + courses[i].name);
-                                course.style.borderColor = colors[courses[i].name];
-
+                                let course = document.getElementById("course_" + courses[i].id);
+                                if (course) {
+                                    course.style.borderColor = colors[courses[i].name];
+                                }
                                 let tt = courses[i]['timetable'];
                                 for (const [key, value] of Object.entries(tt)) {
                                     let cell_id = `${key}-${value.hours}-${value.minutes}`;
@@ -120,11 +122,13 @@
                                     span.innerText = courses[i].name;
                                     cell.appendChild(span);
 
-                                    //setting timetable for teacher's courses
-                                    let p = document.createElement("p");
-                                    p.setAttribute('class', 'card-text');
-                                    p.innerText = `${to_rus(key)} ${('0' + value.hours).slice(-2)}:${('0' + value.minutes).slice(-2)}`;
-                                    course.children[0].appendChild(p);
+                                    if (course) {
+                                        //setting timetable for teacher's courses
+                                        let p = document.createElement("p");
+                                        p.setAttribute('class', 'card-text');
+                                        p.innerText = `${to_rus(key)} ${('0' + value.hours).slice(-2)}:${('0' + value.minutes).slice(-2)}`;
+                                        course.children[0].appendChild(p);
+                                    }
                                 }
                             }
                         } else {

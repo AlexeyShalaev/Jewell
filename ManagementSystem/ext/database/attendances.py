@@ -120,3 +120,9 @@ def delete_attendance_marker(id):
     db.attendance_markers.delete_one({
         '_id': ObjectId(id)
     })
+
+
+def delete_attendances_by_user_id(user_id):
+    db.attendances.delete_many({
+        'user_id': ObjectId(user_id)
+    })

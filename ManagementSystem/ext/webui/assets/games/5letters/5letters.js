@@ -18,6 +18,12 @@ class LettersGame {
 
     keyboard_click(key) {
         if (key === 'Ввод') {
+            // Блокируем кнопку на 3 секунды
+            document.getElementById("enter_btn").style.pointerEvents = "none";
+            setTimeout(function () {
+                document.getElementById("enter_btn").style.pointerEvents = "auto";
+            }, 5000); // Разблокируем через 5 секунды
+
             if (this.#col === this.#cols) {
                 let word = "";
                 for (let col = 0; col < this.#cols; ++col) {

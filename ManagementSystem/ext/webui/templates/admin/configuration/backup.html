@@ -119,7 +119,7 @@
                           data-previews-container="#file-previews"
                           data-upload-preview-template="#uploadPreviewTemplate">
                         <div class="fallback">
-                            <input id="file_input" name="file" type="file" accept=".tar.gz" multiple/>
+                            <input id="file_input" name="file" type="file" accept=".tar.gz"/>
                         </div>
 
                         <div class="dz-message needsclick">
@@ -164,6 +164,23 @@
     </div>
 
     <script>
+        // Создаем экземпляр Mutation Observer
+        const observer = new MutationObserver(function (mutationsList) {
+            for (const mutation of mutationsList) {
+                if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                    for (const addedNode of mutation.addedNodes) {
+                        if (addedNode instanceof HTMLElement && addedNode.parentElement.id === 'file-previews') {
+                            location.reload();
+                        }
+                    }
+                }
+            }
+        });
+
+        // Настройка наблюдения - следим за добавлением потомков в #file-previews
+        const config = {childList: true};
+        observer.observe(document.getElementById('file-previews'), config);
+
         function handleDumpClick(cb) {
             document.getElementById("download_dump").value = cb.checked;
         }
@@ -173,7 +190,7 @@
 
 {% block js %}
     <!-- plugin js -->
-    <script src="../../assets/vendor/dropzone/min/dropzone.min.js"></script>
+    <script src="../../../assets/vendor/dropzone/min/dropzone.min.js"></script>
     <!-- init js -->
-    <script src="../../assets/js/ui/component.fileupload.js"></script>
+    <script src="../../../assets/js/ui/component.fileupload.js"></script>
 {% endblock %}

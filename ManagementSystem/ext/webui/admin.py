@@ -13,7 +13,7 @@ from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
     get_attendances_by_user_id, add_attendance_marker, get_attendance_markers, get_attendance_marker_by_id, \
-    update_attendance_marker, delete_attendance_marker
+    update_attendance_marker, delete_attendance_marker, delete_attendances_by_user_id
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name, get_courses_by_teacher, update_course_teachers
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
@@ -34,7 +34,7 @@ from ManagementSystem.ext.database.relationships import get_relationships_by_sen
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
     update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
-from ManagementSystem.ext.database.visits import get_visits
+from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
@@ -95,7 +95,7 @@ def admin_home():
 
 # Уровень:              news
 # База данных:          User
-# HTML:                 schedule
+# HTML:                 news
 @admin.route('/news', methods=['POST', 'GET'])
 @login_required
 def admin_news():
@@ -1358,6 +1358,11 @@ def security_users_delete():
         delete_offers_by_user_id(user_id)
         delete_orders_by_user_id(user_id)
         delete_records_by_user_id(user_id)
+        delete_recovers_by_user_id(user_id)
+
+        delete_attendances_by_user_id(user_id)
+        delete_visits_by_user_id(user_id)
+
         try:
             recs = []
             for rec in get_records_by_author(user_id).data:
@@ -1371,18 +1376,21 @@ def security_users_delete():
                     os.remove(os.path.join(directory, file))
         except Exception as ex:
             logging.error(ex)
-        delete_recovers_by_user_id(user_id)
+
         for i in get_relationships_by_sender(user_id).data:
             delete_relationship(i.id)
         for i in get_relationships_by_receiver(user_id).data:
             delete_relationship(i.id)
+
         for i in get_courses_by_teacher(user_id).data:
             teachers = []
             for teacher in i.teachers:
                 if str(teacher.id) != user_id:
                     teachers.append(str(teacher.id))
             update_course_teachers(teachers)
+
         delete_user(user_id)
+
         try:
             resp_status, data = encrypt_id_with_no_digits(str(user_id))
             if resp_status:
@@ -1685,7 +1693,7 @@ def configuration_backup():
                     else:
                         clear_temporary_folder()
                         flash('Содержимое архива не удовлетворяет образцу', 'warning')
-                    return "importing"
+                    # return redirect(url_for('admin.configuration_backup'))
         except Exception as ex:
             logging.error(ex)
             flash(str(ex), 'error')

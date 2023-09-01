@@ -7,7 +7,8 @@ from flask_toastr import *
 
 from ManagementSystem.ext import system_variables
 from ManagementSystem.ext.crypt import check_password_hash, crypt_pass, create_token
-from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip
+from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip, \
+    get_flask_sessions_by_user_id
 from ManagementSystem.ext.database.recover_pw import add_recover, get_recover_by_phone, delete_recovers_by_user_id
 from ManagementSystem.ext.database.users import get_user_by_phone_number, update_user, check_user_by_phone, add_user, \
     Role, update_registered_user, get_user_by_access_token, update_password_by_access_token, get_user_by_id
@@ -51,18 +52,24 @@ def login():
                 if check_password_hash(user.data.password, input_password):
                     # авторизуем пользователя
                     login_user(user.data)
+                    user_ip = request.remote_addr
                     add_flask_session(id=session.get('_id'),
                                       user_id=session.get('_user_id'),
                                       user_agent=request.user_agent,
                                       fresh=session.get('_fresh'),
-                                      ip=get_info_by_ip(request.remote_addr))
+                                      ip=get_info_by_ip(user_ip))
                     update_user(user.data.id, 'access_token', '')
                     flash('Вы успешно авторизовались!', 'success')
                     logging.info(f'авторизован пользователь {input_phone_number}')
                     if user.data.telegram_id is not None:
-                        msg = f'Совершен вход в ваш аккаунт. (IP: {request.remote_addr})\n' \
-                              'Если это не вы срочно смените пароль в настройках и завершите все сессии.'
-                        send_message(msg, user.data.telegram_id)
+                        flag = True
+                        for flask_session in get_flask_sessions_by_user_id(user.data.id).data:
+                            if flask_session.ip['query'] == user_ip:
+                                flag = False
+                        if flag:
+                            msg = f'Совершен вход в ваш аккаунт. (IP: {user_ip})\n' \
+                                  'Если это не вы срочно смените пароль в настройках и завершите все сессии.'
+                            send_message(msg, user.data.telegram_id)
                     return redirect(request.args.get("next") or url_for("view.login"))
                 else:
                     flash('Неверный пароль!', 'warning')

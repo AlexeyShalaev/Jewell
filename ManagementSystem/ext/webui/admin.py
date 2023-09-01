@@ -583,8 +583,8 @@ def user_attendance(user_id):
         return render_template("error-500.html")
 
     user_data = resp.data
-    if user_data.reward == Reward.NULL:
-        return redirect(url_for("admin.admin_home"))
+    #if user_data.reward == Reward.NULL:
+    #    return redirect(url_for("admin.admin_home"))
 
     return render_template("admin/courses/user-attendance.html", user=user_data)
 

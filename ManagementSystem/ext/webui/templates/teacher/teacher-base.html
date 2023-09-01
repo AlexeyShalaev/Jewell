@@ -354,6 +354,19 @@
 
                 <li class="side-nav-title side-nav-item">Курсы</li>
 
+
+                <li class="side-nav-item">
+                    <a href="{{ url_for('teacher.teacher_attendance') }}" class="side-nav-link">
+                        <i class="fa-regular fa-calendar-check"></i>
+                        <span> Посещаемость </span>
+                    </a>
+                </li>
+                <li class="side-nav-item">
+                    <a href="{{ url_for('teacher.teacher_attendance_markers') }}" class="side-nav-link">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <span> Посещаемость по ссылке </span>
+                    </a>
+                </li>
                 <li class="side-nav-item">
                     <a href="{{ url_for('teacher.teacher_schedule') }}" class="side-nav-link">
                         <i class="fa-solid fa-calendar-days"></i>

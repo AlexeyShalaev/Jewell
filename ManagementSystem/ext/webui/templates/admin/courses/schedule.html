@@ -277,13 +277,19 @@
                                 for (const [key, value] of Object.entries(tt)) {
                                     let cell_id = `${key}-${value.hours}-${value.minutes}`;
                                     let cell = document.getElementById(cell_id);
+
+                                    let cell_courses = document.createElement("div");
+                                    cell_courses.setAttribute('class', 'row');
+                                    cell.appendChild(cell_courses);
+
                                     let span = document.createElement("span");
-                                    span.setAttribute('class', 'padding-5px-tb padding-15px-lr border-radius-5 me-3 text-white font-size16 xs-font-size13');
+                                    span.setAttribute('class', 'padding-5px-tb padding-15px-lr border-radius-5 me-3 mb-2 text-white font-size16 xs-font-size13');
                                     span.setAttribute('style', 'background-color: ' + colors[courses[i].name]);
                                     span.setAttribute('data-index', i.toString());
                                     span.setAttribute('onclick', "show_info_about_course(" + i + ")");
                                     span.innerText = courses[i].name;
-                                    cell.appendChild(span);
+
+                                    cell_courses.appendChild(span);
 
                                     //setting timetable for admin's courses
                                     let p = document.createElement("p");

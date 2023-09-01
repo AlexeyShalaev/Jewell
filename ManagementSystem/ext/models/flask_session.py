@@ -36,5 +36,5 @@ def get_info_by_ip(ip: str) -> dict:
         response = requests.get(url).json()
     except Exception as ex:
         logging.error(ex)
-        response = {"ip": ip}
+        response = {"query": ip}
     return response

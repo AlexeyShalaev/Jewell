@@ -1994,8 +1994,8 @@ def admin_face_id():
     for i in get_users().data:
         # str необходим для избежания исключений с None
         users.append({
-            "first_name": f'<a href="{url_for("admin.admin_face_id_user", user_id=i.id)}" target="_blank">{i.first_name}</a>',
-            "last_name": i.last_name,
+            "first_name": f'<a href="{url_for("admin.admin_face_id_user", user_id=i.id)}" target="_blank">{str(i.first_name)}</a>',
+            "last_name": str(i.last_name),
             "phone_number": str(i.phone_number),
             "greeting": str(i.face_id.greeting),
             "encodings_count": len(i.face_id.encodings),

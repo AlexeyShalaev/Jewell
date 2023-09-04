@@ -134,12 +134,15 @@ def import_database_from_json():
     try:
         files = os.listdir(temporary_folder)
         for file in files:
-            with open(os.path.join(temporary_folder, file)) as f:
-                file_data = loads(f.read())
-                index = file.rfind('.')
-                collection_name = file[:index]
-                db[collection_name].drop()
-                db[collection_name].insert_many(file_data)
+            try:
+                with open(os.path.join(temporary_folder, file)) as f:
+                    file_data = loads(f.read())
+                    index = file.rfind('.')
+                    collection_name = file[:index]
+                    db[collection_name].drop()
+                    db[collection_name].insert_many(file_data)
+            except:
+                pass
     except Exception as ex:
         logging.error(ex)
 

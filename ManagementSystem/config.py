@@ -18,6 +18,7 @@ class FlaskConfig:
     """
     app_name: str  # flask app name
     login_manager: dict  # login manager settings
+    session_max_age: int
 
 
 @dataclass
@@ -50,6 +51,7 @@ def load_config(path: str = ".env"):
                 'login_message': env.str('LOGIN_MESSAGE'),
                 'login_message_category': env.str('LOGIN_MESSAGE_CATEGORY'),
             },
+            session_max_age=env.int('SESSION_MAX_AGE'),
         ),
         tg_bot=TgBot(
             token=env.str("BOT_TOKEN"),

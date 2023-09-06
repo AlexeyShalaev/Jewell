@@ -1,11 +1,11 @@
 import logging
 from random import choice
 
-from flask import Blueprint, redirect, request, session, flash, url_for, json
+from flask import Blueprint, redirect, request, session, flash, url_for, json, make_response
 from flask_login import *
 from flask_toastr import *
 
-from ManagementSystem.ext import system_variables
+from ManagementSystem.ext import system_variables, config
 from ManagementSystem.ext.crypt import check_password_hash, crypt_pass, create_token
 from ManagementSystem.ext.database.flask_sessions import add_flask_session, delete_flask_session, get_info_by_ip, \
     get_flask_sessions_by_user_id
@@ -53,11 +53,17 @@ def login():
                     # авторизуем пользователя
                     login_user(user.data)
                     user_ip = request.remote_addr
-                    add_flask_session(id=session.get('_id'),
+                    session_id = session.get('_id')
+                    add_flask_session(id=session_id,
                                       user_id=session.get('_user_id'),
                                       user_agent=request.user_agent,
                                       fresh=session.get('_fresh'),
                                       ip=get_info_by_ip(user_ip))
+
+                    # Устанавливаем куку с session_id и длительным сроком жизни (например, 1 неделя)
+                    response = make_response(redirect(request.args.get("next") or url_for("view.login")))
+                    response.set_cookie('session_id', session_id, max_age=config.flask.session_max_age)
+
                     update_user(user.data.id, 'access_token', '')
                     flash('Вы успешно авторизовались!', 'success')
                     logging.info(f'авторизован пользователь {input_phone_number}')
@@ -70,7 +76,7 @@ def login():
                             msg = f'Совершен вход в ваш аккаунт. (IP: {user_ip})\n' \
                                   'Если это не вы срочно смените пароль в настройках и завершите все сессии.'
                             send_message(msg, user.data.telegram_id)
-                    return redirect(request.args.get("next") or url_for("view.login"))
+                    return response
                 else:
                     flash('Неверный пароль!', 'warning')
         except Exception as ex:
@@ -96,11 +102,18 @@ def tg_login(access_token):
             logout_user()
             # авторизуем пользователя
             login_user(user.data)
-            add_flask_session(id=session.get('_id'),
+
+            session_id = session.get('_id')
+            add_flask_session(id=session_id,
                               user_id=session.get('_user_id'),
                               user_agent=request.user_agent,
                               fresh=session.get('_fresh'),
                               ip=get_info_by_ip(request.remote_addr))
+
+            # Устанавливаем куку с session_id и длительным сроком жизни (например, 1 неделя)
+            response = make_response(redirect(request.args.get("next") or url_for("view.login")))
+            response.set_cookie('session_id', session_id, max_age=config.flask.session_max_age)
+
             flash('Вы успешно авторизовались!', 'success')
             update_user(user.data.id, 'access_token', '')
     except Exception as ex:
@@ -118,7 +131,12 @@ def logout():
         logout_user()
         flash("Вы вышли из аккаунта", "success")
         templates = ['auth-logout.html', 'auth-logout-2.html']  # для случайной генерации шаблона
-        return render_template("authentication/" + choice(templates))
+
+        # Создаем response и удаляем куки с session_id
+        response = make_response(render_template("authentication/" + choice(templates)))
+        response.delete_cookie('session_id')
+
+        return response
     else:
         return redirect(url_for("view.landing"))
 

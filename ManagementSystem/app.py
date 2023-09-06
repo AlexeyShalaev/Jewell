@@ -7,6 +7,7 @@ from flask import *
 from flask_login import *
 from flask_toastr import *
 
+from ext.database.flask_sessions import delete_flask_session, get_flask_session_by_id
 from ext.database.users import *
 from ext.webui.admin import admin
 from ext.webui.api import api
@@ -53,6 +54,23 @@ def load_user(id):
     user = get_user_by_id(id)
     if user.success:
         return user.data
+
+
+@app.before_request
+def before_request():
+    # Получите идентификатор сессии из куки, если он существует
+    session_id = request.cookies.get('session_id', None)
+    if not current_user.is_authenticated and session_id is not None:
+        resp = get_flask_session_by_id(session_id)
+        if resp.success:
+            flask_session = resp.data
+            if flask_session.user_agent != str(request.user_agent) or flask_session.ip['query'] != request.remote_addr:
+                # Если user_agent или ip не совпадают, то сессия устарела
+                delete_flask_session(session_id)
+            else:
+                r = get_user_by_id(flask_session.user_id)
+                if r.success:
+                    login_user(r.data)
 
 
 def main():

@@ -9,9 +9,9 @@ from ManagementSystem.ext.tools import has_element
 
 ONE_DAY = 24 * 60 * 60  # seconds
 COURSE_TIME = 2  # hours
-VISIT_RANGE_MINUTES = 15  # minutes
+VISIT_RANGE_MINUTES = 30  # minutes
 VISIT_RANGE_SECONDS = VISIT_RANGE_MINUTES * 60  # seconds
-NEXT_VISIT_MIN_TIME = 3600 * 1.75  # seconds
+NEXT_VISIT_MIN_TIME = 3600 * 1.5  # seconds
 
 
 def handle_visit(user, date):

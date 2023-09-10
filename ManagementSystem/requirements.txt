@@ -8,3 +8,4 @@ environs
 requests
 face-recognition
 pytz
+openpyxl

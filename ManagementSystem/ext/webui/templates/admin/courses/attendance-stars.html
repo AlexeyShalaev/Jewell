@@ -1,0 +1,95 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance Stars
+{% endblock %}
+
+{% block css %}
+    <style>
+        .div-center {
+            height: 20em;
+            position: relative
+        }
+
+        .div-center h4 {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-right: -50%;
+            transform: translate(-50%, -50%)
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
+                        </li>
+                        <li class="breadcrumb-item active">Посещаемость Stars</li>
+                    </ol>
+                </div>
+                <h4 class="page-title" id="page-header">Посещаемость</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        {% for i in range(9, 13) %} {# Проходим с сентября по декабрь #}
+            <div class="col-md-6 col-xxl-3">
+                <a href="{{ url_for('admin.admin_attendance_stars_month', month=i) }}" class="text-title">
+                    <div class="card d-block">
+                        <div class="card-body div-center">
+                            <h4>
+                                {% if i == 9 %}
+                                    Сентябрь
+                                {% elif i == 10 %}
+                                    Октябрь
+                                {% elif i == 11 %}
+                                    Ноябрь
+                                {% else %}
+                                    Декабрь
+                                {% endif %}
+                            </h4>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
+                </a>
+            </div> <!-- end col -->
+        {% endfor %}
+        {% for i in range(1, 7) %} {# Проходим с января по июнь #}
+            <div class="col-md-6 col-xxl-3">
+                <a href="{{ url_for('admin.admin_attendance_stars_month', month=i) }}" class="text-title">
+                    <div class="card d-block">
+                        <div class="card-body div-center">
+                            <h4>
+                                {% if i == 1 %}
+                                    Январь
+                                {% elif i == 2 %}
+                                    Февраль
+                                {% elif i == 3 %}
+                                    Март
+                                {% elif i == 4 %}
+                                    Апрель
+                                {% elif i == 5 %}
+                                    Май
+                                {% else %}
+                                    Июнь
+                                {% endif %}
+                            </h4>
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card-->
+                </a>
+            </div> <!-- end col -->
+        {% endfor %}
+    </div>
+
+
+
+{% endblock %}

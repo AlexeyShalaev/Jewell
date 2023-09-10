@@ -1,11 +1,11 @@
+import logging
 import os
 import re
 import time
 from datetime import datetime
-import logging
 
-from flask import *
-from flask_login import *
+from flask import Blueprint, redirect, url_for, request, flash, json, send_file, session
+from flask_login import login_required, logout_user, current_user, login_user
 from flask_toastr import *
 
 from ManagementSystem.ext import system_variables, directories, valid_images
@@ -13,7 +13,7 @@ from ManagementSystem.ext.crypt import create_token
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.attendances import delete_attendance, add_attendance, update_attendance, \
     get_attendances_by_user_id, add_attendance_marker, get_attendance_markers, get_attendance_marker_by_id, \
-    update_attendance_marker, delete_attendance_marker, delete_attendances_by_user_id
+    update_attendance_marker, delete_attendance_marker, delete_attendances_by_user_id, get_attendances
 from ManagementSystem.ext.database.courses import get_courses, add_course, delete_course, update_course, \
     check_course_by_name, get_courses_by_teacher, update_course_teachers
 from ManagementSystem.ext.database.flask_sessions import delete_flask_sessions_by_user_id, delete_flask_session, \
@@ -46,7 +46,8 @@ from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, normal_phone_number, \
-    get_month, get_files_from_storage, convert_markdown_to_html, rus2eng, make_embedding, FaceRecognitionStatus
+    get_month, get_files_from_storage, convert_markdown_to_html, make_embedding, FaceRecognitionStatus, \
+    generate_excel_attendance
 
 admin = Blueprint('admin', __name__, url_prefix='/admin', template_folder='templates/admin')
 
@@ -438,7 +439,7 @@ def admin_attendance():
                     try:
                         if user.role == Role.STUDENT and user.reward in rewards:
                             d = {
-                                "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{rus2eng(user.last_name)} {rus2eng(user.first_name)}</a>',
+                                "name": f'<a href=\"{url_for("admin.user_attendance", user_id=str(user.id))}\" target="_blank">{user.last_name} {user.first_name}</a>',
                                 "september": 0,
                                 "october": 0,
                                 "november": 0,
@@ -483,6 +484,88 @@ def admin_attendance():
             students.append({"name": f'{student.first_name} {student.last_name}', "id": str(student.id)})
 
     return render_template("admin/courses/attendance.html", students=students)
+
+
+# Уровень:              attendance_stars
+# База данных:          -
+# HTML:                 attendance-stars
+@admin.route('/attendance_stars', methods=['GET'])
+@login_required
+def admin_attendance_stars():
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    return render_template("admin/courses/attendance-stars.html")
+
+
+# Уровень:              attendance_stars/<month>
+# База данных:          -
+# HTML:                 attendance-stars
+@admin.route('/attendance_stars/<month>', methods=['POST', 'GET'])
+@login_required
+def admin_attendance_stars_month(month):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    now = datetime.now()
+    chosen_month = int(month)
+    if now.month >= 9:
+        start = now.year
+        end = start + 1
+    else:
+        end = now.year
+        start = end - 1
+    attendances = [attendance
+                   for attendance in get_attendances().data
+                   if ((attendance.date.year == start and attendance.date.month >= 9) or
+                       (attendance.date.year == end and attendance.date.month < 9))
+                   and attendance.date.month == chosen_month]
+    attendances.sort(key=lambda x: x.date)
+
+    days = {}
+    for i in attendances:
+        day = i.date.day
+        if day not in days:
+            days[day] = {'trip': [], 'grant': [], 'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y")}
+        r = get_user_by_id(i.user_id)
+        if r.success:
+            user = r.data
+            if user.reward == Reward.TRIP or user.reward == Reward.GRANT:
+                days[day][user.reward.value].append(f'{user.last_name} {user.first_name}')
+
+    # Сортируем имена внутри каждой категории
+    for day_data in days.values():
+        day_data['trip'].sort()
+        day_data['grant'].sort()
+
+    if request.method == "POST":
+        try:
+            if request.form['btn_attendance_stars'] == 'import':
+                months = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september',
+                          'october', 'november', 'december']
+                filename = f'yahad_jewell_attendance_{start}-{end}_{months[chosen_month - 1]}.xlsx'
+                filepath = os.path.join(temporary_folder, filename)
+                workbook = generate_excel_attendance(days)
+                # Сохраняем книгу
+                workbook.save(filepath)
+                # Отправьте файл пользователю
+                return send_file(filepath)
+        except Exception as ex:
+            logging.error(ex)
+
+    return render_template("admin/courses/attendance-stars-month.html", days=days)
 
 
 # Уровень:              attendance/user_id
@@ -583,7 +666,7 @@ def user_attendance(user_id):
         return render_template("error-500.html")
 
     user_data = resp.data
-    #if user_data.reward == Reward.NULL:
+    # if user_data.reward == Reward.NULL:
     #    return redirect(url_for("admin.admin_home"))
 
     return render_template("admin/courses/user-attendance.html", user=user_data)

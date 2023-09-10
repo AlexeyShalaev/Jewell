@@ -10,6 +10,8 @@ from enum import Enum
 import face_recognition
 import numpy as np
 import requests
+from openpyxl import Workbook
+from openpyxl.styles import Border, Side
 
 from ManagementSystem.ext.crypt import encrypt_id_with_no_digits
 from ManagementSystem.ext.database.relationships import get_relationships, RelationStatus
@@ -371,3 +373,40 @@ def has_element(list_a, list_b):
         if item in list_b:
             return True
     return False
+
+
+def generate_excel_attendance(days):
+    # Создаем новую книгу Excel и активный лист
+    workbook = Workbook()
+    sheet = workbook.active
+
+    # Добавляем заголовок
+    sheet['A1'] = 'Дата'
+    sheet['B1'] = 'Поездка'
+    sheet['C1'] = 'Стипендия'
+
+    # Задаем начальную строку для данных
+    row_num = 2
+    # Итерируемся по данным из days
+    for day_data in days.values():
+        # Добавляем дату с границами
+        cell = sheet.cell(row=row_num, column=1, value=day_data['date'])
+        cell.border = Border(top=Side(style='thin'))
+
+        # Добавляем вертикальную черту у двух соседних ячеек справа от даты
+        for col_num in range(2, 4):  # Столбцы с 2 по 3
+            cell = sheet.cell(row=row_num, column=col_num)
+            cell.border = Border(top=Side(style='thin'))
+
+        # Добавляем имена для поездки
+        for i, name in enumerate(day_data['trip'], start=2):
+            cell = sheet.cell(row=row_num + i - 1, column=2, value=name)
+
+        # Добавляем имена для стипендии
+        for i, name in enumerate(day_data['grant'], start=2):
+            cell = sheet.cell(row=row_num + i - 1, column=3, value=name)
+
+        # Увеличиваем номер строки
+        row_num += max(len(day_data['trip']), len(day_data['grant'])) + 1  # Добавляем 1 для отступа
+
+    return workbook

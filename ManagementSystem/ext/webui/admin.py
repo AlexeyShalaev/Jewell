@@ -42,6 +42,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
+from ManagementSystem.ext.stars import get_stars_config
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -473,7 +474,7 @@ def admin_attendance():
                         logging.error(ex)
                 return json.dumps({'success': True, 'users': users,
                                    'users_with_bad_attendance': users_with_bad_attendance}), 200, {
-                    'ContentType': 'application/json'}
+                           'ContentType': 'application/json'}
         except Exception as ex:
             logging.error(f'get_attendance: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
@@ -1163,6 +1164,8 @@ def users_student_profile(user_id):
         logout_user()
         return redirect(url_for("view.landing"))
 
+    stars_cfg = get_stars_config()
+
     if request.method == "POST":
         try:
             if request.form['btn_aus'] == 'edit':
@@ -1171,6 +1174,8 @@ def users_student_profile(user_id):
                 phone_number = normal_phone_number(request.form.get("phone_number"))
                 birthday = request.form.get("birthday")
                 reward = request.form.get("reward")
+                stars_code = request.form.get("stars_code")
+                stars_group = request.form.get("stars_group")
 
                 r = get_user_by_phone_number(phone_number)
                 if r.success:
@@ -1179,7 +1184,8 @@ def users_student_profile(user_id):
                         flash('Аккаунт с таким номером телефона уже существует!', 'warning')
                         return redirect(url_for('admin.users_student_profile', user_id=user_id))
 
-                update_main_data(user_id, first_name, last_name, phone_number, birthday, reward)
+                update_main_data(user_id, first_name, last_name, phone_number, birthday, reward, stars_code,
+                                 stars_group)
                 flash('Вы успешно изменили данные пользователя', 'success')
                 return redirect(url_for('admin.users_student_profile', user_id=user_id))
         except Exception as ex:
@@ -1306,7 +1312,8 @@ def users_student_profile(user_id):
                            visits_count=visits_count, visits_aim=visits_aim,
                            progress_color=progress_color, percent=percent, frequency=frequency,
                            extra_info=extra_info,
-                           visits_dataset=visits_dataset)
+                           visits_dataset=visits_dataset,
+                           stars_groups=get_stars_config()['groups'])
 
 
 # Уровень:              users/registered
@@ -1817,7 +1824,7 @@ def configuration_timemachine():
             else:
                 return json.dumps(
                     {'success': False, "error": 'Не удалось восстановить данные из резервной копии. '}), 200, {
-                    'ContentType': 'application/json'}
+                           'ContentType': 'application/json'}
         except Exception as ex:
             logging.error(ex)
             return json.dumps({'success': False, "error": str(ex)}), 200, {'ContentType': 'application/json'}
@@ -2159,11 +2166,11 @@ def admin_face_id_user_greeting():
         if len(TextFilter(greeting).find_bad_words()) > 0:
             return json.dumps(
                 {'success': False, "info": "Запрещено использовать нецензурную лексику в приветствиях"}), 200, {
-                'ContentType': 'application/json'}
+                       'ContentType': 'application/json'}
 
         update_user(user_id, 'face_id.greeting', greeting)
         return json.dumps({'success': True,
                            "info": f"Приветствие изменено: {greeting}"}), 200, {
-            'ContentType': 'application/json'}
+                   'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

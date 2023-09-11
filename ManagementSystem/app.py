@@ -75,7 +75,7 @@ def before_request():
 
 def main():
     logging.info("Starting app")
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', debug=True)
 
 
 if __name__ == "__main__":

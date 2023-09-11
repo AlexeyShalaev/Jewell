@@ -60,7 +60,7 @@
                                                 <span class="ms-1 badge bg-danger rounded-pill">Не привязан</span>
                                             {% endif %}
                                         </h4>
-                                        {% if current_user.telegram_username %}
+                                        {% if user.telegram_username %}
                                             <a href="https://t.me/{{ user.telegram_username }}"><p
                                                     class="font-13 text-white-50">
                                                 @{{ user.telegram_username }}</p></a>
@@ -160,6 +160,33 @@
                                     <option value="trip">Поездка</option>
                                     <option value="grant">Стипендия</option>
                                 {% endif %}
+                            </select>
+                        </div>
+
+                        <!-- Код Stars -->
+                        <div class="mb-3">
+                            <label for="first_name" class="form-label">Код Stars</label>
+                            <input type="text" id="stars_code" name="stars_code"
+                                   class="form-control"
+                                   value="{{ user['stars']['code'] if user['stars']['code'] else '' }}"
+                                   placeholder="Введите код пользователя Stars"
+                            >
+                        </div>
+
+                        <!-- Награда -->
+                        <div class="mb-3">
+                            <label for="stars_group" class="form-label">Группа Stars</label>
+                            <select id="stars_group" name="stars_group" class="form-select mb-3">
+                                {% if user.stars['group'] and user.stars['group'] != 'null' %}
+                                    <option value="{{ user.stars['group'] }}"
+                                            selected>{{ user.stars['group'] }}</option>
+                                {% else %}
+                                    <option value="null" selected>Ничего</option>
+                                {% endif %}
+                                {% for k in stars_groups.keys() %}
+                                    <option value="{{ k }}">{{ k }}</option>
+                                {% endfor %}
+                                <option value="null">Ничего</option>
                             </select>
                         </div>
 

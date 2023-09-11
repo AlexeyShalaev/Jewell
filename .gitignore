@@ -2,7 +2,9 @@
 .idea/
 .env
 jms_site.ini
+.ini
 wsgi.py
+ManagementSystem/stars.json
 ManagementSystem/storage
 ManagementSystem/webenv
 

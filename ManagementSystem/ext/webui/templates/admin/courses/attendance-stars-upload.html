@@ -17,11 +17,32 @@
                         <li class="breadcrumb-item active">Посещаемость Stars</li>
                     </ol>
                 </div>
-                <h4 class="page-title" id="page-header">Посещаемость</h4>
+                <h4 class="page-title" id="page-header">Необработанные данные</h4>
             </div>
         </div>
     </div>
     <!-- end page title -->
+
+    <div class="row mt-3">
+        <h4>Lessons</h4>
+        <table class="table table-centered mb-0">
+            <thead>
+            <tr>
+                <th>Группа Stars</th>
+                <th>Дата</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for lesson in data['lessons'] %}
+                <tr>
+                    {% for i in lesson.values() %}
+                        <td>{{ i }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
     <div class="row mt-3">
         <h4>Users</h4>
@@ -39,27 +60,6 @@
             {% for user in data['users'] %}
                 <tr>
                     {% for i in user.values() %}
-                        <td>{{ i }}</td>
-                    {% endfor %}
-                </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
-    <div class="row mt-3">
-        <h4>Lessons</h4>
-        <table class="table table-centered mb-0">
-            <thead>
-            <tr>
-                <th>Группа Stars</th>
-                <th>Дата</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for lesson in data['lessons'] %}
-                <tr>
-                    {% for i in lesson.values() %}
                         <td>{{ i }}</td>
                     {% endfor %}
                 </tr>

@@ -568,8 +568,8 @@ def admin_attendance_stars_month(month):
                     chosen_year = start
                 else:
                     chosen_year = end
-                r = update_stars_data(chosen_year, chosen_month)
-                return render_template("admin/courses/attendance-stars-upload.html", data=r)
+                unprocessed_data = update_stars_data(chosen_year, chosen_month)
+                return render_template("admin/courses/attendance-stars-upload.html", data=unprocessed_data)
         except Exception as ex:
             logging.error(ex)
 

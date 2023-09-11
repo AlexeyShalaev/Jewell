@@ -1,5 +1,6 @@
 import json
 import logging
+import time
 from datetime import datetime, timedelta
 from functools import wraps
 from bs4 import BeautifulSoup
@@ -134,57 +135,60 @@ def mark_attendance(lesson_id, students_ids):
 
 
 def update_stars_data(year, month):
-    stars_cfg = get_stars_config()
-    stars_groups = stars_cfg['groups']
-    stars_teachers = stars_cfg['teachers']
-    attendances = [attendance
-                   for attendance in get_attendances().data
-                   if attendance.date.year == year and attendance.date.month == month]
-    days = {}
-
     unprocessed_data = {
         'users': [],
         'lessons': []
     }
+    try:
+        stars_cfg = get_stars_config()
+        stars_groups = stars_cfg['groups']
+        stars_teachers = stars_cfg['teachers']
+        attendances = [attendance
+                       for attendance in get_attendances().data
+                       if attendance.date.year == year and attendance.date.month == month]
+        days = {}
 
-    for i in attendances:
-        day = i.date.day
-        if day not in days:
-            days[day] = {}
-        r = get_user_by_id(i.user_id)
-        if r.success:
-            user = r.data
-            stars_code = user.stars.code
-            stars_group = user.stars.group
-            if stars_code and stars_group and stars_group != 'null':
-                if stars_group not in days[day]:
-                    days[day][stars_group] = []
-                days[day][stars_group].append(stars_code)
-            else:
-                unprocessed_data['users'].append({
-                    'id': str(user.id),
-                    'last_name': user.last_name,
-                    'first_name': user.first_name,
-                    'code': stars_code,
-                    'group': stars_group
-                })
-    for day, groups in days.items():
-        date = datetime(year, month, day)
-        for group_key in groups:
-            lesson_id = get_lesson_id(stars_groups[group_key], stars_teachers['Beinish Moshe-Boruch'], date)
-            attempts_cnt = 0
-            while lesson_id is None and attempts_cnt != 5:
-                create_lesson(stars_groups[group_key], stars_teachers['Beinish Moshe-Boruch'],
-                              date,
-                              19, 0,
-                              21, 0)
+        for i in attendances:
+            day = i.date.day
+            if day not in days:
+                days[day] = {}
+            r = get_user_by_id(i.user_id)
+            if r.success:
+                user = r.data
+                stars_code = user.stars.code
+                stars_group = user.stars.group
+                if stars_code and stars_group and stars_group != 'null':
+                    if stars_group not in days[day]:
+                        days[day][stars_group] = []
+                    days[day][stars_group].append(stars_code)
+                else:
+                    unprocessed_data['users'].append({
+                        'id': str(user.id),
+                        'last_name': user.last_name,
+                        'first_name': user.first_name,
+                        'code': stars_code,
+                        'group': stars_group
+                    })
+        for day, groups in days.items():
+            date = datetime(year, month, day)
+            for group_key in groups:
                 lesson_id = get_lesson_id(stars_groups[group_key], stars_teachers['Beinish Moshe-Boruch'], date)
-                attempts_cnt += 1
-            if lesson_id is None:
-                unprocessed_data['lessons'].append({
-                    'group': stars_groups[group_key],
-                    'date': date
-                })
-            else:
-                mark_attendance(lesson_id, groups[group_key])
+                attempts_cnt = 0
+                while lesson_id is None and attempts_cnt != 5:
+                    create_lesson(stars_groups[group_key], stars_teachers['Beinish Moshe-Boruch'],
+                                  date,
+                                  19, 0,
+                                  21, 0)
+                    time.sleep(0.5)
+                    lesson_id = get_lesson_id(stars_groups[group_key], stars_teachers['Beinish Moshe-Boruch'], date)
+                    attempts_cnt += 1
+                if lesson_id is None:
+                    unprocessed_data['lessons'].append({
+                        'group': stars_groups[group_key],
+                        'date': date
+                    })
+                else:
+                    mark_attendance(lesson_id, groups[group_key])
+    except Exception as ex:
+        logging.error(ex)
     return unprocessed_data

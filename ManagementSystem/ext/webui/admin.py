@@ -42,7 +42,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.stars import get_stars_config
+from ManagementSystem.ext.stars import get_stars_config, update_stars_data
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -563,6 +563,13 @@ def admin_attendance_stars_month(month):
                 workbook.save(filepath)
                 # Отправьте файл пользователю
                 return send_file(filepath)
+            elif request.form['btn_attendance_stars'] == 'update_stars':
+                if now.month >= 9:
+                    chosen_year = start
+                else:
+                    chosen_year = end
+                r = update_stars_data(chosen_year, chosen_month)
+                return render_template("admin/courses/attendance-stars-upload.html", data=r)
         except Exception as ex:
             logging.error(ex)
 

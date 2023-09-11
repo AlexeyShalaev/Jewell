@@ -474,7 +474,7 @@ def admin_attendance():
                         logging.error(ex)
                 return json.dumps({'success': True, 'users': users,
                                    'users_with_bad_attendance': users_with_bad_attendance}), 200, {
-                           'ContentType': 'application/json'}
+                    'ContentType': 'application/json'}
         except Exception as ex:
             logging.error(f'get_attendance: {ex}')
         return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
@@ -539,17 +539,20 @@ def admin_attendance_stars_month(month):
     for i in attendances:
         day = i.date.day
         if day not in days:
-            days[day] = {'trip': [], 'grant': [], 'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y")}
+            days[day] = {'trip': {}, 'grant': {}, 'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y")}
         r = get_user_by_id(i.user_id)
         if r.success:
             user = r.data
             if user.reward == Reward.TRIP or user.reward == Reward.GRANT:
-                days[day][user.reward.value].append(f'{user.last_name} {user.first_name}')
+                user_key = f'{user.last_name} {user.first_name}'
+                if user_key not in days[day][user.reward.value]:
+                    days[day][user.reward.value][user_key] = 0
+                days[day][user.reward.value][user_key] += 1
 
     # Сортируем имена внутри каждой категории
     for day_data in days.values():
-        day_data['trip'].sort()
-        day_data['grant'].sort()
+        day_data['trip'] = dict(sorted(day_data['trip'].items()))
+        day_data['grant'] = dict(sorted(day_data['grant'].items()))
 
     if request.method == "POST":
         try:
@@ -1831,7 +1834,7 @@ def configuration_timemachine():
             else:
                 return json.dumps(
                     {'success': False, "error": 'Не удалось восстановить данные из резервной копии. '}), 200, {
-                           'ContentType': 'application/json'}
+                    'ContentType': 'application/json'}
         except Exception as ex:
             logging.error(ex)
             return json.dumps({'success': False, "error": str(ex)}), 200, {'ContentType': 'application/json'}
@@ -2173,11 +2176,11 @@ def admin_face_id_user_greeting():
         if len(TextFilter(greeting).find_bad_words()) > 0:
             return json.dumps(
                 {'success': False, "info": "Запрещено использовать нецензурную лексику в приветствиях"}), 200, {
-                       'ContentType': 'application/json'}
+                'ContentType': 'application/json'}
 
         update_user(user_id, 'face_id.greeting', greeting)
         return json.dumps({'success': True,
                            "info": f"Приветствие изменено: {greeting}"}), 200, {
-                   'ContentType': 'application/json'}
+            'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

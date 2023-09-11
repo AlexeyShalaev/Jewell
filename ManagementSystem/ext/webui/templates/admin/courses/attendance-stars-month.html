@@ -27,7 +27,8 @@
         <form method="post">
             <button type="submit" name="btn_attendance_stars" value="import" class="btn btn-success me-3"><i
                     class="fa-solid fa-file-excel"></i> <span>EXCEL</span></button>
-            <button type="submit" id="btn_upd_stars" onclick="setTimeout(function(){document.getElementById('btn_upd_stars').disabled = true;}, 1000);"
+            <button type="submit" id="btn_upd_stars"
+                    onclick="setTimeout(function(){document.getElementById('btn_upd_stars').disabled = true;}, 1000);"
                     name="btn_attendance_stars" value="update_stars"
                     class="btn btn-info"><i
                     class="fa-solid fa-upload"></i> <span>Загрузить в базу Stars</span></button>
@@ -56,15 +57,45 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <ul class="list-group list-group-flush">
-                                    {% for student in data['trip'] %}
-                                        <li class="list-group-item">{{ student }}</li>
+                                    {% for name, count in data['trip'].items() %}
+                                        <li class="list-group-item">
+                                            <div class="row">
+                                                <div class="col-lg-10">
+                                                    {{ name }}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                    {% if count == 1 %}
+                                                         {{ count }}
+                                                    {% elif count == 2 %}
+                                                        <h4><span class="badge bg-dark text-light"> {{ count }}</span></h4>
+                                                    {% else %}
+                                                        <h4><span class="badge bg-danger text-light"> {{ count }}</span></h4>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </div>
                             <div class="col-lg-6">
                                 <ul class="list-group list-group-flush">
-                                    {% for student in data['grant'] %}
-                                        <li class="list-group-item">{{ student }}</li>
+                                    {% for name, count in data['grant'].items() %}
+                                        <li class="list-group-item">
+                                            <div class="row">
+                                                <div class="col-lg-10">
+                                                    {{ name }}
+                                                </div>
+                                                <div class="col-lg-2">
+                                                    {% if count == 1 %}
+                                                         {{ count }}
+                                                    {% elif count == 2 %}
+                                                        <h4><span class="badge bg-dark text-light"> {{ count }}</span></h4>
+                                                    {% else %}
+                                                        <h4><span class="badge bg-danger text-light"> {{ count }}</span></h4>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </li>
                                     {% endfor %}
                                 </ul>
                             </div>

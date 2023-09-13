@@ -34,7 +34,7 @@ from ManagementSystem.ext.database.relationships import get_relationships_by_sen
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
     update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
-from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id
+from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id, delete_visit_by_id
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
@@ -42,6 +42,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
+from ManagementSystem.ext.stars import get_stars_config, update_stars_data
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -538,17 +539,20 @@ def admin_attendance_stars_month(month):
     for i in attendances:
         day = i.date.day
         if day not in days:
-            days[day] = {'trip': [], 'grant': [], 'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y")}
+            days[day] = {'trip': {}, 'grant': {}, 'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y")}
         r = get_user_by_id(i.user_id)
         if r.success:
             user = r.data
             if user.reward == Reward.TRIP or user.reward == Reward.GRANT:
-                days[day][user.reward.value].append(f'{user.last_name} {user.first_name}')
+                user_key = f'{user.last_name} {user.first_name}'
+                if user_key not in days[day][user.reward.value]:
+                    days[day][user.reward.value][user_key] = 0
+                days[day][user.reward.value][user_key] += 1
 
     # Сортируем имена внутри каждой категории
     for day_data in days.values():
-        day_data['trip'].sort()
-        day_data['grant'].sort()
+        day_data['trip'] = dict(sorted(day_data['trip'].items()))
+        day_data['grant'] = dict(sorted(day_data['grant'].items()))
 
     if request.method == "POST":
         try:
@@ -562,6 +566,13 @@ def admin_attendance_stars_month(month):
                 workbook.save(filepath)
                 # Отправьте файл пользователю
                 return send_file(filepath)
+            elif request.form['btn_attendance_stars'] == 'update_stars':
+                if now.month >= 9:
+                    chosen_year = start
+                else:
+                    chosen_year = end
+                unprocessed_data = update_stars_data(chosen_year, chosen_month)
+                return render_template("admin/courses/attendance-stars-upload.html", data=unprocessed_data)
         except Exception as ex:
             logging.error(ex)
 
@@ -689,7 +700,9 @@ def admin_attendance_mirror():
 
     if request.method == "POST":
         try:
-            pass
+            if request.form['btn_attendance_mirror'] == 'delete_enter':
+                visit_id = request.form.get('visit_id')
+                delete_visit_by_id(visit_id)
         except Exception as ex:
             logging.error(ex)
 
@@ -700,6 +713,8 @@ def admin_attendance_mirror():
         try:
             user = get_user_by_id(visit.user_id).data
             js = {
+                'id': str(visit.id),
+                'user_id': visit.user_id,
                 'type': visit.visit_type.value,
                 'date': datetime.strftime(visit.date, f'%d.%m.%Y %H:%M:%S'),
                 'courses': '/'.join(visit.courses),
@@ -1142,7 +1157,9 @@ def users_students():
             "first_name": i.first_name,
             "last_name": i.last_name,
             "reward": i.reward.value,
-            "birthday": i.birthday
+            "birthday": i.birthday,
+            "stars_code": i.stars.code,
+            "stars_group": i.stars.group
         })
 
     return render_template("admin/users/students.html", students=students)
@@ -1163,6 +1180,8 @@ def users_student_profile(user_id):
         logout_user()
         return redirect(url_for("view.landing"))
 
+    stars_cfg = get_stars_config()
+
     if request.method == "POST":
         try:
             if request.form['btn_aus'] == 'edit':
@@ -1171,6 +1190,8 @@ def users_student_profile(user_id):
                 phone_number = normal_phone_number(request.form.get("phone_number"))
                 birthday = request.form.get("birthday")
                 reward = request.form.get("reward")
+                stars_code = request.form.get("stars_code")
+                stars_group = request.form.get("stars_group")
 
                 r = get_user_by_phone_number(phone_number)
                 if r.success:
@@ -1179,7 +1200,8 @@ def users_student_profile(user_id):
                         flash('Аккаунт с таким номером телефона уже существует!', 'warning')
                         return redirect(url_for('admin.users_student_profile', user_id=user_id))
 
-                update_main_data(user_id, first_name, last_name, phone_number, birthday, reward)
+                update_main_data(user_id, first_name, last_name, phone_number, birthday, reward, stars_code,
+                                 stars_group)
                 flash('Вы успешно изменили данные пользователя', 'success')
                 return redirect(url_for('admin.users_student_profile', user_id=user_id))
         except Exception as ex:
@@ -1306,7 +1328,8 @@ def users_student_profile(user_id):
                            visits_count=visits_count, visits_aim=visits_aim,
                            progress_color=progress_color, percent=percent, frequency=frequency,
                            extra_info=extra_info,
-                           visits_dataset=visits_dataset)
+                           visits_dataset=visits_dataset,
+                           stars_groups=get_stars_config()['groups'])
 
 
 # Уровень:              users/registered

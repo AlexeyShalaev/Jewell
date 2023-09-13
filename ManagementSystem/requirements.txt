@@ -9,3 +9,4 @@ requests
 face-recognition
 pytz
 openpyxl
+beautifulsoup4

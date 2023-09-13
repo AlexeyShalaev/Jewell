@@ -41,6 +41,16 @@ class FaceID:
         self.greeting = data.get('greeting', None)
 
 
+@dataclass
+class StarsData:
+    code: str  # stars user id
+    group: str  # stars student group
+
+    def __init__(self, data):
+        self.code = data.get('code', None)
+        self.group = data.get('group', None)
+
+
 class User(UserMixin):
     id: ObjectId
     phone_number: str  # 89854839731
@@ -63,6 +73,7 @@ class User(UserMixin):
     notifications: list  # уведомления
     points: int
     face_id: FaceID
+    stars: StarsData
 
     def __init__(self, data):
         try:
@@ -87,6 +98,7 @@ class User(UserMixin):
             self.notifications = [Notification(i) for i in data.get('notifications', [])]
             self.points = data.get('points', 0)
             self.face_id = FaceID(data.get('face_id', {}))
+            self.stars = StarsData(data.get('stars', {}))
         except Exception as ex:
             logging.error(ex)
 

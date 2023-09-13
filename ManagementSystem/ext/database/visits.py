@@ -58,6 +58,12 @@ def add_unprocessed_visit(user_id, date):
     })
 
 
+def delete_visit_by_id(id):
+    db.visits.delete_one({
+        '_id': ObjectId(id)
+    })
+
+
 def delete_visits_by_user_id(user_id):
     db.visits.delete_many({
         'user_id': ObjectId(user_id)

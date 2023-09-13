@@ -112,6 +112,10 @@ def add_user(phone_number: str, password: str):
         "face_id": {
             'greeting': 'Шалом',
             'encodings': []
+        },
+        "stars": {
+            'code': None,
+            'group': None
         }
     })
 
@@ -155,13 +159,14 @@ def update_social_data(id, sex, location, profession, university, languages, tag
     }})
 
 
-def update_main_data(id, first_name, last_name, phone_number, birthday, reward):
+def update_main_data(id, first_name, last_name, phone_number, birthday, reward, stars_code, stars_group):
     db.users.update_one({'_id': ObjectId(id)}, {"$set": {
         "first_name": first_name,
         "last_name": last_name,
         "phone_number": phone_number,
         "birthday": birthday,
-        "reward": reward
+        "reward": reward,
+        "stars": {"code": stars_code, "group": stars_group}
     }})
 
 

@@ -400,11 +400,11 @@ def generate_excel_attendance(days):
 
         # Добавляем имена для поездки
         for i, name in enumerate(day_data['trip'], start=2):
-            cell = sheet.cell(row=row_num + i - 1, column=2, value=name)
+            cell = sheet.cell(row=row_num + i - 1, column=2, value=f"{name} ({day_data['trip'][name]})")
 
         # Добавляем имена для стипендии
         for i, name in enumerate(day_data['grant'], start=2):
-            cell = sheet.cell(row=row_num + i - 1, column=3, value=name)
+            cell = sheet.cell(row=row_num + i - 1, column=3, value=f"{name} ({day_data['grant'][name]})")
 
         # Увеличиваем номер строки
         row_num += max(len(day_data['trip']), len(day_data['grant'])) + 1  # Добавляем 1 для отступа

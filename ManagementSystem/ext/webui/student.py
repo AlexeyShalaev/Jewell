@@ -312,6 +312,7 @@ def student_attendance_qr(qr_token):
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
     if status:
+        flash('Эта ссылка доступна только студентам', 'info')
         return redirect(url)
     # check session
     if not check_session():
@@ -329,14 +330,18 @@ def student_attendance_qr(qr_token):
         flash('Данной страницы не существует :)', 'error')
         return redirect(url_for('student.student_home'))
 
-    for i in handle_visit(current_user, datetime.now()):
-        if i['visit_type'] == VisitType.ENTER.value:
+    status, res = handle_visit(current_user, datetime.now())
+    if status:
+        if res['visit_type'] == VisitType.ENTER.value:
             flash(
-                f"{current_user.first_name} {'пришла' if current_user.sex == Sex.FEMALE else 'пришел'} на занятие {'/'.join(i['courses'])}",
+                f"{current_user.first_name} {'пришла' if current_user.sex == Sex.FEMALE else 'пришел'} на занятие {'/'.join(res['courses'])}",
                 'success')
-        elif i['visit_type'] == VisitType.EXIT.value:
+        elif res['visit_type'] == VisitType.EXIT.value:
             flash(
-                f"{current_user.first_name} {'ушла' if current_user.sex == Sex.FEMALE else 'ушел'} на занятие {'/'.join(i['courses'])}",
+                f"{current_user.first_name} {'ушла' if current_user.sex == Sex.FEMALE else 'ушел'} с занятия {'/'.join(res['courses'])}",
                 'success')
+    else:
+        if res:
+            flash(res, 'info')
 
     return redirect(url_for('student.student_home'))

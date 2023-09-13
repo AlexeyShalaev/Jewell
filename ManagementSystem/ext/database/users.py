@@ -114,8 +114,8 @@ def add_user(phone_number: str, password: str):
             'encodings': []
         },
         "stars": {
-            'code': None,
-            'group': None
+            'code': '',
+            'group': ''
         }
     })
 

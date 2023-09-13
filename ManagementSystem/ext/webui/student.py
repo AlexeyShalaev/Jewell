@@ -338,7 +338,7 @@ def student_attendance_qr(qr_token):
                 'success')
         elif res['visit_type'] == VisitType.EXIT.value:
             flash(
-                f"{current_user.first_name} {'ушла' if current_user.sex == Sex.FEMALE else 'ушел'} на занятие {'/'.join(res['courses'])}",
+                f"{current_user.first_name} {'ушла' if current_user.sex == Sex.FEMALE else 'ушел'} с занятия {'/'.join(res['courses'])}",
                 'success')
     else:
         if res:

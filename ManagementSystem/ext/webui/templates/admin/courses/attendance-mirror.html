@@ -37,9 +37,18 @@
                 <tr>
                     <td><img alt="{{ visit['type'] }}" src="../../../assets/images/visits/{{ visit['type'] }}.png"
                              style="max-height: 40px;"></td>
-                    <td>{{ visit['user'] }}</td>
+                    <td><a href="{{ url_for('admin.users_student_profile', user_id=visit['user_id']) }}"
+                           target="_blank">{{ visit['user'] }}</a></td>
                     <td>{{ visit['date'] }}</td>
                     <td>{{ visit['courses'] }}</td>
+                    {% if visit['type'] == 'enter' %}
+                        <td>
+                            <form method="post">
+                                <input hidden type="text" name="visit_id" value="{{ visit['id'] }}">
+                                <button name="btn_attendance_mirror" value="delete_enter" type="submit" class="btn btn-danger"><i class="mdi mdi-trash-can-outline"></i></button>
+                            </form>
+                        </td>
+                    {% endif %}
                 </tr>
             {% endfor %}
             </tbody>

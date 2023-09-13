@@ -34,7 +34,7 @@ from ManagementSystem.ext.database.relationships import get_relationships_by_sen
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
     update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
-from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id
+from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id, delete_visit_by_id
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
@@ -700,7 +700,9 @@ def admin_attendance_mirror():
 
     if request.method == "POST":
         try:
-            pass
+            if request.form['btn_attendance_mirror'] == 'delete_enter':
+                visit_id = request.form.get('visit_id')
+                delete_visit_by_id(visit_id)
         except Exception as ex:
             logging.error(ex)
 
@@ -711,6 +713,8 @@ def admin_attendance_mirror():
         try:
             user = get_user_by_id(visit.user_id).data
             js = {
+                'id': str(visit.id),
+                'user_id': visit.user_id,
                 'type': visit.visit_type.value,
                 'date': datetime.strftime(visit.date, f'%d.%m.%Y %H:%M:%S'),
                 'courses': '/'.join(visit.courses),
@@ -1153,7 +1157,9 @@ def users_students():
             "first_name": i.first_name,
             "last_name": i.last_name,
             "reward": i.reward.value,
-            "birthday": i.birthday
+            "birthday": i.birthday,
+            "stars_code": i.stars.code,
+            "stars_group": i.stars.group
         })
 
     return render_template("admin/users/students.html", students=students)

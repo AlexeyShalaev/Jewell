@@ -318,9 +318,6 @@ def student_attendance_qr(qr_token):
         logout_user()
         return redirect(url_for("view.landing"))
 
-    # if not check_qr_code_by_id(qr_id):
-    #    flash('Данной страницы не существует :)', 'error')
-    #    return redirect(url_for('student.student_home'))
     qr_code_name = 'jewell_mirror_visits'
     r = get_qr_code_by_name(qr_code_name)
 

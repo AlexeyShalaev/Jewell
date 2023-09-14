@@ -751,7 +751,7 @@ def attendance_visit():
                 return json.dumps({'success': status, 'data': data}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         logging.error(ex)
-    return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+    return json.dumps({'success': False, 'data': ''}), 200, {'ContentType': 'application/json'}
 
 
 # Уровень:              attendance/visit

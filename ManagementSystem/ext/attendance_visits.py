@@ -7,7 +7,6 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.models.visit import VisitType
 from ManagementSystem.ext.tools import has_element
 
-ONE_DAY = 24 * 60 * 60  # seconds
 COURSE_TIME = 2  # hours
 VISIT_RANGE_MINUTES_30_MIN = 30 * 60  # seconds
 VISIT_RANGE_MINUTES_15_MIN = 15 * 60  # seconds
@@ -19,7 +18,7 @@ def handle_visit(user, date):
     if user.role == Role.STUDENT and user.reward != Reward.NULL:
         visits = [visit
                   for visit in get_visits_by_user_id(user.id).data
-                  if (date - visit.date).seconds < ONE_DAY
+                  if (date - visit.date).days < 1
                   and date.weekday() == visit.date.weekday()]
         visits.sort(key=lambda x: x.date, reverse=True)
 
@@ -74,4 +73,5 @@ def handle_visit(user, date):
                     return True, {"visit_type": VisitType.ENTER.value, "courses": enter_courses}
     else:
         return False, "У вас нет награды, обратитесь к администрации"
+
     return False, ""

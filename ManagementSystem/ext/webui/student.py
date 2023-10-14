@@ -14,7 +14,7 @@ from ManagementSystem.ext.database.attendances import get_attendances_by_user_id
 from ManagementSystem.ext.database.maps import get_map_by_name
 from ManagementSystem.ext.database.qr_codes import check_qr_code_by_id, get_qr_code_by_name
 from ManagementSystem.ext.database.records import get_records_by_type, RecordType
-from ManagementSystem.ext.logistics import auto_redirect, check_session
+from ManagementSystem.ext.logistics import auto_redirect, check_session, login_required_next
 from ManagementSystem.ext.models.userModel import Role, Reward, Sex
 from ManagementSystem.ext.models.visit import VisitType
 from ManagementSystem.ext.tools import shabbat, get_random_color, set_records, get_friends, get_month
@@ -28,7 +28,7 @@ student = Blueprint('student', __name__, url_prefix='/student', template_folder=
 # HTML:                 home
 @student.route('/')
 @student.route('/home', methods=['POST', 'GET'])
-@login_required
+@login_required_next
 def student_home():
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
@@ -54,7 +54,7 @@ def student_home():
 # База данных:          User
 # HTML:                 account
 @student.route('/account', methods=['POST', 'GET'])
-@login_required
+@login_required_next
 def student_account():
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
@@ -98,7 +98,7 @@ def student_account():
 # База данных:          User
 # HTML:                 attendance
 @student.route('/attendance', methods=['POST', 'GET'])
-@login_required
+@login_required_next
 def student_attendance():
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
@@ -244,7 +244,7 @@ def student_attendance():
 # База данных:          User
 # HTML:                 attendance
 @student.route('/attendance_markers/<marker_id>', methods=['POST', 'GET'])
-@login_required
+@login_required_next
 def student_attendance_marker(marker_id):
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
@@ -290,7 +290,7 @@ def student_attendance_marker(marker_id):
 # База данных:          User
 # HTML:                 schedule
 @student.route('/courses/schedule', methods=['POST', 'GET'])
-@login_required
+@login_required_next
 def student_schedule():
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)
@@ -307,7 +307,7 @@ def student_schedule():
 # База данных:          User
 # HTML:                 attendance
 @student.route('/attendance_qr/<qr_token>', methods=['POST', 'GET'])
-@login_required
+@login_required_next
 def student_attendance_qr(qr_token):
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.STUDENT)

@@ -791,6 +791,19 @@ def admin_attendance_marker(marker_id):
                 for student_id in checked_students:
                     add_attendance(student_id, 1, date)
                 delete_attendance_marker(marker_id)
+
+                text = f'Вам проставлена посещаемость {date}'
+                counter = 0
+                for student_id in checked_students:
+                    r = get_user_by_id(student_id)
+                    if r.success:
+                        student = r.data
+                        if student.telegram_id is not None:
+                            send_message(text, student.telegram_id)
+                            counter += 1
+                            if counter % 15 == 0:
+                                time.sleep(2)
+                flash(f'Уведомление о посещении отправлено {counter}/{len(checked_students)} пользователям', 'success')
                 flash('Вы успешно проставили посещаемость и удалили ссылку', 'success')
                 return redirect(url_for('admin.admin_attendance_markers'))
         except Exception as ex:

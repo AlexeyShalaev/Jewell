@@ -1,4 +1,5 @@
-from flask import session
+from functools import wraps
+from flask import session, redirect, url_for, request
 from flask_login import current_user
 
 from ManagementSystem.ext.database.flask_sessions import get_flask_session_by_id
@@ -39,3 +40,14 @@ def check_session():
         flask_session = get_flask_session_by_id(session.get('_id', current_user.id))
         return flask_session.success
     return True
+
+
+def login_required_next(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            # Сохраняем исходный URL в сессии
+            session['next_url'] = request.url
+            return redirect(url_for('view.login'))
+        return func(*args, **kwargs)
+    return decorated_function

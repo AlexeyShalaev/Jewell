@@ -60,8 +60,13 @@ def login():
                                       fresh=session.get('_fresh'),
                                       ip=get_info_by_ip(user_ip))
 
+                    # Получаем исходный URL из сессии или используем страницу по умолчанию
+                    next_url = session.get('next_url') or url_for('view.login')
+                    # Очищаем исходный URL из сессии
+                    session.pop('next_url', None)
+
                     # Устанавливаем куку с session_id и длительным сроком жизни (например, 1 неделя)
-                    response = make_response(redirect(request.args.get("next") or url_for("view.login")))
+                    response = make_response(redirect(next_url))
                     response.set_cookie('session_id', session_id, max_age=config.flask.session_max_age)
 
                     update_user(user.data.id, 'access_token', '')

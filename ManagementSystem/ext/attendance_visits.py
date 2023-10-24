@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 
 from ManagementSystem.ext.database.attendances import add_attendance
@@ -62,15 +63,21 @@ def handle_visit(user, date):
                         add_visit(user.id, date, VisitType.EXIT, visit.courses)
                         add_attendance(user.id, 1, date.strftime("%d.%m.%Y %H:%M:%S"))
                         return True, {"visit_type": VisitType.EXIT.value, "courses": visit.courses}
+                    else:
+                        logging.info(
+                            f'[HANDLE VISIT] {user.phone_number}: не ушел, последний уход {last_exit.date.strftime("%d.%m.%Y %H:%M:%S")}')
 
         if enter_courses:
             if not visits:
                 add_visit(user.id, date, VisitType.ENTER, enter_courses)
                 return True, {"visit_type": VisitType.ENTER.value, "courses": enter_courses}
             else:
-                if (date - last_enter.date).seconds >= NEXT_VISIT_MIN_TIME:
+                if last_enter is None or (date - last_enter.date).seconds >= NEXT_VISIT_MIN_TIME:
                     add_visit(user.id, date, VisitType.ENTER, enter_courses)
                     return True, {"visit_type": VisitType.ENTER.value, "courses": enter_courses}
+                else:
+                    logging.info(
+                        f'[HANDLE VISIT] {user.phone_number}: не пришел, последний вход {last_enter.date.strftime("%d.%m.%Y %H:%M:%S")}')
     else:
         return False, "У вас нет награды, обратитесь к администрации"
 

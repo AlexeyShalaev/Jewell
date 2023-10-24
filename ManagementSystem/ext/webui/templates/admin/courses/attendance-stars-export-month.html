@@ -1,0 +1,63 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance Export
+{% endblock %}
+
+{% block body %}
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
+                        </li>
+                        <li class="breadcrumb-item active">Посещаемость Stars</li>
+                    </ol>
+                </div>
+                <h4 class="page-title" id="page-header">Экспорт данных</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <table class="table table-bordered border-primary table-centered mb-0">
+        <thead>
+        <tr>
+            <th>Дата</th>
+            <th>Группа</th>
+            <th>ID Урока</th>
+            <th>Время Урока</th>
+            <th>Учитель</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for i in days.values() %}
+            {% for group in i.lessons.keys() %}
+                {% for l in i.lessons[group] %}
+                    <tr>
+                        <td>
+                            {{ i.date }}
+                        </td>
+                        <td>
+                            {{ group }}
+                        </td>
+                        <td>
+                            {{ l.code }}
+                        </td>
+                        <td>
+                            {{ l.time }}
+                        </td>
+                        <td>
+                            {{ l.teacher }}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

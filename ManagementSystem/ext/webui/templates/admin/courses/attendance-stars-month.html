@@ -27,11 +27,7 @@
         <form method="post">
             <button type="submit" name="btn_attendance_stars" value="import" class="btn btn-success me-3"><i
                     class="fa-solid fa-file-excel"></i> <span>EXCEL</span></button>
-            <button type="submit" id="btn_upd_stars"
-                    onclick="setTimeout(function(){document.getElementById('btn_upd_stars').disabled = true;}, 1000);"
-                    name="btn_attendance_stars" value="update_stars"
-                    class="btn btn-info"><i
-                    class="fa-solid fa-upload"></i> <span>Загрузить в базу Stars</span></button>
+            <a href="{{ url_for('admin.admin_attendance_stars_export_month', month=month) }}" class="btn btn-info"><i class="fa-solid fa-upload"></i> <span>Загрузить в базу Stars</span></a>
         </form>
     </div>
 

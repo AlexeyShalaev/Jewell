@@ -56,7 +56,7 @@ class StarsShtibel:
         return wrapper
 
 
-stars = StarsShtibel(get_stars_config()['cookies'])
+stars = StarsShtibel(get_stars_config()['cookies'], debug=True)
 
 
 @stars.get
@@ -85,29 +85,8 @@ def get_lesson(group_id, date):
             )
 
 
-def get_lessons(group_id, date):
-    data = {}
-    r = get_lesson(group_id, date)
-    if r.ok:
-        soup = BeautifulSoup(r.text, 'lxml')
-        table = soup.find('table', class_='tableList')
-
-        # Находим строки в таблице
-        rows = table.find_all('tr')
-
-        # Пропускаем заголовок (первую строку)
-        for row in rows[1:]:
-            # Получаем ячейки в текущей строке
-            cells = row.find_all('td')
-            # Извлекаем данные из ячеек
-            code = cells[1].text
-            time = cells[3].text
-            data[time] = code
-    return data
-
-
 @stars.get
-def get_lessons_in_month(year, month):
+def get_lessons_in_month(year, month, page=None):
     # Получаем первый день месяца
     first_day_of_month = datetime(year, month, 1)
     # Вычисляем последний день месяца
@@ -117,7 +96,15 @@ def get_lessons_in_month(year, month):
         next_month = datetime(year, month + 1, 1)
     last_day_of_month = next_month - timedelta(days=1)
 
+    if page is None:
+        return (f'http://stars.shtibel.com/?pageView=managerLessonList'
+                f'&action=filter'
+                f'&lesson_date_start={first_day_of_month.strftime("%d/%m/%Y")}'
+                f'&lesson_date_end={last_day_of_month.strftime("%d/%m/%Y")}'
+                )
+
     return (f'http://stars.shtibel.com/?pageView=managerLessonList'
+            f'&iCurrentPage={page}'
             f'&action=filter'
             f'&lesson_date_start={first_day_of_month.strftime("%d/%m/%Y")}'
             f'&lesson_date_end={last_day_of_month.strftime("%d/%m/%Y")}'
@@ -134,93 +121,93 @@ def mark_attendance(lesson_id, students_ids):
     return uri
 
 
-def update_stars_data(year, month):
-    unprocessed_data = {
-        'users': [],
-        'lessons': []
-    }
-    try:
-        stars_cfg = get_stars_config()
-        stars_groups = stars_cfg['groups']
-        stars_teachers = stars_cfg['teachers']
-        attendances = [attendance
-                       for attendance in get_attendances().data
-                       if attendance.date.year == year and attendance.date.month == month]
-        days = {}
+# LESSONS
 
-        for i in attendances:
-            day = i.date.day
-            if day not in days:
-                days[day] = {}
-            r = get_user_by_id(i.user_id)
-            if r.success:
-                user = r.data
-                stars_code = user.stars.code
-                stars_group = user.stars.group
-                if stars_code and stars_group and stars_group != 'null':
-                    if stars_group not in days[day]:
-                        days[day][stars_group] = {
-                            'max_attendances': 0,
-                            'students': {}
-                        }
-                    st = days[day][stars_group]['students']
-                    if stars_code not in st:
-                        st[stars_code] = 0
-                    st[stars_code] += 1
-                    if st[stars_code] > days[day][stars_group]['max_attendances']:
-                        days[day][stars_group]['max_attendances'] = st[stars_code]
-                else:
-                    unprocessed_data['users'].append({
-                        'id': str(user.id),
-                        'last_name': user.last_name,
-                        'first_name': user.first_name,
-                        'code': stars_code,
-                        'group': stars_group
-                    })
+def parse_lessons_table(data, html, allowed_groups):
+    soup = BeautifulSoup(html, 'lxml')
+    table = soup.find('table', class_='tableList')
+    # Находим строки в таблице
+    rows = table.find_all('tr')
+    # Пропускаем заголовок (первую строку)
+    for row in rows[1:]:
+        # Получаем ячейки в текущей строке
+        cells = row.find_all('td')
+        # Извлекаем данные из ячеек
 
-        for day, groups in days.items():
-            date = datetime(year, month, day)
-            for group_key in groups:
-                if group_key not in stars_groups:
-                    continue
-                lessons = get_lessons(stars_groups[group_key]['code'], date)
-                needed_lessons_cnt = groups[group_key]['max_attendances']
-                attempts_cnt = 0
-                while len(lessons) < needed_lessons_cnt and attempts_cnt != 5:
-                    start_time = 19
-                    duration = stars_groups[group_key]['duration']
-                    for i in range(needed_lessons_cnt):
-                        try:
-                            tmp = start_time - duration * i
-                            str_time = f"{tmp}:00-{tmp + duration}:00"
-                            if str_time not in lessons:
-                                create_lesson(stars_groups[group_key]['code'],
-                                              random.choice(list(stars_teachers.values())),
-                                              date,
-                                              tmp, 0,
-                                              tmp + duration, 0)
-                        except:
-                            pass
-                    time.sleep(0.5)
-                    lessons = get_lessons(stars_groups[group_key]['code'], date)
-                    attempts_cnt += 1
+        group = cells[5].text
+        if group in allowed_groups:
+            date = datetime.strptime(cells[2].text, "%m/%d/%Y")
+            reward = allowed_groups[group]['reward']
+            if date.day not in data:
+                data[date.day] = {}
+            if reward not in data[date.day]:
+                data[date.day][reward] = []
+            data[date.day][reward].append({
+                'code': cells[1].text,
+                'time': cells[3].text,
+                'teacher': cells[7].text,
+            })
+    return data
 
-                students = groups[group_key]['students']
-                for period, lesson_id in lessons.items():
-                    try:
-                        student_ids = []
-                        for student_id in students:
-                            if students[student_id] > 0:
-                                students[student_id] -= 1
-                                student_ids.append(student_id)
-                        if student_ids:
-                            mark_attendance(lesson_id, student_ids)
-                    except:
-                        start_time_args = period.split('-')[0].split(':')
-                        unprocessed_data['lessons'].append({
-                            'group': stars_groups[group_key],
-                            'date': datetime(year, month, day, int(start_time_args[0]), 0).strftime("%d.%m.%Y %H:%M")
-                        })
-    except Exception as ex:
-        logging.error(ex)
-    return unprocessed_data
+
+def get_lessons(year, month):
+    """
+    data = dict()
+    stars_cfg = get_stars_config()
+    allowed_groups = stars_cfg['groups']
+    resp = get_lessons_in_month(year, month)
+    if resp.ok:
+        soup = BeautifulSoup(resp.text, 'lxml')
+        pages = soup.find('select', class_='pagingSelect').find_all('option')
+        if len(pages) <= 1:
+            parse_lessons_table(data, resp.text, allowed_groups)
+        else:
+            for page in pages:
+                r = get_lessons_in_month(year, month, page=page.text)
+                if r.ok:
+                    parse_lessons_table(data, r.text, allowed_groups)
+    """
+    data = {28: {'grant': [{'code': '105904', 'time': '19:30-21:30', 'teacher': 'Weissberg Mordechai '}],
+                 'trip': [{'code': '105934', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}]},
+            27: {'trip': [{'code': '105935', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
+                 'grant': [{'code': '105903', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}]},
+            26: {'grant': [{'code': '105902', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}],
+                 'trip': [{'code': '105936', 'time': '19:00-21:00', 'teacher': 'Lastov  Isheyahu'}]},
+            25: {'trip': [{'code': '105937', 'time': '20:00-22:00', 'teacher': 'Feldman Yonatan'}]},
+            24: {'grant': [{'code': '105897', 'time': '13:00-15:00', 'teacher': 'Beinish Moshe-Boruch'}],
+                 'trip': [{'code': '105993', 'time': '13:00-15:00', 'teacher': 'Beinish Moshe-Boruch'}]},
+            21: {'grant': [{'code': '105901', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}],
+                 'trip': [{'code': '105938', 'time': '19:00-21:00', 'teacher': 'Lastov  Isheyahu'}]},
+            20: {'trip': [{'code': '105939', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}],
+                 'grant': [{'code': '105900', 'time': '19:30-21:30', 'teacher': 'Lakshin Alexandr'}]},
+            19: {'grant': [{'code': '105899', 'time': '19:30-21:30', 'teacher': 'Feldman Yonatan'}],
+                 'trip': [{'code': '105990', 'time': '19:00-21:00', 'teacher': 'Lakshin Alexandr'}]},
+            18: {'trip': [{'code': '105987', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
+                 'grant': [{'code': '105898', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}]},
+            17: {'trip': [{'code': '105988', 'time': '20:00-22:00', 'teacher': 'Lastov  Isheyahu'}]},
+            14: {'trip': [{'code': '105985', 'time': '19:00-21:00', 'teacher': 'Feldman Yonatan'}],
+                 'grant': [{'code': '105896', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}]},
+            13: {'grant': [{'code': '105895', 'time': '19:30-21:30', 'teacher': 'Lakshin Alexandr'}],
+                 'trip': [{'code': '105986', 'time': '19:00-21:00', 'teacher': 'Lakshin Alexandr'}]},
+            12: {'grant': [{'code': '105894', 'time': '19:30-21:30', 'teacher': 'Feldman Yonatan'}],
+                 'trip': [{'code': '105954', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}]},
+            11: {'trip': [{'code': '105955', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}],
+                 'grant': [{'code': '105888', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}]},
+            10: {'grant': [{'code': '105887', 'time': '13:00-15:00', 'teacher': 'Weissberg Mordechai '}],
+                 'trip': [{'code': '105956', 'time': '13:00-15:00', 'teacher': 'Lastov  Isheyahu'}]},
+            7: {'trip': [{'code': '105957', 'time': '19:00-21:00', 'teacher': 'Feldman Yonatan'}],
+                'grant': [{'code': '105893', 'time': '19:30-20:30', 'teacher': 'Lastov  Isheyahu'}]},
+            6: {'grant': [{'code': '105892', 'time': '19:30-21:30', 'teacher': 'Lakshin Alexandr'}],
+                'trip': [{'code': '105958', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}]},
+            5: {'grant': [{'code': '105891', 'time': '19:30-21:30', 'teacher': 'Feldman Yonatan'}],
+                'trip': [{'code': '105952', 'time': '19:00-21:00', 'teacher': 'Lakshin Alexandr'}]},
+            4: {'trip': [{'code': '105953', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
+                'grant': [{'code': '105890', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}]}}
+    data = {28: {'grant': [{'code': '105904', 'time': '19:30-21:30', 'teacher': 'Weissberg Mordechai '}],
+                 'trip': [{'code': '105934', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}]},
+            27: {'trip': [{'code': '105935', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
+                 'grant': [{'code': '105903', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}]},
+            26: {'grant': [{'code': '105902', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}],
+                 'trip': [{'code': '105936', 'time': '19:00-21:00', 'teacher': 'Lastov  Isheyahu'}]},
+            }
+    return data

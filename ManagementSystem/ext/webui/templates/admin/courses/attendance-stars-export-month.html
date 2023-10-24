@@ -23,6 +23,97 @@
     </div>
     <!-- end page title -->
 
+    <div class="row">
+        <div class="col-12">
+            <!-- start page title -->
+            <div class="page-title-box">
+                <h4 class="page-title">Проблемы с пользователями</h4>
+            </div>
+            <!-- end page title -->
+
+            <!-- tasks panel -->
+            <div class="mt-2">
+                <h5 class="m-0 pb-2">
+                    <a class="text-dark collapsed" data-bs-toggle="collapse" href="#todayTasks" role="button"
+                       aria-expanded="false" aria-controls="todayTasks">
+                        <i class="uil uil-angle-down font-18"></i>Не удалось получить информацию о пользователе из Базы
+                        Данных <span class="text-muted">({{ bad_users.database | length }})</span>
+                    </a>
+                </h5>
+
+                <div class="collapse" id="todayTasks" style="">
+                    <div class="card mb-0">
+                        <div class="card-body">
+                            {% for user_id in bad_users.database %}
+                            <!-- task -->
+                            <div class="row justify-content-sm-between mt-2">
+                                <div class="col-sm-6 mb-2 mb-sm-0">
+                                    <a href="{{ url_for('admin.users_student_profile', user_id=user_id) }}" target="_blank">{{ user_id }}</a>
+                                </div> <!-- end col -->
+                            </div>
+                            <!-- end task -->
+                            {% endfor %}
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card -->
+                </div> <!-- end .collapse-->
+            </div> <!-- end .mt-2-->
+
+            <!-- upcoming tasks -->
+            <div class="mt-4">
+
+                <h5 class="m-0 pb-2">
+                    <a class="text-dark collapsed" data-bs-toggle="collapse" href="#upcomingTasks" role="button"
+                       aria-expanded="false" aria-controls="upcomingTasks">
+                        <i class="uil uil-angle-down font-18"></i>Пользователи без награды <span class="text-muted">({{ bad_users.reward | length }})</span>
+                    </a>
+                </h5>
+
+                <div class="collapse" id="upcomingTasks" style="">
+                    <div class="card mb-0">
+                        <div class="card-body">
+                            {% for user_id in bad_users.reward %}
+                            <!-- task -->
+                            <div class="row justify-content-sm-between mt-2">
+                                <div class="col-sm-6 mb-2 mb-sm-0">
+                                    <a href="{{ url_for('admin.users_student_profile', user_id=user_id) }}" target="_blank">{{ user_id }}</a>
+                                </div> <!-- end col -->
+                            </div>
+                            <!-- end task -->
+                            {% endfor %}
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card -->
+                </div> <!-- end collapse-->
+            </div>
+            <!-- end upcoming tasks -->
+
+            <!-- start other tasks -->
+            <div class="mt-4 mb-4">
+                <h5 class="m-0 pb-2">
+                    <a class="text-dark collapsed" data-bs-toggle="collapse" href="#otherTasks" role="button"
+                       aria-expanded="false" aria-controls="otherTasks">
+                        <i class="uil uil-angle-down font-18"></i>Пользователи без кода Stars <span class="text-muted">({{ bad_users.code | length }})</span>
+                    </a>
+                </h5>
+
+                <div class="collapse" id="otherTasks" style="">
+                    <div class="card mb-0">
+                        <div class="card-body">
+                            {% for user_id in bad_users.code %}
+                            <!-- task -->
+                            <div class="row justify-content-sm-between mt-2">
+                                <div class="col-sm-6 mb-2 mb-sm-0">
+                                    <a href="{{ url_for('admin.users_student_profile', user_id=user_id) }}" target="_blank">{{ user_id }}</a>
+                                </div> <!-- end col -->
+                            </div>
+                            <!-- end task -->
+                            {% endfor %}
+                        </div> <!-- end card-body-->
+                    </div> <!-- end card -->
+                </div>
+            </div>
+        </div> <!-- end col -->
+    </div>
+
     <table class="table table-bordered border-primary table-centered mb-0">
         <thead>
         <tr>

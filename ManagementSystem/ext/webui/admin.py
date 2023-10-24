@@ -622,7 +622,7 @@ def admin_attendance_stars_export_month(month):
             if user.reward == Reward.TRIP or user.reward == Reward.GRANT:
                 user_name = f'{user.last_name} {user.first_name}'
                 if user.stars.code is None or user.stars.code == '':
-                    bad_users['code'].append(user.phone_number)
+                    bad_users['code'].append(i.user_id)
                 else:
                     if user.stars.code not in days[day]['students'][user.reward.value]:
                         days[day]['students'][user.reward.value][user.stars.code] = {
@@ -634,7 +634,7 @@ def admin_attendance_stars_export_month(month):
                         days[day]['max_attendances'][user.reward.value],
                         days[day]['students'][user.reward.value][user.stars.code]['count'])
             else:
-                bad_users['reward'].append(user.phone_number)
+                bad_users['reward'].append(i.user_id)
         else:
             bad_users['database'].append(i.user_id)
 

@@ -672,11 +672,12 @@ def admin_attendance_stars_export_month(month):
         for day, data in days.items():
             for reward, lessons in data['lessons'].items():
                 for lesson in lessons:
-                    lesson['students'] = []
+                    lesson['students'] = {}
                     for student_code, student in data['students'][reward].items():
                         if student['exported_attendance'] < student['count']:
                             student['exported_attendance'] += 1
-                            lesson['students'].append(student)
+                            lesson['students'][student_code] = student
+                    lesson['students'] = dict(sorted(lesson['students'].items(), key=lambda x: x[1]['name']))
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,
                            lessons_to_create=lessons_to_create, bad_users=bad_users)

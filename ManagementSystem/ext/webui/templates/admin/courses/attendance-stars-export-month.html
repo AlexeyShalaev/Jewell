@@ -195,48 +195,114 @@
                     {% else %}
 
                         <p class="text-muted font-14">
-                            Для экспорта посещаемости в Shtibel, необходимо создать {{ lessons_to_create | length }} занятий.
+                            Для экспорта посещаемости в Shtibel, необходимо создать {{ lessons_to_create | length }}
+                            занятий.
                         </p>
 
                     {% endif %}
 
-                    <table class="table table-bordered border-primary table-centered mb-0">
-                        <thead>
-                        <tr>
-                            <th>Дата</th>
-                            <th>Группа</th>
-                            <th>ID Урока</th>
-                            <th>Время Урока</th>
-                            <th>Учитель</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for i in days.values() %}
-                            {% for group in i.lessons.keys() %}
-                                {% for l in i.lessons[group] %}
-                                    <tr>
-                                        <td>
-                                            {{ i.date }}
-                                        </td>
-                                        <td>
-                                            {{ group }}
-                                        </td>
-                                        <td>
-                                            {{ l.code }}
-                                        </td>
-                                        <td>
-                                            {{ l.time }}
-                                        </td>
-                                        <td>
-                                            {{ l.teacher }}
-                                        </td>
-                                    </tr>
+                    {% if lessons_to_create | length == 0 %}
+                        <table class="table table-bordered border-primary table-centered mb-0">
+                            <thead>
+                            <tr>
+                                <th>Статус</th>
+                                <th>Дата</th>
+                                <th>Группа</th>
+                                <th>ID Урока</th>
+                                <th>Время Урока</th>
+                                <th>Учитель</th>
+                                <th>Студенты</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in days.values() %}
+                                {% for group in i.lessons.keys() %}
+                                    {% for l in i.lessons[group] %}
+                                        <tr>
+                                            <td class="table-action" id="mark_attendance_{{ loop.index }}">
+
+                                            </td>
+                                            <td>
+                                                {{ i.date }}
+                                            </td>
+                                            <td>
+                                                {{ group }}
+                                            </td>
+                                            <td>
+                                                {{ l.code }}
+                                            </td>
+                                            <td>
+                                                {{ l.time }}
+                                            </td>
+                                            <td>
+                                                {{ l.teacher }}
+                                            </td>
+                                            <td>
+                                                <div class="row">
+                                                    <div class="col-3">
+                                                        Код Stars
+                                                    </div>
+                                                    <div class="col-6">
+                                                        Имя
+                                                    </div>
+                                                </div>
+
+                                                {% for code, student in l.students.items() %}
+                                                    <div class="row">
+                                                        <div class="col-3">
+                                                            {{ code }}
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <a href="{{ url_for('admin.user_attendance', user_id=student.user_id) }}"
+                                                               target="_blank">{{ student.name }}</a>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
                                 {% endfor %}
                             {% endfor %}
-                        {% endfor %}
-                        </tbody>
-                    </table>
-
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <table class="table table-bordered border-primary table-centered mb-0">
+                            <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Группа</th>
+                                <th>ID Урока</th>
+                                <th>Время Урока</th>
+                                <th>Учитель</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in days.values() %}
+                                {% for group in i.lessons.keys() %}
+                                    {% for l in i.lessons[group] %}
+                                        <tr>
+                                            <td>
+                                                {{ i.date }}
+                                            </td>
+                                            <td>
+                                                {{ group }}
+                                            </td>
+                                            <td>
+                                                {{ l.code }}
+                                            </td>
+                                            <td>
+                                                {{ l.time }}
+                                            </td>
+                                            <td>
+                                                {{ l.teacher }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
                 </div> <!-- end card body-->
             </div> <!-- end card -->
         </div><!-- end col-->

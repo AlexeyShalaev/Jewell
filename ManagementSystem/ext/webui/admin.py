@@ -42,7 +42,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.stars import get_stars_config, update_stars_data
+from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons, mark_attendance_lesson
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -566,17 +566,121 @@ def admin_attendance_stars_month(month):
                 workbook.save(filepath)
                 # Отправьте файл пользователю
                 return send_file(filepath)
-            elif request.form['btn_attendance_stars'] == 'update_stars':
-                if now.month >= 9:
-                    chosen_year = start
-                else:
-                    chosen_year = end
-                unprocessed_data = update_stars_data(chosen_year, chosen_month)
-                return render_template("admin/courses/attendance-stars-upload.html", data=unprocessed_data)
         except Exception as ex:
             logging.error(ex)
 
-    return render_template("admin/courses/attendance-stars-month.html", days=days)
+    return render_template("admin/courses/attendance-stars-month.html", days=days, month=month)
+
+
+# Уровень:              attendance_stars/export/<month>
+# База данных:          -
+# HTML:                 attendance-stars-export-month
+@admin.route('/attendance_stars_export/<month>', methods=['POST', 'GET'])
+@login_required
+def admin_attendance_stars_export_month(month):
+    # auto redirect
+    status, url = auto_redirect(ignore_role=Role.ADMIN)
+    if status:
+        return redirect(url)
+    # check session
+    if not check_session():
+        logout_user()
+        return redirect(url_for("view.landing"))
+
+    now = datetime.now()
+    chosen_month = int(month)
+    if now.month >= 9:
+        start = now.year
+        end = start + 1
+    else:
+        end = now.year
+        start = end - 1
+    attendances = [attendance
+                   for attendance in get_attendances().data
+                   if ((attendance.date.year == start and attendance.date.month >= 9) or
+                       (attendance.date.year == end and attendance.date.month < 9))
+                   and attendance.date.month == chosen_month]
+    attendances.sort(key=lambda x: x.date)
+
+    bad_users = {
+        'database': [],
+        'reward': [],
+        'code': [],
+    }
+
+    days = {}
+    for i in attendances:
+        day = i.date.day
+        if day not in days:
+            days[day] = {'students': {'trip': {}, 'grant': {}},
+                         'max_attendances': {'trip': 0, 'grant': 0},
+                         'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y"),
+                         'lessons': {}}
+        r = get_user_by_id(i.user_id)
+        if r.success:
+            user = r.data
+            if user.reward == Reward.TRIP or user.reward == Reward.GRANT:
+                user_name = f'{user.last_name} {user.first_name}'
+                if user.stars.code is None or user.stars.code == '':
+                    bad_users['code'].append(i.user_id)
+                else:
+                    if user.stars.code not in days[day]['students'][user.reward.value]:
+                        days[day]['students'][user.reward.value][user.stars.code] = {
+                            'user_id': str(i.user_id),
+                            'name': user_name,
+                            'count': 0,
+                            'exported_attendance': 0
+                        }
+                    days[day]['students'][user.reward.value][user.stars.code]['count'] += 1
+                    days[day]['max_attendances'][user.reward.value] = max(
+                        days[day]['max_attendances'][user.reward.value],
+                        days[day]['students'][user.reward.value][user.stars.code]['count'])
+            else:
+                bad_users['reward'].append(i.user_id)
+        else:
+            bad_users['database'].append(i.user_id)
+
+    for day, lessons in get_lessons(now.year, chosen_month).items():
+        if day in days:
+            days[day]['lessons'] = lessons
+
+    # Сортируем имена внутри каждой категории
+    for day_data in days.values():
+        days_students = day_data['students']
+        for category in days_students:
+            days_students[category] = dict(sorted(days_students[category].items()))
+
+        days_lessons = day_data['lessons']
+        for category in days_lessons:
+            days_lessons[category] = sorted(days_lessons[category],
+                                            key=lambda x: int(x['time'].split('-')[1].split(':')[0]), reverse=True)
+
+    lessons_to_create = []
+
+    for day, data in days.items():
+        for group, students in data['students'].items():
+            lessons_exists = len(data['lessons'].get(group, []))
+            if lessons_exists < data['max_attendances'][group]:
+                lessons_to_create.append({
+                    'date': data['date'],
+                    'group': group,
+                    'count': data['max_attendances'][group] - lessons_exists
+                })
+    lessons_to_create.sort(key=lambda x: (x['date'], x['group'], x['count']))
+
+    if len(lessons_to_create) == 0:
+        for day, data in days.items():
+            for reward, lessons in data['lessons'].items():
+                for lesson in lessons:
+                    lesson['students'] = {}
+                    for student_code, student in data['students'][reward].items():
+                        if student['exported_attendance'] < student['count']:
+                            student['exported_attendance'] += 1
+                            lesson['students'][student_code] = student
+                    lesson['students'] = dict(sorted(lesson['students'].items(), key=lambda x: x[1]['name']))
+
+    return render_template("admin/courses/attendance-stars-export-month.html", days=days,
+                           lessons_to_create=lessons_to_create, bad_users=bad_users)
 
 
 # Уровень:              attendance/user_id
@@ -2201,5 +2305,33 @@ def admin_face_id_user_greeting():
         return json.dumps({'success': True,
                            "info": f"Приветствие изменено: {greeting}"}), 200, {
             'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}
+
+
+# Stars block
+
+@admin.route('/stars/lessons/create', methods=['POST'])
+@login_required
+def stars_create_lessons():
+    try:
+        date = datetime.strptime(request.form.get("date"), "%d.%m.%Y")
+        reward = request.form.get("reward")
+        count = int(request.form.get("count"))
+        lessons = json.loads(request.form.get("lessons"))
+        status, info = create_lessons(date, reward, count, lessons)
+        return json.dumps({'success': status, "info": info}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}
+
+
+@admin.route('/stars/lessons/attendance', methods=['POST'])
+@login_required
+def stars_mark_attendance_lessons():
+    try:
+        lesson_id = request.form.get("lesson_id")
+        students = json.loads(request.form.get('students'))
+        status, info = mark_attendance_lesson(lesson_id, students)
+        return json.dumps({'success': status, "info": info}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

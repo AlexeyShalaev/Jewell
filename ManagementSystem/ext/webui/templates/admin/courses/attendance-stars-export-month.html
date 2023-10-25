@@ -1,0 +1,433 @@
+{% extends 'admin-base.html' %}
+
+{% block title %}
+    Attendance Export
+{% endblock %}
+
+{% block body %}
+
+    <!-- Pre-loader -->
+    <div id="preloader">
+        <div id="status">
+            <div class="bouncing-loader">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+    <!-- End Preloader-->
+
+    <!-- start page title -->
+    <div class="row">
+        <div class="col-12">
+            <div class="page-title-box">
+                <div class="page-title-right">
+                    <ol class="breadcrumb m-0">
+                        <li class="breadcrumb-item"><a href="{{ url_for('admin.admin_home') }}">Администратор</a>
+                        </li>
+                        <li class="breadcrumb-item active">Посещаемость Stars</li>
+                    </ol>
+                </div>
+                <h4 class="page-title" id="page-header">Экспорт данных</h4>
+            </div>
+        </div>
+    </div>
+    <!-- end page title -->
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="header-title">Проблемы с пользователями</h4>
+
+                    <!-- tasks panel -->
+                    <div class="mt-2">
+                        <h5 class="m-0 pb-2">
+                            <a class="text-dark collapsed" data-bs-toggle="collapse" href="#todayTasks" role="button"
+                               aria-expanded="false" aria-controls="todayTasks">
+                                <i class="uil uil-angle-down font-18"></i>Не удалось получить информацию о пользователе
+                                из Базы
+                                Данных <span class="text-muted">({{ bad_users.database | length }})</span>
+                            </a>
+                        </h5>
+
+                        <div class="collapse" id="todayTasks" style="">
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    {% for user_id in bad_users.database %}
+                                        <!-- task -->
+                                        <div class="row justify-content-sm-between mt-2">
+                                            <div class="col-sm-6 mb-2 mb-sm-0">
+                                                <a href="{{ url_for('admin.users_student_profile', user_id=user_id) }}"
+                                                   target="_blank">{{ user_id }}</a>
+                                            </div> <!-- end col -->
+                                        </div>
+                                        <!-- end task -->
+                                    {% endfor %}
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card -->
+                        </div> <!-- end .collapse-->
+                    </div> <!-- end .mt-2-->
+
+                    <!-- upcoming tasks -->
+                    <div class="mt-2">
+
+                        <h5 class="m-0 pb-2">
+                            <a class="text-dark collapsed" data-bs-toggle="collapse" href="#upcomingTasks" role="button"
+                               aria-expanded="false" aria-controls="upcomingTasks">
+                                <i class="uil uil-angle-down font-18"></i>Пользователи без награды <span
+                                    class="text-muted">({{ bad_users.reward | length }})</span>
+                            </a>
+                        </h5>
+
+                        <div class="collapse" id="upcomingTasks" style="">
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    {% for user_id in bad_users.reward %}
+                                        <!-- task -->
+                                        <div class="row justify-content-sm-between mt-2">
+                                            <div class="col-sm-6 mb-2 mb-sm-0">
+                                                <a href="{{ url_for('admin.users_student_profile', user_id=user_id) }}"
+                                                   target="_blank">{{ user_id }}</a>
+                                            </div> <!-- end col -->
+                                        </div>
+                                        <!-- end task -->
+                                    {% endfor %}
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card -->
+                        </div> <!-- end collapse-->
+                    </div>
+                    <!-- end upcoming tasks -->
+
+                    <!-- start other tasks -->
+                    <div class="mt-2">
+                        <h5 class="m-0 pb-2">
+                            <a class="text-dark collapsed" data-bs-toggle="collapse" href="#otherTasks" role="button"
+                               aria-expanded="false" aria-controls="otherTasks">
+                                <i class="uil uil-angle-down font-18"></i>Пользователи без кода Stars <span
+                                    class="text-muted">({{ bad_users.code | length }})</span>
+                            </a>
+                        </h5>
+
+                        <div class="collapse" id="otherTasks" style="">
+                            <div class="card mb-0">
+                                <div class="card-body">
+                                    {% for user_id in bad_users.code %}
+                                        <!-- task -->
+                                        <div class="row justify-content-sm-between mt-2">
+                                            <div class="col-sm-6 mb-2 mb-sm-0">
+                                                <a href="{{ url_for('admin.users_student_profile', user_id=user_id) }}"
+                                                   target="_blank">{{ user_id }}</a>
+                                            </div> <!-- end col -->
+                                        </div>
+                                        <!-- end task -->
+                                    {% endfor %}
+                                </div> <!-- end card-body-->
+                            </div> <!-- end card -->
+                        </div>
+                    </div>
+                </div> <!-- end col -->
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="header-title">Занятия, которые необходимо создать</h4>
+
+                    <p class="text-muted font-14">
+                        Для каждой даты и группы создайте занятия в написанном количестве.
+                        <button id="btn_create_lessons"
+                                onclick="if (confirm('Вы уверены, что хотите создать занятия?')) create_lessons();"
+                                type="button"
+                                class="btn btn-warning"><i class="mdi mdi-rocket me-1"></i> <span>Создать</span>
+                        </button>
+                    </p>
+
+                    <div class="table-responsive-sm">
+                        <table class="table table-striped table-centered mb-0">
+                            <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Группа</th>
+                                <th>Количество</th>
+                                <th>Статус</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in lessons_to_create %}
+                                <tr>
+                                    <td>{{ i.date }}</td>
+                                    <td>{{ i.group }}</td>
+                                    <td>{{ i.count }}</td>
+                                    <td class="table-action" id="lessons_to_create_{{ loop.index }}">
+
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div> <!-- end table-responsive-->
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="header-title">Занятия Shtibel</h4>
+
+                    {% if lessons_to_create | length == 0 %}
+
+                        <p class="text-muted font-14">
+                            Экспорт посещаемости в Shtibel
+                            <button id="btn_mark_attendances"
+                                    onclick="if (confirm('Вы уверены, что хотите перенести посещаемость?')) mark_attendances();"
+                                    type="button"
+                                    class="btn btn-info"><i class="mdi mdi-cloud me-1"></i> <span>Выгрузить</span>
+                            </button>
+                        </p>
+
+                    {% else %}
+
+                        <p class="text-muted font-14">
+                            Для экспорта посещаемости в Shtibel, необходимо создать {{ lessons_to_create | length }}
+                            занятий.
+                        </p>
+
+                    {% endif %}
+
+                    {% if lessons_to_create | length == 0 %}
+                        <table class="table table-bordered border-primary table-centered mb-0">
+                            <thead>
+                            <tr>
+                                <th>Статус</th>
+                                <th>Дата</th>
+                                <th>Группа</th>
+                                <th>ID Урока</th>
+                                <th>Время Урока</th>
+                                <th>Учитель</th>
+                                <th>Студенты</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in days.values() %}
+                                {% for group in i.lessons.keys() %}
+                                    {% for l in i.lessons[group] %}
+                                        <tr>
+                                            <td class="table-action" id="mark_attendance_{{ l.code }}">
+
+                                            </td>
+                                            <td>
+                                                {{ i.date }}
+                                            </td>
+                                            <td>
+                                                {{ group }}
+                                            </td>
+                                            <td>
+                                                <a href="http://stars.shtibel.com/?pageView=managerLessonEdit&row_id={{ l.code }}"
+                                                   target="_blank">{{ l.code }}</a>
+                                            </td>
+                                            <td>
+                                                {{ l.time }}
+                                            </td>
+                                            <td>
+                                                {{ l.teacher }}
+                                            </td>
+                                            <td>
+                                                <a href="http://stars.shtibel.com/?pageView=managerAttendanceEdit&row_id={{ l.code }}"
+                                                   target="_blank">
+                                                    <div class="row">
+                                                        <div class="col-3">
+                                                            Код Stars
+                                                        </div>
+                                                        <div class="col-6">
+                                                            Имя
+                                                        </div>
+                                                    </div>
+                                                </a>
+
+                                                {% for code, student in l.students.items() %}
+                                                    <div class="row">
+                                                        <div class="col-3">
+                                                            {{ code }}
+                                                        </div>
+                                                        <div class="col-6">
+                                                            <a href="{{ url_for('admin.user_attendance', user_id=student.user_id) }}"
+                                                               target="_blank">{{ student.name }}</a>
+                                                        </div>
+                                                    </div>
+                                                {% endfor %}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% else %}
+                        <table class="table table-bordered border-primary table-centered mb-0">
+                            <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Группа</th>
+                                <th>ID Урока</th>
+                                <th>Время Урока</th>
+                                <th>Учитель</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for i in days.values() %}
+                                {% for group in i.lessons.keys() %}
+                                    {% for l in i.lessons[group] %}
+                                        <tr>
+                                            <td>
+                                                {{ i.date }}
+                                            </td>
+                                            <td>
+                                                {{ group }}
+                                            </td>
+                                            <td>
+                                                <a href="http://stars.shtibel.com/?pageView=managerLessonEdit&row_id={{ l.code }}"
+                                                   target="_blank">{{ l.code }}</a>
+                                            </td>
+                                            <td>
+                                                {{ l.time }}
+                                            </td>
+                                            <td>
+                                                {{ l.teacher }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                {% endfor %}
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    {% endif %}
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+    </div>
+
+    <script>
+        /*
+            // Перехватываем событие перезагрузки страницы
+            window.addEventListener("beforeunload", function (e) {
+                // Отменяем перезагрузку
+                e.preventDefault();
+                // Возвращаем сообщение браузеру (необязательно)
+                e.returnValue = "Перезагрузка страница может прервать процессы экспорта!!! Вы уверены, что хотите перезагрузить страницу";
+            });
+    */
+        let days = {{ days | tojson }};
+        let lessons_to_create = {{ lessons_to_create | safe }};
+
+        async function create_lessons() {
+            // Заблокировать кнопку
+            document.getElementById("btn_create_lessons").disabled = true;
+
+            // Ваш код для создания уроков
+            // Здесь можно вставить код, который создает уроки
+            for (let i in lessons_to_create) {
+                let lesson = lessons_to_create[i];
+                let ltc_status_id = Number(i) + 1;
+                let ltc_status = document.getElementById("lessons_to_create_" + ltc_status_id);
+                ltc_status.innerHTML = '<div class="spinner-border text-primary" role="status"></div>';
+
+                let day = Number(lesson.date.split('.')[0]);
+                let existing_lessons = days[day]['lessons'][lesson.group];
+                if (existing_lessons === undefined) {
+                    existing_lessons = [];
+                }
+
+                try {
+                    $.ajax({
+                        type: 'POST',
+                        url: "{{url_for('admin.stars_create_lessons')}}",
+                        data: {
+                            date: lesson.date,
+                            reward: lesson.group,
+                            count: lesson.count,
+                            lessons: JSON.stringify(existing_lessons)
+                        },
+                        success: function (result) {
+                            const res = JSON.parse(result);
+                            if (res.success) {
+                                ltc_status.innerHTML = '<h4><span class="badge badge-success-lighten">' + res.info + '</span></h4>';
+                            } else {
+                                ltc_status.innerHTML = '<h4><span class="badge badge-danger-lighten">' + res.info + '</span></h4>';
+                            }
+                        }
+                    });
+                } catch (err) {
+                    console.log(err);
+                }
+
+                // Создаем задержку в 1 секунду
+                await new Promise(resolve => setTimeout(resolve, 300));
+
+            }
+
+
+            // Восстановить доступность кнопки после завершения кода (предполагается, что создание уроков завершится асинхронно)
+            // Установите setTimeout, чтобы восстановить доступность кнопки через определенное время или в зависимости от того, как завершается ваш код
+            setTimeout(function () {
+                document.getElementById("btn_create_lessons").disabled = false;
+            }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
+        }
+
+        async function mark_attendances() {
+            // Заблокировать кнопку
+            document.getElementById("btn_mark_attendances").disabled = true;
+
+            // Ваш код для создания уроков
+            // Здесь можно вставить код, который создает уроки
+            for (const [day, data] of Object.entries(days)) {
+                for (const [group, lessons] of Object.entries(data.lessons)) {
+                    for (const lesson of lessons) {
+                        let ma_status = document.getElementById("mark_attendance_" + lesson.code);
+                        ma_status.innerHTML = '<div class="spinner-border text-primary" role="status"></div>';
+                        try {
+                            $.ajax({
+                                type: 'POST',
+                                url: "{{url_for('admin.stars_mark_attendance_lessons')}}",
+                                data: {
+                                    lesson_id: lesson.code,
+                                    students: JSON.stringify(Object.keys(lesson.students))
+                                },
+                                success: function (result) {
+                                    const res = JSON.parse(result);
+                                    if (res.success) {
+                                        ma_status.innerHTML = '<h4><span class="badge badge-success-lighten">' + res.info + '</span></h4>';
+                                    } else {
+                                        ma_status.innerHTML = '<h4><span class="badge badge-danger-lighten">' + res.info + '</span></h4>';
+                                    }
+                                }
+                            });
+                        } catch (err) {
+                            console.log(err);
+                        }
+
+                        // Создаем задержку в 1 секунду
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                }
+            }
+
+            // Восстановить доступность кнопки после завершения кода (предполагается, что создание уроков завершится асинхронно)
+            // Установите setTimeout, чтобы восстановить доступность кнопки через определенное время или в зависимости от того, как завершается ваш код
+            setTimeout(function () {
+                document.getElementById("btn_mark_attendances").disabled = false;
+            }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
+        }
+    </script>
+
+{% endblock %}

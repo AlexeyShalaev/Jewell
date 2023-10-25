@@ -85,29 +85,8 @@ def get_lesson(group_id, date):
             )
 
 
-def get_lessons(group_id, date):
-    data = {}
-    r = get_lesson(group_id, date)
-    if r.ok:
-        soup = BeautifulSoup(r.text, 'lxml')
-        table = soup.find('table', class_='tableList')
-
-        # Находим строки в таблице
-        rows = table.find_all('tr')
-
-        # Пропускаем заголовок (первую строку)
-        for row in rows[1:]:
-            # Получаем ячейки в текущей строке
-            cells = row.find_all('td')
-            # Извлекаем данные из ячеек
-            code = cells[1].text
-            time = cells[3].text
-            data[time] = code
-    return data
-
-
 @stars.get
-def get_lessons_in_month(year, month):
+def get_lessons_in_month(year, month, page=None):
     # Получаем первый день месяца
     first_day_of_month = datetime(year, month, 1)
     # Вычисляем последний день месяца
@@ -117,7 +96,15 @@ def get_lessons_in_month(year, month):
         next_month = datetime(year, month + 1, 1)
     last_day_of_month = next_month - timedelta(days=1)
 
+    if page is None:
+        return (f'http://stars.shtibel.com/?pageView=managerLessonList'
+                f'&action=filter'
+                f'&lesson_date_start={first_day_of_month.strftime("%d/%m/%Y")}'
+                f'&lesson_date_end={last_day_of_month.strftime("%d/%m/%Y")}'
+                )
+
     return (f'http://stars.shtibel.com/?pageView=managerLessonList'
+            f'&iCurrentPage={page}'
             f'&action=filter'
             f'&lesson_date_start={first_day_of_month.strftime("%d/%m/%Y")}'
             f'&lesson_date_end={last_day_of_month.strftime("%d/%m/%Y")}'
@@ -134,93 +121,123 @@ def mark_attendance(lesson_id, students_ids):
     return uri
 
 
-def update_stars_data(year, month):
-    unprocessed_data = {
-        'users': [],
-        'lessons': []
-    }
-    try:
-        stars_cfg = get_stars_config()
-        stars_groups = stars_cfg['groups']
-        stars_teachers = stars_cfg['teachers']
-        attendances = [attendance
-                       for attendance in get_attendances().data
-                       if attendance.date.year == year and attendance.date.month == month]
-        days = {}
+# LESSONS
 
-        for i in attendances:
-            day = i.date.day
-            if day not in days:
-                days[day] = {}
-            r = get_user_by_id(i.user_id)
-            if r.success:
-                user = r.data
-                stars_code = user.stars.code
-                stars_group = user.stars.group
-                if stars_code and stars_group and stars_group != 'null':
-                    if stars_group not in days[day]:
-                        days[day][stars_group] = {
-                            'max_attendances': 0,
-                            'students': {}
-                        }
-                    st = days[day][stars_group]['students']
-                    if stars_code not in st:
-                        st[stars_code] = 0
-                    st[stars_code] += 1
-                    if st[stars_code] > days[day][stars_group]['max_attendances']:
-                        days[day][stars_group]['max_attendances'] = st[stars_code]
-                else:
-                    unprocessed_data['users'].append({
-                        'id': str(user.id),
-                        'last_name': user.last_name,
-                        'first_name': user.first_name,
-                        'code': stars_code,
-                        'group': stars_group
-                    })
+def parse_lessons_table(data, html, allowed_groups):
+    soup = BeautifulSoup(html, 'lxml')
+    table = soup.find('table', class_='tableList')
+    # Находим строки в таблице
+    rows = table.find_all('tr')
+    # Пропускаем заголовок (первую строку)
+    for row in rows[1:]:
+        # Получаем ячейки в текущей строке
+        cells = row.find_all('td')
+        # Извлекаем данные из ячеек
 
-        for day, groups in days.items():
-            date = datetime(year, month, day)
-            for group_key in groups:
-                if group_key not in stars_groups:
-                    continue
-                lessons = get_lessons(stars_groups[group_key]['code'], date)
-                needed_lessons_cnt = groups[group_key]['max_attendances']
-                attempts_cnt = 0
-                while len(lessons) < needed_lessons_cnt and attempts_cnt != 5:
-                    start_time = 19
-                    duration = stars_groups[group_key]['duration']
-                    for i in range(needed_lessons_cnt):
-                        try:
-                            tmp = start_time - duration * i
-                            str_time = f"{tmp}:00-{tmp + duration}:00"
-                            if str_time not in lessons:
-                                create_lesson(stars_groups[group_key]['code'],
-                                              random.choice(list(stars_teachers.values())),
-                                              date,
-                                              tmp, 0,
-                                              tmp + duration, 0)
-                        except:
-                            pass
-                    time.sleep(0.5)
-                    lessons = get_lessons(stars_groups[group_key]['code'], date)
-                    attempts_cnt += 1
+        group = cells[5].text
+        if group in allowed_groups:
+            date = datetime.strptime(cells[2].text, "%m/%d/%Y")
+            reward = allowed_groups[group]['reward']
+            if date.day not in data:
+                data[date.day] = {}
+            if reward not in data[date.day]:
+                data[date.day][reward] = []
+            data[date.day][reward].append({
+                'code': cells[1].text,
+                'time': cells[3].text,
+                'teacher': cells[7].text,
+            })
+    return data
 
-                students = groups[group_key]['students']
-                for period, lesson_id in lessons.items():
-                    try:
-                        student_ids = []
-                        for student_id in students:
-                            if students[student_id] > 0:
-                                students[student_id] -= 1
-                                student_ids.append(student_id)
-                        if student_ids:
-                            mark_attendance(lesson_id, student_ids)
-                    except:
-                        start_time_args = period.split('-')[0].split(':')
-                        unprocessed_data['lessons'].append({
-                            'group': stars_groups[group_key],
-                            'date': datetime(year, month, day, int(start_time_args[0]), 0).strftime("%d.%m.%Y %H:%M")
-                        })
-    except Exception as ex:
-        logging.error(ex)
-    return unprocessed_data
+
+def get_lessons(year, month):
+    data = dict()
+    stars_cfg = get_stars_config()
+    allowed_groups = stars_cfg['groups']
+    resp = get_lessons_in_month(year, month)
+    if resp.ok:
+        soup = BeautifulSoup(resp.text, 'lxml')
+        pages = soup.find('select', class_='pagingSelect').find_all('option')
+        if len(pages) <= 1:
+            parse_lessons_table(data, resp.text, allowed_groups)
+        else:
+            for page in pages:
+                r = get_lessons_in_month(year, month, page=page.text)
+                if r.ok:
+                    parse_lessons_table(data, r.text, allowed_groups)
+    return data
+
+
+def find_available_time_slots(needed_lessons_cnt, duration, existing_lessons):
+    existing_slots = []
+
+    # Преобразуем строки времени в объекты datetime
+    for lesson in existing_lessons:
+        start, end = lesson['time'].split("-")
+        start_time = datetime.strptime(start, "%H:%M")
+        end_time = datetime.strptime(end, "%H:%M")
+        existing_slots.append((start_time, end_time))
+
+    # Находим доступные временные слоты
+    available_slots = []
+    end_time = datetime.strptime("22:00", "%H:%M")
+
+    while datetime.strptime("10:00", "%H:%M") <= end_time:
+        start_time = end_time - timedelta(hours=duration)
+
+        # Проверяем, не пересекаются ли временные слоты с существующими
+        if all(end_time <= existing_start or start_time >= existing_end for existing_start, existing_end in
+               existing_slots):
+            time_slot = (start_time, end_time)
+            available_slots.append(time_slot)
+            existing_slots.append(time_slot)
+
+        if len(available_slots) >= needed_lessons_cnt:
+            break
+
+        end_time -= timedelta(minutes=30)  # Переходим к следующему временному интервалу
+
+    available_slots.sort(key=lambda slot: slot[1], reverse=True)
+    return available_slots
+
+
+def create_lessons(date, reward, needed_lessons_cnt, existing_lessons):
+    stars_cfg = get_stars_config()
+    allowed_groups = stars_cfg['groups']
+    stars_teachers = list(stars_cfg['teachers'].values())
+    lesson_group = None
+
+    for group in allowed_groups:
+        if reward == allowed_groups[group]['reward']:
+            lesson_group = allowed_groups[group]
+            break
+
+    if lesson_group is None:
+        return False, 'Unknown Group/Reward'
+
+    duration = lesson_group['duration']
+    slots = find_available_time_slots(needed_lessons_cnt, duration, existing_lessons)
+
+    lessons_created = 0
+    for i in range(needed_lessons_cnt):
+        start_time, end_time = slots[i]
+        resp = create_lesson(lesson_group['code'], random.choice(stars_teachers), date,
+                             start_time.hour, start_time.minute,
+                             end_time.hour, end_time.minute)
+        if resp.ok:
+            lessons_created += 1
+
+        time.sleep(0.5)
+
+    if lessons_created < needed_lessons_cnt:
+        return False, f'{lessons_created}/{needed_lessons_cnt} lessons were created'
+
+    return True, 'OK'
+
+
+def mark_attendance_lesson(lesson_id, students_ids):
+    time.sleep(0.5)
+    resp = mark_attendance(lesson_id, students_ids)
+    if resp.ok:
+        return True, 'OK'
+    return False, 'Failed'

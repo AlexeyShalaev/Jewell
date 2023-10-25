@@ -226,7 +226,7 @@
         let days = {{ days | tojson }};
         let lessons_to_create = {{ lessons_to_create | safe }};
 
-        function create_lessons() {
+        async function create_lessons() {
             // Заблокировать кнопку
             document.getElementById("btn_create_lessons").disabled = true;
 
@@ -240,6 +240,9 @@
 
                 let day = Number(lesson.date.split('.')[0]);
                 let existing_lessons = days[day]['lessons'][lesson.group];
+                if(existing_lessons === undefined) {
+                    existing_lessons = [];
+                }
 
                 try {
                     $.ajax({
@@ -263,6 +266,9 @@
                 } catch (err) {
                     console.log(err);
                 }
+
+                // Создаем задержку в 1 секунду
+                await new Promise(resolve => setTimeout(resolve, 300));
 
             }
 

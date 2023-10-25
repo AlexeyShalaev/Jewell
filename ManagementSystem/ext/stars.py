@@ -168,9 +168,43 @@ def get_lessons(year, month):
     return data
 
 
+def find_available_time_slots(needed_lessons_cnt, duration, existing_lessons):
+    existing_slots = []
+
+    # Преобразуем строки времени в объекты datetime
+    for lesson in existing_lessons:
+        start, end = lesson['time'].split("-")
+        start_time = datetime.strptime(start, "%H:%M")
+        end_time = datetime.strptime(end, "%H:%M")
+        existing_slots.append((start_time, end_time))
+
+    # Находим доступные временные слоты
+    available_slots = []
+    end_time = datetime.strptime("22:00", "%H:%M")
+
+    while datetime.strptime("10:00", "%H:%M") <= end_time:
+        start_time = end_time - timedelta(hours=duration)
+
+        # Проверяем, не пересекаются ли временные слоты с существующими
+        if all(end_time <= existing_start or start_time >= existing_end for existing_start, existing_end in
+               existing_slots):
+            time_slot = (start_time, end_time)
+            available_slots.append(time_slot)
+            existing_slots.append(time_slot)
+
+        if len(available_slots) >= needed_lessons_cnt:
+            break
+
+        end_time -= timedelta(minutes=30)  # Переходим к следующему временному интервалу
+
+    available_slots.sort(key=lambda slot: slot[1], reverse=True)
+    return available_slots
+
+
 def create_lessons(date, reward, needed_lessons_cnt, existing_lessons):
     stars_cfg = get_stars_config()
     allowed_groups = stars_cfg['groups']
+    stars_teachers = list(stars_cfg['teachers'].values())
     lesson_group = None
 
     for group in allowed_groups:
@@ -181,7 +215,21 @@ def create_lessons(date, reward, needed_lessons_cnt, existing_lessons):
     if lesson_group is None:
         return False, 'Unknown Group/Reward'
 
-    attempts_cnt = 0
     duration = lesson_group['duration']
+    slots = find_available_time_slots(needed_lessons_cnt, duration, existing_lessons)
+
+    lessons_created = 0
+    for i in range(needed_lessons_cnt):
+        start_time, end_time = slots[i]
+        resp = create_lesson(lesson_group['code'], random.choice(stars_teachers), date,
+                             start_time.hour, start_time.minute,
+                             end_time.hour, end_time.minute)
+        if resp.ok:
+            lessons_created += 1
+
+        time.sleep(0.5)
+
+    if lessons_created < needed_lessons_cnt:
+        return False, f'{lessons_created}/{needed_lessons_cnt} lessons were created'
 
     return True, 'OK'

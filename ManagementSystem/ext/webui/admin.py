@@ -626,8 +626,10 @@ def admin_attendance_stars_export_month(month):
                 else:
                     if user.stars.code not in days[day]['students'][user.reward.value]:
                         days[day]['students'][user.reward.value][user.stars.code] = {
+                            'user_id': str(i.user_id),
                             'name': user_name,
-                            'count': 0
+                            'count': 0,
+                            'exported_attendance': 0
                         }
                     days[day]['students'][user.reward.value][user.stars.code]['count'] += 1
                     days[day]['max_attendances'][user.reward.value] = max(
@@ -650,7 +652,8 @@ def admin_attendance_stars_export_month(month):
 
         days_lessons = day_data['lessons']
         for category in days_lessons:
-            days_lessons[category] = sorted(days_lessons[category], key=lambda x: x['time'])
+            days_lessons[category] = sorted(days_lessons[category],
+                                            key=lambda x: int(x['time'].split('-')[1].split(':')[0]), reverse=True)
 
     lessons_to_create = []
 
@@ -664,6 +667,16 @@ def admin_attendance_stars_export_month(month):
                     'count': data['max_attendances'][group] - lessons_exists
                 })
     lessons_to_create.sort(key=lambda x: (x['date'], x['group'], x['count']))
+
+    if len(lessons_to_create) == 0:
+        for day, data in days.items():
+            for reward, lessons in data['lessons'].items():
+                for lesson in lessons:
+                    lesson['students'] = []
+                    for student_code, student in data['students'][reward].items():
+                        if student['exported_attendance'] < student['count']:
+                            student['exported_attendance'] += 1
+                            lesson['students'].append(student)
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,
                            lessons_to_create=lessons_to_create, bad_users=bad_users)

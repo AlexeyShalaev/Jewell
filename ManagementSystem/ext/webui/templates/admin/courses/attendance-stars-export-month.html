@@ -176,42 +176,71 @@
         </div><!-- end col-->
     </div>
 
-    <table class="table table-bordered border-primary table-centered mb-0">
-        <thead>
-        <tr>
-            <th>Дата</th>
-            <th>Группа</th>
-            <th>ID Урока</th>
-            <th>Время Урока</th>
-            <th>Учитель</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for i in days.values() %}
-            {% for group in i.lessons.keys() %}
-                {% for l in i.lessons[group] %}
-                    <tr>
-                        <td>
-                            {{ i.date }}
-                        </td>
-                        <td>
-                            {{ group }}
-                        </td>
-                        <td>
-                            {{ l.code }}
-                        </td>
-                        <td>
-                            {{ l.time }}
-                        </td>
-                        <td>
-                            {{ l.teacher }}
-                        </td>
-                    </tr>
-                {% endfor %}
-            {% endfor %}
-        {% endfor %}
-        </tbody>
-    </table>
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+
+                    <h4 class="header-title">Занятия Shtibel</h4>
+
+                    {% if lessons_to_create | length == 0 %}
+
+                        <p class="text-muted font-14">
+                            Экспорт посещаемости в Shtibel
+                            <button id="btn_mark_attendances" onclick="mark_attendances();" type="button"
+                                    class="btn btn-info"><i class="mdi mdi-cloud me-1"></i> <span>Выгрузить</span>
+                            </button>
+                        </p>
+
+                    {% else %}
+
+                        <p class="text-muted font-14">
+                            Для экспорта посещаемости в Shtibel, необходимо создать {{ lessons_to_create | length }} занятий.
+                        </p>
+
+                    {% endif %}
+
+                    <table class="table table-bordered border-primary table-centered mb-0">
+                        <thead>
+                        <tr>
+                            <th>Дата</th>
+                            <th>Группа</th>
+                            <th>ID Урока</th>
+                            <th>Время Урока</th>
+                            <th>Учитель</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for i in days.values() %}
+                            {% for group in i.lessons.keys() %}
+                                {% for l in i.lessons[group] %}
+                                    <tr>
+                                        <td>
+                                            {{ i.date }}
+                                        </td>
+                                        <td>
+                                            {{ group }}
+                                        </td>
+                                        <td>
+                                            {{ l.code }}
+                                        </td>
+                                        <td>
+                                            {{ l.time }}
+                                        </td>
+                                        <td>
+                                            {{ l.teacher }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            {% endfor %}
+                        {% endfor %}
+                        </tbody>
+                    </table>
+
+                </div> <!-- end card body-->
+            </div> <!-- end card -->
+        </div><!-- end col-->
+    </div>
 
     <script>
         /*
@@ -240,7 +269,7 @@
 
                 let day = Number(lesson.date.split('.')[0]);
                 let existing_lessons = days[day]['lessons'][lesson.group];
-                if(existing_lessons === undefined) {
+                if (existing_lessons === undefined) {
                     existing_lessons = [];
                 }
 
@@ -277,6 +306,22 @@
             // Установите setTimeout, чтобы восстановить доступность кнопки через определенное время или в зависимости от того, как завершается ваш код
             setTimeout(function () {
                 document.getElementById("btn_create_lessons").disabled = false;
+            }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
+        }
+
+        async function mark_attendances() {
+            // Заблокировать кнопку
+            document.getElementById("btn_mark_attendances").disabled = true;
+
+            // Ваш код для создания уроков
+            // Здесь можно вставить код, который создает уроки
+            alert(1);
+
+
+            // Восстановить доступность кнопки после завершения кода (предполагается, что создание уроков завершится асинхронно)
+            // Установите setTimeout, чтобы восстановить доступность кнопки через определенное время или в зависимости от того, как завершается ваш код
+            setTimeout(function () {
+                document.getElementById("btn_mark_attendances").disabled = false;
             }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
         }
     </script>

@@ -151,7 +151,6 @@ def parse_lessons_table(data, html, allowed_groups):
 
 
 def get_lessons(year, month):
-    """
     data = dict()
     stars_cfg = get_stars_config()
     allowed_groups = stars_cfg['groups']
@@ -166,48 +165,23 @@ def get_lessons(year, month):
                 r = get_lessons_in_month(year, month, page=page.text)
                 if r.ok:
                     parse_lessons_table(data, r.text, allowed_groups)
-    """
-    data = {28: {'grant': [{'code': '105904', 'time': '19:30-21:30', 'teacher': 'Weissberg Mordechai '}],
-                 'trip': [{'code': '105934', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}]},
-            27: {'trip': [{'code': '105935', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
-                 'grant': [{'code': '105903', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}]},
-            26: {'grant': [{'code': '105902', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}],
-                 'trip': [{'code': '105936', 'time': '19:00-21:00', 'teacher': 'Lastov  Isheyahu'}]},
-            25: {'trip': [{'code': '105937', 'time': '20:00-22:00', 'teacher': 'Feldman Yonatan'}]},
-            24: {'grant': [{'code': '105897', 'time': '13:00-15:00', 'teacher': 'Beinish Moshe-Boruch'}],
-                 'trip': [{'code': '105993', 'time': '13:00-15:00', 'teacher': 'Beinish Moshe-Boruch'}]},
-            21: {'grant': [{'code': '105901', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}],
-                 'trip': [{'code': '105938', 'time': '19:00-21:00', 'teacher': 'Lastov  Isheyahu'}]},
-            20: {'trip': [{'code': '105939', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}],
-                 'grant': [{'code': '105900', 'time': '19:30-21:30', 'teacher': 'Lakshin Alexandr'}]},
-            19: {'grant': [{'code': '105899', 'time': '19:30-21:30', 'teacher': 'Feldman Yonatan'}],
-                 'trip': [{'code': '105990', 'time': '19:00-21:00', 'teacher': 'Lakshin Alexandr'}]},
-            18: {'trip': [{'code': '105987', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
-                 'grant': [{'code': '105898', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}]},
-            17: {'trip': [{'code': '105988', 'time': '20:00-22:00', 'teacher': 'Lastov  Isheyahu'}]},
-            14: {'trip': [{'code': '105985', 'time': '19:00-21:00', 'teacher': 'Feldman Yonatan'}],
-                 'grant': [{'code': '105896', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}]},
-            13: {'grant': [{'code': '105895', 'time': '19:30-21:30', 'teacher': 'Lakshin Alexandr'}],
-                 'trip': [{'code': '105986', 'time': '19:00-21:00', 'teacher': 'Lakshin Alexandr'}]},
-            12: {'grant': [{'code': '105894', 'time': '19:30-21:30', 'teacher': 'Feldman Yonatan'}],
-                 'trip': [{'code': '105954', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}]},
-            11: {'trip': [{'code': '105955', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}],
-                 'grant': [{'code': '105888', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}]},
-            10: {'grant': [{'code': '105887', 'time': '13:00-15:00', 'teacher': 'Weissberg Mordechai '}],
-                 'trip': [{'code': '105956', 'time': '13:00-15:00', 'teacher': 'Lastov  Isheyahu'}]},
-            7: {'trip': [{'code': '105957', 'time': '19:00-21:00', 'teacher': 'Feldman Yonatan'}],
-                'grant': [{'code': '105893', 'time': '19:30-20:30', 'teacher': 'Lastov  Isheyahu'}]},
-            6: {'grant': [{'code': '105892', 'time': '19:30-21:30', 'teacher': 'Lakshin Alexandr'}],
-                'trip': [{'code': '105958', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}]},
-            5: {'grant': [{'code': '105891', 'time': '19:30-21:30', 'teacher': 'Feldman Yonatan'}],
-                'trip': [{'code': '105952', 'time': '19:00-21:00', 'teacher': 'Lakshin Alexandr'}]},
-            4: {'trip': [{'code': '105953', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
-                'grant': [{'code': '105890', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}]}}
-    data = {28: {'grant': [{'code': '105904', 'time': '19:30-21:30', 'teacher': 'Weissberg Mordechai '}],
-                 'trip': [{'code': '105934', 'time': '19:00-21:00', 'teacher': 'Weissberg Mordechai '}]},
-            27: {'trip': [{'code': '105935', 'time': '19:00-21:00', 'teacher': 'Beinish Moshe-Boruch'}],
-                 'grant': [{'code': '105903', 'time': '19:30-21:30', 'teacher': 'Lastov  Isheyahu'}]},
-            26: {'grant': [{'code': '105902', 'time': '19:30-21:30', 'teacher': 'Beinish Moshe-Boruch'}],
-                 'trip': [{'code': '105936', 'time': '19:00-21:00', 'teacher': 'Lastov  Isheyahu'}]},
-            }
     return data
+
+
+def create_lessons(date, reward, needed_lessons_cnt, existing_lessons):
+    stars_cfg = get_stars_config()
+    allowed_groups = stars_cfg['groups']
+    lesson_group = None
+
+    for group in allowed_groups:
+        if reward == allowed_groups[group]['reward']:
+            lesson_group = allowed_groups[group]
+            break
+
+    if lesson_group is None:
+        return False, 'Unknown Group/Reward'
+
+    attempts_cnt = 0
+    duration = lesson_group['duration']
+
+    return True, 'OK'

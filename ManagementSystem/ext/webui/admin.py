@@ -42,7 +42,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.stars import get_stars_config, get_lessons
+from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -662,6 +662,7 @@ def admin_attendance_stars_export_month(month):
                     'group': group,
                     'count': data['max_attendances'][group] - lessons_exists
                 })
+    lessons_to_create.sort(key=lambda x: (x['date'], x['group'], x['count']))
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,
                            lessons_to_create=lessons_to_create, bad_users=bad_users)
@@ -2289,5 +2290,24 @@ def admin_face_id_user_greeting():
         return json.dumps({'success': True,
                            "info": f"Приветствие изменено: {greeting}"}), 200, {
             'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}
+
+
+# Stars block
+
+# Уровень:              face_id
+# База данных:
+# HTML:
+@admin.route('/stars/lessons/create', methods=['POST'])
+@login_required
+def stars_create_lessons():
+    try:
+        date = datetime.strptime(request.form.get("date"), "%d.%m.%Y")
+        reward = request.form.get("reward")
+        count = int(request.form.get("count"))
+        lessons = json.loads(request.form.get("lessons"))
+        status, info = create_lessons(date, reward, count, lessons)
+        return json.dumps({'success': status, "info": info}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

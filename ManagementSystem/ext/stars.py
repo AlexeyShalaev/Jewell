@@ -233,3 +233,11 @@ def create_lessons(date, reward, needed_lessons_cnt, existing_lessons):
         return False, f'{lessons_created}/{needed_lessons_cnt} lessons were created'
 
     return True, 'OK'
+
+
+def mark_attendance_lesson(lesson_id, students_ids):
+    time.sleep(0.5)
+    resp = mark_attendance(lesson_id, students_ids)
+    if resp.ok:
+        return True, 'OK'
+    return False, 'Failed'

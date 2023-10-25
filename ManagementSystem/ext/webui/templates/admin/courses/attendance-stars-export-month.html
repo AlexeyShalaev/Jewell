@@ -219,7 +219,7 @@
                                 {% for group in i.lessons.keys() %}
                                     {% for l in i.lessons[group] %}
                                         <tr>
-                                            <td class="table-action" id="mark_attendance_{{ loop.index }}">
+                                            <td class="table-action" id="mark_attendance_{{ l.code }}">
 
                                             </td>
                                             <td>
@@ -352,7 +352,7 @@
                         success: function (result) {
                             const res = JSON.parse(result);
                             if (res.success) {
-                                ltc_status.innerHTML = '<h4><span class="badge badge-success-lighten">OK</span></h4>';
+                                ltc_status.innerHTML = '<h4><span class="badge badge-success-lighten">' + res.info + '</span></h4>';
                             } else {
                                 ltc_status.innerHTML = '<h4><span class="badge badge-danger-lighten">' + res.info + '</span></h4>';
                             }
@@ -381,8 +381,37 @@
 
             // Ваш код для создания уроков
             // Здесь можно вставить код, который создает уроки
-            alert(1);
+            for (const [day, data] of Object.entries(days)) {
+                for (const [group, lessons] of Object.entries(data.lessons)) {
+                    for (const lesson of lessons) {
+                        let ma_status = document.getElementById("mark_attendance_" + lesson.code);
+                        ma_status.innerHTML = '<div class="spinner-border text-primary" role="status"></div>';
+                        try {
+                            $.ajax({
+                                type: 'POST',
+                                url: "{{url_for('admin.stars_mark_attendance_lessons')}}",
+                                data: {
+                                    lesson_id: lesson.code,
+                                    students: JSON.stringify(Object.keys(lesson.students))
+                                },
+                                success: function (result) {
+                                    const res = JSON.parse(result);
+                                    if (res.success) {
+                                        ma_status.innerHTML = '<h4><span class="badge badge-success-lighten">' + res.info + '</span></h4>';
+                                    } else {
+                                        ma_status.innerHTML = '<h4><span class="badge badge-danger-lighten">' + res.info + '</span></h4>';
+                                    }
+                                }
+                            });
+                        } catch (err) {
+                            console.log(err);
+                        }
 
+                        // Создаем задержку в 1 секунду
+                        await new Promise(resolve => setTimeout(resolve, 300));
+                    }
+                }
+            }
 
             // Восстановить доступность кнопки после завершения кода (предполагается, что создание уроков завершится асинхронно)
             // Установите setTimeout, чтобы восстановить доступность кнопки через определенное время или в зависимости от того, как завершается ваш код

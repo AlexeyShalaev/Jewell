@@ -42,7 +42,7 @@ from ManagementSystem.ext.models.userModel import Role, Reward
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons
+from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons, mark_attendance_lesson
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -2311,9 +2311,6 @@ def admin_face_id_user_greeting():
 
 # Stars block
 
-# Уровень:              face_id
-# База данных:
-# HTML:
 @admin.route('/stars/lessons/create', methods=['POST'])
 @login_required
 def stars_create_lessons():
@@ -2323,6 +2320,18 @@ def stars_create_lessons():
         count = int(request.form.get("count"))
         lessons = json.loads(request.form.get("lessons"))
         status, info = create_lessons(date, reward, count, lessons)
+        return json.dumps({'success': status, "info": info}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}
+
+
+@admin.route('/stars/lessons/attendance', methods=['POST'])
+@login_required
+def stars_mark_attendance_lessons():
+    try:
+        lesson_id = request.form.get("lesson_id")
+        students = json.loads(request.form.get('students'))
+        status, info = mark_attendance_lesson(lesson_id, students)
         return json.dumps({'success': status, "info": info}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

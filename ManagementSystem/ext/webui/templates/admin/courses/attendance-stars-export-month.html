@@ -141,7 +141,9 @@
 
                     <p class="text-muted font-14">
                         Для каждой даты и группы создайте занятия в написанном количестве.
-                        <button id="btn_create_lessons" onclick="create_lessons();" type="button"
+                        <button id="btn_create_lessons"
+                                onclick="if (confirm('Вы уверены, что хотите создать занятия?')) create_lessons();"
+                                type="button"
                                 class="btn btn-warning"><i class="mdi mdi-rocket me-1"></i> <span>Создать</span>
                         </button>
                     </p>
@@ -187,7 +189,9 @@
 
                         <p class="text-muted font-14">
                             Экспорт посещаемости в Shtibel
-                            <button id="btn_mark_attendances" onclick="mark_attendances();" type="button"
+                            <button id="btn_mark_attendances"
+                                    onclick="if (confirm('Вы уверены, что хотите перенести посещаемость?')) mark_attendances();"
+                                    type="button"
                                     class="btn btn-info"><i class="mdi mdi-cloud me-1"></i> <span>Выгрузить</span>
                             </button>
                         </p>
@@ -229,7 +233,8 @@
                                                 {{ group }}
                                             </td>
                                             <td>
-                                                {{ l.code }}
+                                                <a href="http://stars.shtibel.com/?pageView=managerLessonEdit&row_id={{ l.code }}"
+                                                   target="_blank">{{ l.code }}</a>
                                             </td>
                                             <td>
                                                 {{ l.time }}
@@ -238,14 +243,17 @@
                                                 {{ l.teacher }}
                                             </td>
                                             <td>
-                                                <div class="row">
-                                                    <div class="col-3">
-                                                        Код Stars
+                                                <a href="http://stars.shtibel.com/?pageView=managerAttendanceEdit&row_id={{ l.code }}"
+                                                   target="_blank">
+                                                    <div class="row">
+                                                        <div class="col-3">
+                                                            Код Stars
+                                                        </div>
+                                                        <div class="col-6">
+                                                            Имя
+                                                        </div>
                                                     </div>
-                                                    <div class="col-6">
-                                                        Имя
-                                                    </div>
-                                                </div>
+                                                </a>
 
                                                 {% for code, student in l.students.items() %}
                                                     <div class="row">
@@ -288,7 +296,8 @@
                                                 {{ group }}
                                             </td>
                                             <td>
-                                                {{ l.code }}
+                                                <a href="http://stars.shtibel.com/?pageView=managerLessonEdit&row_id={{ l.code }}"
+                                                   target="_blank">{{ l.code }}</a>
                                             </td>
                                             <td>
                                                 {{ l.time }}

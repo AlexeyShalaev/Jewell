@@ -124,7 +124,7 @@ def mark_attendance(lesson_id, students_ids):
 # LESSONS
 
 def parse_lessons_table(data, html, allowed_groups):
-    soup = BeautifulSoup(html, 'lxml')
+    soup = BeautifulSoup(html, 'html.parser')
     table = soup.find('table', class_='tableList')
     # Находим строки в таблице
     rows = table.find_all('tr')
@@ -156,7 +156,7 @@ def get_lessons(year, month):
     allowed_groups = stars_cfg['groups']
     resp = get_lessons_in_month(year, month)
     if resp.ok:
-        soup = BeautifulSoup(resp.text, 'lxml')
+        soup = BeautifulSoup(resp.text, 'html.parser')
         pages = soup.find('select', class_='pagingSelect').find_all('option')
         if len(pages) <= 1:
             parse_lessons_table(data, resp.text, allowed_groups)

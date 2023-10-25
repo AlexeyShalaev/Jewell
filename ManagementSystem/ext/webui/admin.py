@@ -639,7 +639,8 @@ def admin_attendance_stars_export_month(month):
             bad_users['database'].append(i.user_id)
 
     for day, lessons in get_lessons(now.year, chosen_month).items():
-        days[day]['lessons'] = lessons
+        if day in days:
+            days[day]['lessons'] = lessons
 
     # Сортируем имена внутри каждой категории
     for day_data in days.values():

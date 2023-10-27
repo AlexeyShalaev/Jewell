@@ -43,7 +43,8 @@ from ManagementSystem.ext.models.visit import VisitType
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons, mark_attendance_lesson
+from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons, mark_attendance_lesson, \
+    get_lesson_students
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -674,10 +675,17 @@ def admin_attendance_stars_export_month(month):
             for reward, lessons in data['lessons'].items():
                 for lesson in lessons:
                     lesson['students'] = {}
+                    checked_students = get_lesson_students(lesson['code'])
                     for student_code, student in data['students'][reward].items():
                         if student['exported_attendance'] < student['count']:
                             student['exported_attendance'] += 1
-                            lesson['students'][student_code] = student
+                            lesson['students'][student_code] = {
+                                'name': student['name'],
+                                'user_id': student['user_id'],
+                                'checked': 0,
+                            }
+                            if student_code in checked_students:
+                                lesson['students'][student_code]['checked'] = 1
                     lesson['students'] = dict(sorted(lesson['students'].items(), key=lambda x: x[1]['name']))
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,

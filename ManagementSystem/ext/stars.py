@@ -121,6 +121,12 @@ def mark_attendance(lesson_id, students_ids):
     return uri
 
 
+@stars.get
+def lesson_students(lesson_id):
+    return (f'http://stars.shtibel.com/?pageView=managerAttendanceEdit'
+            f'&row_id={lesson_id}')
+
+
 # LESSONS
 
 def parse_lessons_table(data, html, allowed_groups):
@@ -241,3 +247,22 @@ def mark_attendance_lesson(lesson_id, students_ids):
     if resp.ok:
         return True, 'OK'
     return False, 'Failed'
+
+
+def get_lesson_students(lesson_id):
+    res = []
+    resp = lesson_students(lesson_id)
+    if resp.ok:
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        table = soup.find('table', class_='boxTable')
+        # Находим строки в таблице
+        rows = table.find_all('tr')
+        # Пропускаем заголовок (первую строку)
+        for row in rows[1:]:
+            # Получаем ячейки в текущей строке
+            cells = row.find_all('td')
+            # Извлекаем данные из ячеек
+            student_code = cells[0]
+            if cells[3].find_all('input', checked=True):
+                res.append(student_code.text)
+    return res

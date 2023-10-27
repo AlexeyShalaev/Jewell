@@ -252,6 +252,9 @@
                                                         <div class="col-6">
                                                             Имя
                                                         </div>
+                                                        <div class="col-3">
+                                                            Отмечен?
+                                                        </div>
                                                     </div>
                                                 </a>
 
@@ -263,6 +266,16 @@
                                                         <div class="col-6">
                                                             <a href="{{ url_for('admin.user_attendance', user_id=student.user_id) }}"
                                                                target="_blank">{{ student.name }}</a>
+                                                        </div>
+                                                        <div class="col-3">
+                                                            {% if student.checked %}
+                                                                <span class="badge bg-success" style="font-size: 12px;"><i
+                                                                        class="mdi mdi-check"></i></span>
+                                                            {% else %}
+                                                                <span class="badge bg-danger"><i style="font-size: 12px;"
+                                                                        class="mdi mdi-close"></i></span>
+
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                 {% endfor %}

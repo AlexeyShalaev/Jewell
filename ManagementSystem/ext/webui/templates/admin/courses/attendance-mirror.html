@@ -31,6 +31,16 @@
     <!-- end page title -->
 
     <div class="row">
+        <div class="col-3">
+            <button onclick="select_students(); select_course();" type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#enter-modal"
+                    class="btn btn-soft-primary">Добавить вход студенту
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
         <table class="table table-centered mb-0 display-6">
             <tbody>
             {% for visit in visits %}
@@ -45,7 +55,8 @@
                         <td>
                             <form method="post">
                                 <input hidden type="text" name="visit_id" value="{{ visit['id'] }}">
-                                <button name="btn_attendance_mirror" value="delete_enter" type="submit" class="btn btn-danger"><i class="mdi mdi-trash-can-outline"></i></button>
+                                <button name="btn_attendance_mirror" value="delete_enter" type="submit"
+                                        class="btn btn-danger"><i class="mdi mdi-trash-can-outline"></i></button>
                             </form>
                         </td>
                     {% endif %}
@@ -54,5 +65,81 @@
             </tbody>
         </table>
     </div>
+
+    <div id="enter-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-colored-header bg-primary">
+                    <h4 class="modal-title" id="primary-header-modalLabel">Добавление входа на текущее время</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-hidden="true"></button>
+                </div>
+                <div class="modal-body">
+
+                    <form class="ps-3 pe-3" method="post">
+
+                        <div class="mb-3">
+                            <label for="students_enter" class="form-label">Студенты</label>
+                            <!-- Multiple Select -->
+                            <select id="students_enter" name="students_enter"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2" multiple="multiple"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="enter_course" class="form-label">Курс</label>
+                            <!-- Multiple Select -->
+                            <select id="enter_course" name="enter_course"
+                                    class="mt-3 select2 form-control select2-multiple"
+                                    data-toggle="select2"
+                                    data-placeholder="Выбрать ..." required>
+                            </select>
+                        </div>
+
+                        <div class="mt-3 text-center">
+                            <button class="btn rounded-pill btn-primary" type="submit" name="btn_attendance_mirror"
+                                    value="add_enter">Добавить
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <script>
+
+        function select_course(element = "enter_course") {
+            let sel = document.getElementById(element);
+            sel.innerHTML = "";
+            const courses = {{courses | safe}};
+            for (const course of courses) {
+                let opt = document.createElement("option");
+                opt.setAttribute("value", course);
+                opt.innerText = course;
+                sel.appendChild(opt);
+            }
+        }
+
+        function select_students(element = "students_enter", sel_students = []) {
+            let sel = document.getElementById(element);
+            sel.innerHTML = "";
+            const students = {{students | safe}};
+            for (const [key, value] of Object.entries(students)) {
+                let opt = document.createElement("option");
+                opt.setAttribute("value", value.id);
+                opt.innerText = value.name;
+                if (sel_students.includes(value.id)) {
+                    opt.selected = true;
+                }
+                sel.appendChild(opt);
+            }
+        }
+
+    </script>
 
 {% endblock %}

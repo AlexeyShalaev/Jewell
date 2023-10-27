@@ -34,15 +34,17 @@ from ManagementSystem.ext.database.relationships import get_relationships_by_sen
     get_relationships_by_receiver
 from ManagementSystem.ext.database.users import get_users_by_role, get_user_by_id, update_main_data, delete_user, \
     update_new_user, update_user, get_users, check_user_by_phone, get_user_by_phone_number
-from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id, delete_visit_by_id
+from ManagementSystem.ext.database.visits import get_visits, delete_visits_by_user_id, delete_visit_by_id, add_visit
 from ManagementSystem.ext.logistics import auto_redirect, check_session
 from ManagementSystem.ext.models.flask_session import get_info_by_ip
 from ManagementSystem.ext.models.form import FormStatus
 from ManagementSystem.ext.models.userModel import Role, Reward
+from ManagementSystem.ext.models.visit import VisitType
 from ManagementSystem.ext.notifier import notify_user, notify_users, notify_admins
 from ManagementSystem.ext.snapshotting import get_sorted_backups, get_backup_date, backup, restore, backups_folder, \
     temporary_folder, check_filename, check_content, clear_temporary_folder
-from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons, mark_attendance_lesson
+from ManagementSystem.ext.stars import get_stars_config, get_lessons, create_lessons, mark_attendance_lesson, \
+    get_lesson_students
 from ManagementSystem.ext.telegram.message import send_news, send_message
 from ManagementSystem.ext.terminal import get_telegram_bot_status, stop_telegram_bot, start_telegram_bot
 from ManagementSystem.ext.text_filter import TextFilter
@@ -673,10 +675,17 @@ def admin_attendance_stars_export_month(month):
             for reward, lessons in data['lessons'].items():
                 for lesson in lessons:
                     lesson['students'] = {}
+                    checked_students = get_lesson_students(lesson['code'])
                     for student_code, student in data['students'][reward].items():
                         if student['exported_attendance'] < student['count']:
                             student['exported_attendance'] += 1
-                            lesson['students'][student_code] = student
+                            lesson['students'][student_code] = {
+                                'name': student['name'],
+                                'user_id': student['user_id'],
+                                'checked': 0,
+                            }
+                            if student_code in checked_students:
+                                lesson['students'][student_code]['checked'] = 1
                     lesson['students'] = dict(sorted(lesson['students'].items(), key=lambda x: x[1]['name']))
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,
@@ -807,8 +816,23 @@ def admin_attendance_mirror():
             if request.form['btn_attendance_mirror'] == 'delete_enter':
                 visit_id = request.form.get('visit_id')
                 delete_visit_by_id(visit_id)
+            elif request.form['btn_attendance_mirror'] == 'add_enter':
+                selected_students = request.form.getlist('students_enter')
+                enter_course = request.form.get('enter_course')
+                for student in selected_students:
+                    add_visit(student, datetime.now(), VisitType.ENTER, [enter_course])
+                flash('Вы успешно добавили вход', 'success')
         except Exception as ex:
             logging.error(ex)
+
+    students = []
+    for student in get_users_by_role(Role.STUDENT).data:
+        if student.reward != Reward.NULL:
+            students.append({"name": f'{student.first_name} {student.last_name}', "id": str(student.id)})
+
+    courses = []
+    for course in get_courses().data:
+        courses.append(course.name)
 
     visits = get_visits().data
     visits.sort(key=lambda x: x.date, reverse=True)
@@ -828,7 +852,8 @@ def admin_attendance_mirror():
         except Exception:
             pass
 
-    return render_template("admin/courses/attendance-mirror.html", visits=visits_json)
+    return render_template("admin/courses/attendance-mirror.html", visits=visits_json,
+                           students=students, courses=courses)
 
 
 # Уровень:              attendance_markers

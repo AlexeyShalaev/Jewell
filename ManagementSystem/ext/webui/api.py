@@ -749,6 +749,8 @@ def attendance_visit():
                 user = r.data
                 status, data = handle_visit(user, date)
                 return json.dumps({'success': status, 'data': data}), 200, {'ContentType': 'application/json'}
+            else:
+                logging.error(f'Error while getting user with id: {user_id}')
     except Exception as ex:
         logging.error(ex)
     return json.dumps({'success': False, 'data': ''}), 200, {'ContentType': 'application/json'}

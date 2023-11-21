@@ -9,6 +9,7 @@ from ManagementSystem.ext.models.visit import VisitType
 from ManagementSystem.ext.tools import has_element
 
 COURSE_TIME = 2  # hours
+VISIT_RANGE_MINUTES_45_MIN = 45 * 60  # seconds
 VISIT_RANGE_MINUTES_30_MIN = 30 * 60  # seconds
 VISIT_RANGE_MINUTES_15_MIN = 15 * 60  # seconds
 NEXT_VISIT_MIN_TIME = 3600 * 1.5  # seconds
@@ -41,7 +42,7 @@ def handle_visit(user, date):
             if (date < end_time and (
                     end_time - date).seconds < VISIT_RANGE_MINUTES_15_MIN) or (
                     date > end_time and (
-                    date - end_time).seconds < VISIT_RANGE_MINUTES_30_MIN):
+                    date - end_time).seconds < VISIT_RANGE_MINUTES_45_MIN):
                 exit_courses += i['courses']
                 continue
 

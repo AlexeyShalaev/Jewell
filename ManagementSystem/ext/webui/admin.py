@@ -919,6 +919,7 @@ def admin_attendance_marker(marker_id):
                 date = datetime.now().strftime("%d.%m.%Y %H:%M:%S")
                 for student_id in checked_students:
                     add_attendance(student_id, 1, date)
+                    logging.info(f'MARKER COMMIT: {student_id}')
                 delete_attendance_marker(marker_id)
 
                 text = f'Вам проставлена посещаемость {date}'

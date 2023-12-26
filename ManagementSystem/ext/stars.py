@@ -163,14 +163,16 @@ def get_lessons(year, month):
     resp = get_lessons_in_month(year, month)
     if resp.ok:
         soup = BeautifulSoup(resp.text, 'html.parser')
-        pages = soup.find('select', class_='pagingSelect').find_all('option')
-        if len(pages) <= 1:
-            parse_lessons_table(data, resp.text, allowed_groups)
-        else:
-            for page in pages:
-                r = get_lessons_in_month(year, month, page=page.text)
-                if r.ok:
-                    parse_lessons_table(data, r.text, allowed_groups)
+        tmp = soup.find('select', class_='pagingSelect')
+        if tmp is not None:
+            pages = tmp.find_all('option')
+            if len(pages) <= 1:
+                parse_lessons_table(data, resp.text, allowed_groups)
+            else:
+                for page in pages:
+                    r = get_lessons_in_month(year, month, page=page.text)
+                    if r.ok:
+                        parse_lessons_table(data, r.text, allowed_groups)
     return data
 
 

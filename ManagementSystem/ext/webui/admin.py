@@ -644,7 +644,11 @@ def admin_attendance_stars_export_month(month):
         else:
             bad_users['database'].add(i.user_id)
 
-    for day, lessons in get_lessons(now.year, chosen_month).items():
+    if chosen_month >= 9:
+        gl_year = start
+    else:
+        gl_year = end
+    for day, lessons in get_lessons(gl_year, chosen_month).items():
         if day in days:
             days[day]['lessons'] = lessons
 

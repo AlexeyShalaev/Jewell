@@ -652,6 +652,7 @@ def admin_attendance_stars_export_month(month):
         if day in days:
             days[day]['lessons'] = lessons
 
+    logging.info(f"ATTENDANCE STARS EXPORT: Сортируем имена внутри каждой категории")
     # Сортируем имена внутри каждой категории
     for day_data in days.values():
         days_students = day_data['students']
@@ -663,8 +664,8 @@ def admin_attendance_stars_export_month(month):
             days_lessons[category] = sorted(days_lessons[category],
                                             key=lambda x: int(x['time'].split('-')[1].split(':')[0]), reverse=True)
 
+    logging.info(f"ATTENDANCE STARS EXPORT: collecting and sorting lessons to create")
     lessons_to_create = []
-
     for day, data in days.items():
         for group, students in data['students'].items():
             lessons_exists = len(data['lessons'].get(group, []))
@@ -677,6 +678,7 @@ def admin_attendance_stars_export_month(month):
     lessons_to_create.sort(key=lambda x: (x['date'], x['group'], x['count']))
 
     if len(lessons_to_create) == 0:
+        logging.info(f"ATTENDANCE STARS EXPORT: ready to mark attendance")
         for day, data in days.items():
             for reward, lessons in data['lessons'].items():
                 for lesson in lessons:

@@ -157,18 +157,23 @@ def parse_lessons_table(data, html, allowed_groups):
 
 
 def get_lessons(year, month):
+    logging.info(f"ATTENDANCE STARS EXPORT: getting lessons ({year}, {month})")
     data = dict()
     stars_cfg = get_stars_config()
     allowed_groups = stars_cfg['groups']
     resp = get_lessons_in_month(year, month)
     if resp.ok:
+        logging.info(f"ATTENDANCE STARS EXPORT: resp OK")
         soup = BeautifulSoup(resp.text, 'html.parser')
         tmp = soup.find('select', class_='pagingSelect')
         if tmp is not None:
+            logging.info(f"ATTENDANCE STARS EXPORT: pagingSelect is not None")
             pages = tmp.find_all('option')
             if len(pages) <= 1:
+                logging.info(f"ATTENDANCE STARS EXPORT: 1 page")
                 parse_lessons_table(data, resp.text, allowed_groups)
             else:
+                logging.info(f"ATTENDANCE STARS EXPORT: {len(pages)} pages")
                 for page in pages:
                     r = get_lessons_in_month(year, month, page=page.text)
                     if r.ok:

@@ -589,6 +589,8 @@ def admin_attendance_stars_export_month(month):
         logout_user()
         return redirect(url_for("view.landing"))
 
+    logging.info(f"ATTENDANCE STARS EXPORT: {month}")
+
     now = datetime.now()
     chosen_month = int(month)
     if now.month >= 9:

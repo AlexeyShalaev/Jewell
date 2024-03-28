@@ -10,3 +10,4 @@ face-recognition
 pytz
 openpyxl
 beautifulsoup4
+moviepy

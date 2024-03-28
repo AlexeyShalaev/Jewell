@@ -14,7 +14,8 @@ directories = {
     'avatars': 'storage/database/avatars',
     'games': 'storage/database/games',
     'products': 'storage/database/products',
-    'records': 'storage/database/records'
+    'records': 'storage/database/records',
+    'animations': 'storage/database/animations',
 }
 
 for directory in directories.values():

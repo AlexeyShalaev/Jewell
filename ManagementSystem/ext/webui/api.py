@@ -2,7 +2,8 @@ import logging
 import os
 from datetime import datetime
 
-from flask import Blueprint, send_file, json, url_for, request
+from flask import Blueprint, send_file, json, url_for, request, make_response
+from moviepy.editor import VideoFileClip
 
 from ManagementSystem.ext import directories, valid_images, api_token, system_variables
 from ManagementSystem.ext.attendance_visits import handle_visit
@@ -778,3 +779,48 @@ def attendance_qr_code():
     except Exception as ex:
         logging.error(ex)
     return json.dumps({'success': False}), 200, {'ContentType': 'application/json'}
+
+
+# Уровень:              animation/add
+# База данных:          -
+# HTML:                 -
+@api.route('/animation/add', methods=['POST'])
+def animation_add():
+    try:
+        directory = directories['animations']
+        token = request.values['token']
+        if token == api_token:
+            file_extension = request.values['file_extension']
+            user_id = request.values['user_id']
+            file = request.files['file']
+            for f in os.listdir(directory):
+                if user_id in f:
+                    os.remove(os.path.join(directory, f))
+
+            file_path = os.path.join(directory, f'{user_id}.{file_extension}')
+            file.save(file_path)
+
+            if file_extension == 'webm' or file_extension == 'mp4':
+                videoClip = VideoFileClip(file_path)
+                new_file_path = os.path.join(directory, f'{user_id}.gif')
+                videoClip.write_gif(new_file_path)
+                os.remove(file_path)
+
+            return json.dumps({'success': True}), 200, {'ContentType': 'application/json'}
+    except Exception as ex:
+        logging.error(ex)
+    return json.dumps({'success': False}), 400, {'ContentType': 'application/json'}
+
+
+@api.route('/animation/<user_id>', methods=['GET'])
+def animation_get(user_id):
+    try:
+        directory = directories['animations']
+        for file in os.listdir(directory):
+            if user_id in file:
+                response = make_response(send_file(os.path.join(directory, file)))
+                response.headers['X-Frame-Options'] = '*'
+                return response
+    except Exception as ex:
+        logging.error(ex)
+    return json.dumps({'success': False}), 400, {'ContentType': 'application/json'}

@@ -4,6 +4,7 @@ import requests
 
 from TelegramBot.tgbot import links, jewell_token
 
+animation_url = f'{links.server}/api/animation'
 attendance_url = f'{links.server}/api/attendance'
 snapshot_url = f'{links.server}/api/snapshot'
 
@@ -64,3 +65,17 @@ def snapshot_backups() -> (bool, ...):
     except Exception as ex:
         logging.error(ex)
     return False, None
+
+
+def animation_add(user_id, file, file_extension) -> bool:
+    try:
+        r = requests.post(f'{animation_url}/add',
+                          data={"token": jewell_token, "user_id": user_id, "file_extension": file_extension},
+                          files={'file': file.read()})
+        if r.ok:
+            res = r.json()
+            return res['success']
+    except Exception as ex:
+        print(ex)
+        logging.error(ex)
+    return False

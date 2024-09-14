@@ -143,12 +143,11 @@ def parse_lessons_table(data, html, allowed_groups):
         group = cells[5].text
         if group in allowed_groups:
             date = datetime.strptime(cells[2].text, "%m/%d/%Y")
-            reward = allowed_groups[group]['reward']
             if date.day not in data:
                 data[date.day] = {}
-            if reward not in data[date.day]:
-                data[date.day][reward] = []
-            data[date.day][reward].append({
+            if group not in data[date.day]:
+                data[date.day][group] = []
+            data[date.day][group].append({
                 'code': cells[1].text,
                 'time': cells[3].text,
                 'teacher': cells[7].text,
@@ -224,7 +223,7 @@ def create_lessons(date, group, needed_lessons_cnt, existing_lessons):
         lesson_group = allowed_groups[group]
 
     if lesson_group is None:
-        return False, 'Unknown Group/Reward'
+        return False, 'Unknown Group'
 
     duration = lesson_group['duration']
     slots = find_available_time_slots(needed_lessons_cnt, duration, existing_lessons)

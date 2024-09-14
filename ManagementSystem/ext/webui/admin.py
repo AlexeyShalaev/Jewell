@@ -616,8 +616,8 @@ def admin_attendance_stars_export_month(month):
     for i in attendances:
         day = i.date.day
         if day not in days:
-            days[day] = {'students': {'trip': {}, 'grant': {}},
-                         'max_attendances': {'trip': 0, 'grant': 0},
+            days[day] = {'students': {},
+                         'max_attendances': {},
                          'date': datetime(i.date.year, chosen_month, day).strftime("%d.%m.%Y"),
                          'lessons': {}}
         r = get_user_by_id(i.user_id)
@@ -628,17 +628,20 @@ def admin_attendance_stars_export_month(month):
                 if user.stars.code is None or user.stars.code == '':
                     bad_users['code'].add(i.user_id)
                 else:
-                    if user.stars.code not in days[day]['students'][user.reward.value]:
-                        days[day]['students'][user.reward.value][user.stars.code] = {
+                    if user.stars.group not in days[day]['students']:
+                        days[day]['students'][user.stars.group] = {}
+                        days[day]['max_attendances'][user.stars.group] = 0
+                    if user.stars.code not in days[day]['students'][user.stars.group]:
+                        days[day]['students'][user.stars.group][user.stars.code] = {
                             'user_id': str(i.user_id),
                             'name': user_name,
                             'count': 0,
                             'exported_attendance': 0
                         }
-                    days[day]['students'][user.reward.value][user.stars.code]['count'] += 1
-                    days[day]['max_attendances'][user.reward.value] = max(
-                        days[day]['max_attendances'][user.reward.value],
-                        days[day]['students'][user.reward.value][user.stars.code]['count'])
+                    days[day]['students'][user.stars.group][user.stars.code]['count'] += 1
+                    days[day]['max_attendances'][user.stars.group] = max(
+                        days[day]['max_attendances'][user.stars.group],
+                        days[day]['students'][user.stars.group][user.stars.code]['count'])
             else:
                 bad_users['reward'].add(i.user_id)
         else:
@@ -680,11 +683,11 @@ def admin_attendance_stars_export_month(month):
     if len(lessons_to_create) == 0:
         logging.info(f"ATTENDANCE STARS EXPORT: ready to mark attendance")
         for day, data in days.items():
-            for reward, lessons in data['lessons'].items():
+            for group, lessons in data['lessons'].items():
                 for lesson in lessons:
                     lesson['students'] = {}
                     checked_students = get_lesson_students(lesson['code'])
-                    for student_code, student in data['students'][reward].items():
+                    for student_code, student in data['students'][group].items():
                         if student['exported_attendance'] < student['count']:
                             student['exported_attendance'] += 1
                             lesson['students'][student_code] = {
@@ -2350,10 +2353,10 @@ def admin_face_id_user_greeting():
 def stars_create_lessons():
     try:
         date = datetime.strptime(request.form.get("date"), "%d.%m.%Y")
-        reward = request.form.get("reward")
+        group = request.form.get("group")
         count = int(request.form.get("count"))
         lessons = json.loads(request.form.get("lessons"))
-        status, info = create_lessons(date, reward, count, lessons)
+        status, info = create_lessons(date, group, count, lessons)
         return json.dumps({'success': status, "info": info}), 200, {'ContentType': 'application/json'}
     except Exception as ex:
         return json.dumps({'success': False, "info": str(ex)}), 200, {'ContentType': 'application/json'}

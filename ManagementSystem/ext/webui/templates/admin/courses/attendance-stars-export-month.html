@@ -367,7 +367,7 @@
                         url: "{{url_for('admin.stars_create_lessons')}}",
                         data: {
                             date: lesson.date,
-                            reward: lesson.group,
+                            group: lesson.group,
                             count: lesson.count,
                             lessons: JSON.stringify(existing_lessons)
                         },

@@ -27,7 +27,7 @@ class StarsShtibel:
     def _request(self, uri, method):
         try:
             if self.__debug:
-                print(f'{method.upper()}: {uri}')
+                logging.info(f'{method.upper()}: {uri}')
             if method == 'get':
                 r = requests.get(uri, cookies=self.__cookies)
             elif method == 'post':

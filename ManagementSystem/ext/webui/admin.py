@@ -666,7 +666,7 @@ def admin_attendance_stars_export_month(month):
         for category in days_lessons:
             days_lessons[category] = sorted(days_lessons[category],
                                             key=lambda x: int(x['time'].split('-')[1].split(':')[0]), reverse=True)
-
+    logging.info(days)
     logging.info(f"ATTENDANCE STARS EXPORT: collecting and sorting lessons to create")
     lessons_to_create = []
     for day, data in days.items():
@@ -679,7 +679,7 @@ def admin_attendance_stars_export_month(month):
                     'count': data['max_attendances'][group] - lessons_exists
                 })
     lessons_to_create.sort(key=lambda x: (x['date'], x['group'], x['count']))
-
+    logging.info(lessons_to_create)
     if len(lessons_to_create) == 0:
         logging.info(f"ATTENDANCE STARS EXPORT: ready to mark attendance")
         for day, data in days.items():

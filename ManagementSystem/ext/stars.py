@@ -214,16 +214,14 @@ def find_available_time_slots(needed_lessons_cnt, duration, existing_lessons):
     return available_slots
 
 
-def create_lessons(date, reward, needed_lessons_cnt, existing_lessons):
+def create_lessons(date, group, needed_lessons_cnt, existing_lessons):
     stars_cfg = get_stars_config()
     allowed_groups = stars_cfg['groups']
     stars_teachers = list(stars_cfg['teachers'].values())
     lesson_group = None
 
-    for group in allowed_groups:
-        if reward == allowed_groups[group]['reward']:
-            lesson_group = allowed_groups[group]
-            break
+    if group in allowed_groups:
+        lesson_group = allowed_groups[group]
 
     if lesson_group is None:
         return False, 'Unknown Group/Reward'

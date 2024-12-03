@@ -100,22 +100,18 @@
     </div>
     <!-- end page title -->
 
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="Навигация по неделям">
-                <ul class="pagination">
-                    {% for week_num in range(1, total_weeks + 1) %}
-                        <li class="page-item {% if week_num == current_week %}active{% endif %}">
-                            <a class="page-link" onclick="show_loader();"
-                               href="{{ url_for('admin.admin_attendance_stars_export_month', month=month, week=week_num) }}">
-                                Неделя {{ week_num }}
-                            </a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </nav>
-        </div>
-    </div>
+    <nav aria-label="Навигация по неделям">
+        <ul class="pagination">
+            {% for week_num in range(1, total_weeks + 1) %}
+                <li class="page-item {% if week_num == current_week %}active{% endif %}">
+                    <a class="page-link" onclick="show_loader();"
+                       href="{{ url_for('admin.admin_attendance_stars_export_month', month=month, week=week_num) }}">
+                        Неделя {{ week_num }}
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </nav>
 
     <div class="row">
         <div class="col-12">

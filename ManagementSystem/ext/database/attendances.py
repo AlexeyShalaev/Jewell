@@ -1,3 +1,5 @@
+import logging
+
 from ManagementSystem.ext.models.attendance import *
 from . import db, MongoDBResult
 
@@ -19,14 +21,14 @@ def get_attendances() -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
-def get_filtered_attendances(start: int, end: int, chosen_month: int):
-    # Создаем фильтр
+def get_filtered_attendances(month: int, year: int):
+    # Форматируем месяц с ведущим нулём (например, 09)
+    month_str = f"{month:02d}"
+    year_str = str(year)
+
+    # Условие для фильтрации по регулярному выражению
     filter_condition = {
-        "$or": [
-            {"$and": [{"date.year": start}, {"date.month": {"$gte": 9}}]},
-            {"$and": [{"date.year": end}, {"date.month": {"$lt": 9}}]}
-        ],
-        "date.month": chosen_month
+        "date": {"$regex": rf"^\d{{2}}\.{month_str}\.{year_str}.*$"}
     }
 
     # Выполняем запрос с фильтром

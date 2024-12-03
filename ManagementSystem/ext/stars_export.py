@@ -18,7 +18,13 @@ def get_stars_export_data(month):
     else:
         end = now.year
         start = end - 1
-    attendances = get_filtered_attendances(start, end, chosen_month)
+
+    if chosen_month >= 9:
+        gl_year = start
+    else:
+        gl_year = end
+
+    attendances = get_filtered_attendances(chosen_month, gl_year)
 
     bad_users = {
         'database': set(),
@@ -61,10 +67,6 @@ def get_stars_export_data(month):
         else:
             bad_users['database'].add(i.user_id)
 
-    if chosen_month >= 9:
-        gl_year = start
-    else:
-        gl_year = end
     for day, lessons in get_lessons(gl_year, chosen_month).items():
         if day in days:
             days[day]['lessons'] = lessons

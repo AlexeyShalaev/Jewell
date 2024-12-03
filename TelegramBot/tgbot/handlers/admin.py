@@ -69,7 +69,7 @@ def register_admin(dp: Dispatcher):
     dp.register_message_handler(bot_admin_dump, text="Создать резервную копию 💽️", is_group=False, role='admin')
     dp.register_message_handler(bot_admin_backups, text="Восстановить из резервной копии 🗃", is_group=False,
                                 role='admin')
-    dp.register_message_handler(bot_admin_stars_export_month_choose_month, text="Эскпорт посещаемости в Stars", is_group=False,
+    dp.register_message_handler(bot_admin_stars_export_month_choose_month, text="Экcпорт посещаемости в Stars", is_group=False,
                                 role='admin')
     dp.register_message_handler(
         bot_admin_stars_export_month,

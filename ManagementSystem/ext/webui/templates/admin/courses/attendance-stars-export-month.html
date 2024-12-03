@@ -5,18 +5,125 @@
 {% endblock %}
 
 {% block body %}
+    <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
 
-    <!-- Pre-loader -->
-    <div id="preloader">
-        <div id="status">
-            <div class="bouncing-loader">
-                <div></div>
-                <div></div>
-                <div></div>
-            </div>
-        </div>
+        .page-item {
+            margin: 0 5px;
+        }
+
+        .page-item a {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .page-item a:hover {
+            background-color: #f8f9fa;
+            border-color: #007bff;
+            color: #0056b3;
+        }
+
+        .page-item.active a {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+            cursor: default;
+        }
+
+        .page-item.active a:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border-color: #0056b3;
+        }
+
+        .page-item.disabled a {
+            color: #6c757d;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .page-item.disabled a:hover {
+            color: #6c757d;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+
+        /* Pre-loader CSS */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--ct-gray-100);
+            z-index: 9999;
+
+
+            .txt {
+                color: #666;
+                text-align: center;
+                top: 40%;
+                position: relative;
+                text-transform: uppercase;
+                letter-spacing: 0.3rem;
+                font-weight: bold;
+                line-height: 1.5;
+            }
+        }
+
+        /* Spinner animation */
+        .spinner {
+            position: relative;
+            top: 35%;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            background-color: #ff5b5b;
+            border-radius: 100%;
+            -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+            animation: sk-scaleout 1.0s infinite ease-in-out;
+        }
+
+        @-webkit-keyframes sk-scaleout {
+            0% {
+                -webkit-transform: scale(0)
+            }
+            100% {
+                -webkit-transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sk-scaleout {
+            0% {
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+            100% {
+                -webkit-transform: scale(1.0);
+                transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+    </style>
+
+    <div id="next_page_loader" class="page-loader" style="visibility: hidden ">
+        <div class="spinner"></div>
+        <div class="txt">Loading...<br>Пожалуйста, дождитесь конца загрузки<br>Это может занять некоторое время</div>
     </div>
-    <!-- End Preloader-->
 
     <!-- start page title -->
     <div class="row">
@@ -30,6 +137,18 @@
                     </ol>
                 </div>
                 <h4 class="page-title" id="page-header">Экспорт данных</h4>
+                <nav aria-label="Навигация по неделям">
+                    <ul class="pagination">
+                        {% for week_num in range(1, total_weeks + 1) %}
+                            <li class="page-item {% if week_num == current_week %}active{% endif %}">
+                                <a class="page-link" onclick="show_loader();"
+                                   href="{{ url_for('admin.admin_attendance_stars_export_month', month=month, week=week_num) }}">
+                                    Неделя {{ week_num }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
@@ -440,6 +559,10 @@
             setTimeout(function () {
                 document.getElementById("btn_mark_attendances").disabled = false;
             }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
+        }
+
+        function show_loader() {
+            document.getElementById("next_page_loader").style.setProperty('visibility', 'visible');
         }
     </script>
 

@@ -84,8 +84,10 @@ def animation_add(user_id, file, file_extension) -> bool:
 
 def stars_export_attendance(month: int) -> (bool, str):
     try:
+        logging.info(f"Sending request to API for exporting attendance, month: {month}")
         r = requests.post(f'{stars_url}/month/export', json={"token": jewell_token, "month": month}, timeout=300)
         res = r.json()
+        logging.info(res)
         return res["success"], res["info"]
     except Exception as ex:
         logging.error(ex)

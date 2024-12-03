@@ -1,6 +1,7 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 from datetime import datetime
+
 from ManagementSystem.ext.database.attendances import get_filtered_attendances
 from ManagementSystem.ext.database.users import get_user_by_id
 from ManagementSystem.ext.models.userModel import Reward
@@ -45,7 +46,7 @@ def process_attendance(attendance, bad_users, days, chosen_month):
         bad_users['database'].add(attendance.user_id)
 
 
-def get_stars_export_data_optimized(month):
+def get_stars_export_data(month):
     logging.info(f"ATTENDANCE STARS EXPORT: {month}")
 
     now = datetime.now()

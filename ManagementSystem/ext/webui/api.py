@@ -841,7 +841,42 @@ def api_stars_export_attendance():
             for day, data in days.items():
                 for group, lessons in data["lessons"].items():
                     for lesson in lessons:
-                        status, info = mark_attendance_lesson(lesson["code"], lessons["students"].keys(), delay=0.25)
+                        status, info = mark_attendance_lesson(lesson["code"], lessons["students"].keys(), delay=0.1)
+                        resp[f'{day} {group}'] = f'[{status}] {info}'
+            return json.dumps({'success': True, "info": resp}), 200, {'ContentType': 'application/json'}
+        else:
+            return json.dumps({'success': False, "info": "no auth"}), 401, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 400, {'ContentType': 'application/json'}
+
+
+@api.route('/stars/month/days', methods=['POST'])
+def api_stars_export_attendance_get_days():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            days, lessons_to_create, bad_users = get_stars_export_data(request.json['month'])
+            if len(lessons_to_create) > 0:
+                return json.dumps({'success': False, "info": f"Сперва создайте уроки ({len(lessons_to_create)})."}), 200, {'ContentType': 'application/json'}
+            return json.dumps({'success': True, "info": days}), 200, {'ContentType': 'application/json'}
+        else:
+            return json.dumps({'success': False, "info": "no auth"}), 401, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 400, {'ContentType': 'application/json'}
+
+
+@api.route('/stars/month/mark', methods=['POST'])
+def api_stars_export_attendance_mark_days():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            resp = {}
+            logging.info("Starting marking attendance")
+            days = request.json['days']
+            for day, data in days.items():
+                for group, lessons in data["lessons"].items():
+                    for lesson in lessons:
+                        status, info = mark_attendance_lesson(lesson["code"], lessons["students"].keys(), delay=0.1)
                         resp[f'{day} {group}'] = f'[{status}] {info}'
             return json.dumps({'success': True, "info": resp}), 200, {'ContentType': 'application/json'}
         else:

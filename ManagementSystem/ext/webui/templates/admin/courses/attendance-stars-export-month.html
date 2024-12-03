@@ -7,6 +7,61 @@
 {% block body %}
 
      <style>
+        .pagination {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            padding: 0;
+            margin: 20px 0;
+        }
+
+        .page-item {
+            margin: 0 5px;
+        }
+
+        .page-item a {
+            display: inline-block;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #007bff;
+            text-decoration: none;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .page-item a:hover {
+            background-color: #f8f9fa;
+            border-color: #007bff;
+            color: #0056b3;
+        }
+
+        .page-item.active a {
+            background-color: #007bff;
+            color: #fff;
+            border-color: #007bff;
+            cursor: default;
+        }
+
+        .page-item.active a:hover {
+            background-color: #0056b3;
+            color: #fff;
+            border-color: #0056b3;
+        }
+
+        .page-item.disabled a {
+            color: #6c757d;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+
+        .page-item.disabled a:hover {
+            color: #6c757d;
+            background-color: #e9ecef;
+            border-color: #dee2e6;
+        }
+
         /* Pre-loader CSS */
         .page-loader {
             position: fixed;
@@ -95,23 +150,22 @@
                     </ol>
                 </div>
                 <h4 class="page-title" id="page-header">Экспорт данных</h4>
+                <nav aria-label="Навигация по неделям">
+                    <ul class="pagination">
+                        {% for week_num in range(1, total_weeks + 1) %}
+                            <li class="page-item {% if week_num == current_week %}active{% endif %}">
+                                <a class="page-link" onclick="show_loader();"
+                                   href="{{ url_for('admin.admin_attendance_stars_export_month', month=month, week=week_num) }}">
+                                    Неделя {{ week_num }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </nav>
             </div>
         </div>
     </div>
     <!-- end page title -->
-
-    <nav aria-label="Навигация по неделям">
-        <ul class="pagination">
-            {% for week_num in range(1, total_weeks + 1) %}
-                <li class="page-item {% if week_num == current_week %}active{% endif %}">
-                    <a class="page-link" onclick="show_loader();"
-                       href="{{ url_for('admin.admin_attendance_stars_export_month', month=month, week=week_num) }}">
-                        Неделя {{ week_num }}
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    </nav>
 
     <div class="row">
         <div class="col-12">

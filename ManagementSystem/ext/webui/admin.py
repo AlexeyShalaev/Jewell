@@ -615,7 +615,7 @@ def admin_attendance_stars_export_month(month, week=1):
     total_weeks = last_day_of_month.isocalendar()[1] - first_day_of_month.isocalendar()[1] + 1
     # Определение порядкового номера первой недели месяца
     first_week_number = first_day_of_month.isocalendar()[1]
-    target_week_number = first_week_number + week - 1
+    target_week_number = first_week_number + chosen_week - 1
 
     # Фильтруем посещения только для выбранного месяца и недели
     attendances = [attendance

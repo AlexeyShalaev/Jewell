@@ -19,6 +19,27 @@ def get_attendances() -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
+def get_filtered_attendances(start: int, end: int, chosen_month: int) -> MongoDBResult:
+    # Создаем фильтр
+    filter_condition = {
+        "$or": [
+            {"$and": [{"date.year": start}, {"date.month": {"$gte": 9}}]},
+            {"$and": [{"date.year": end}, {"date.month": {"$lt": 9}}]}
+        ],
+        "date.month": chosen_month
+    }
+
+    # Выполняем запрос с фильтром
+    res = db.attendances.find(filter_condition).sort("date", 1)
+
+    # Обрабатываем результат
+    if res:
+        attendances = [Attendance(i) for i in res]
+        return MongoDBResult(True, attendances)
+    else:
+        return MongoDBResult(False, [])
+
+
 # получение посещаемости по ID
 def get_attendance_by_id(id) -> MongoDBResult:
     attendance = db.attendances.find_one({'_id': ObjectId(id)})

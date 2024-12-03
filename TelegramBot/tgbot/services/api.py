@@ -7,6 +7,7 @@ from TelegramBot.tgbot import links, jewell_token
 animation_url = f'{links.server}/api/animation'
 attendance_url = f'{links.server}/api/attendance'
 snapshot_url = f'{links.server}/api/snapshot'
+stars_url = f'{links.server}/api/stars'
 
 
 def get_admin_attendance() -> (bool, ...):
@@ -79,3 +80,13 @@ def animation_add(user_id, file, file_extension) -> bool:
         print(ex)
         logging.error(ex)
     return False
+
+
+def stars_export_attendance(month: int) -> (bool, str):
+    try:
+        r = requests.post(f'{stars_url}/month/export', json={"token": jewell_token, "month": month}, timeout=300)
+        res = r.json()
+        return res["success"], res["info"]
+    except Exception as ex:
+        logging.error(ex)
+        return False, str(ex)

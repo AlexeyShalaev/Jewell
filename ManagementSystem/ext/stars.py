@@ -245,8 +245,8 @@ def create_lessons(date, group, needed_lessons_cnt, existing_lessons):
     return True, 'OK'
 
 
-def mark_attendance_lesson(lesson_id, students_ids):
-    time.sleep(0.5)
+def mark_attendance_lesson(lesson_id, students_ids, delay=0.5):
+    time.sleep(delay)
     resp = mark_attendance(lesson_id, students_ids)
     if resp.ok:
         return True, 'OK'

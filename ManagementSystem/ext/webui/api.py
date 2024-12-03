@@ -23,6 +23,8 @@ from ManagementSystem.ext.database.users import get_users, get_user_by_id, updat
 from ManagementSystem.ext.notifier import notify_user
 from ManagementSystem.ext.search_engine import search_documents
 from ManagementSystem.ext.snapshotting import backup, restore, get_sorted_backups
+from ManagementSystem.ext.stars import mark_attendance_lesson
+from ManagementSystem.ext.stars_export import get_stars_export_data
 from ManagementSystem.ext.tools import encrypt_id_with_no_digits, bfs, get_random_color, get_friends, get_month
 
 api = Blueprint('api', __name__, url_prefix='/api', template_folder='templates', static_folder='assets')
@@ -824,3 +826,24 @@ def animation_get(user_id):
     except Exception as ex:
         logging.error(ex)
     return json.dumps({'success': False}), 400, {'ContentType': 'application/json'}
+
+
+@api.route('/stars/month/export', methods=['POST'])
+def api_stars_export_attendance():
+    try:
+        token = request.json['token']
+        if token == api_token:
+            days, lessons_to_create, bad_users = get_stars_export_data(request.json['month'])
+            if len(lessons_to_create) > 0:
+                return json.dumps({'success': False, "info": f"Сперва создайте уроки ({len(lessons_to_create)})."}), 200, {'ContentType': 'application/json'}
+            resp = {}
+            for day, data in days.items():
+                for group, lessons in data["lessons"].items():
+                    for lesson in lessons:
+                        status, info = mark_attendance_lesson(lesson["code"], lessons["students"], delay=0.25)
+                        resp[f'{day} {group}'] = f'[{status}] {info}'
+            return json.dumps({'success': True, "info": resp}), 200, {'ContentType': 'application/json'}
+        else:
+            return json.dumps({'success': False, "info": "no auth"}), 401, {'ContentType': 'application/json'}
+    except Exception as ex:
+        return json.dumps({'success': False, "info": str(ex)}), 400, {'ContentType': 'application/json'}

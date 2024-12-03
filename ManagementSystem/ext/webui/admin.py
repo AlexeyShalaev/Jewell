@@ -590,7 +590,7 @@ def admin_attendance_stars_export_month(month, week=1):
         logout_user()
         return redirect(url_for("view.landing"))
 
-    logging.info(f"ATTENDANCE STARS EXPORT: {month}")
+    logging.info(f"ATTENDANCE STARS EXPORT: {month} - {week}")
 
     now = datetime.now()
     chosen_month = int(month)
@@ -613,10 +613,15 @@ def admin_attendance_stars_export_month(month, week=1):
     first_day_of_month = datetime(gl_year, chosen_month, 1)
     last_day_of_month = datetime(gl_year, chosen_month, last_day)
 
+    logging.error(first_day_of_month)
+    logging.error(last_day_of_month)
+
     total_weeks = last_day_of_month.isocalendar()[1] - first_day_of_month.isocalendar()[1] + 1
 
     # Определение порядкового номера первой недели месяца
     first_week_number = first_day_of_month.isocalendar()[1]
+
+    logging.error(first_week_number)
 
     # Фильтруем посещения только для выбранного месяца и недели
     attendances = [

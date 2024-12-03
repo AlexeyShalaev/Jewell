@@ -578,9 +578,9 @@ def admin_attendance_stars_month(month):
 # Уровень:              attendance_stars/export/<month>
 # База данных:          -
 # HTML:                 attendance-stars-export-month
-@admin.route('/attendance_stars_export/<month>/<week>', methods=['POST', 'GET'])
+@admin.route('/attendance_stars_export/<month>', methods=['POST', 'GET'])
 @login_required
-def admin_attendance_stars_export_month(month, week=1):
+def admin_attendance_stars_export_month(month):
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.ADMIN)
     if status:
@@ -590,6 +590,7 @@ def admin_attendance_stars_export_month(month, week=1):
         logout_user()
         return redirect(url_for("view.landing"))
 
+    week = request.args.get('week', 1)
     logging.info(f"ATTENDANCE STARS EXPORT: {month} - {week}")
 
     now = datetime.now()

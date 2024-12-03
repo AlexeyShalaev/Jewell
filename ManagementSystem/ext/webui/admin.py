@@ -621,11 +621,18 @@ def admin_attendance_stars_export_month(month, week=1):
                        (attendance.date.year == end and attendance.date.month < 9))
                    and attendance.date.month == chosen_month]
 
+    logging.error(attendances)
+
+    for attendance in attendances:
+        logging.error(attendance.date.isocalendar(), attendance.date.isocalendar()[1])
+
     # Фильтруем посещения по неделе
     attendances = [
         attendance for attendance in attendances
         if attendance.date.isocalendar()[1] == chosen_week
     ]
+
+    logging.error(attendances)
 
     attendances.sort(key=lambda x: x.date)
 

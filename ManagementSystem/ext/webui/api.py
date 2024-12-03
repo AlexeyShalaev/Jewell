@@ -837,8 +837,11 @@ def api_stars_export_attendance():
             if len(lessons_to_create) > 0:
                 return json.dumps({'success': False, "info": f"Сперва создайте уроки ({len(lessons_to_create)})."}), 200, {'ContentType': 'application/json'}
             resp = {}
+            logging.info("Starting marking attendance")
             for day, data in days.items():
+                logging.info(f"Marking: {day}")
                 for group, lessons in data["lessons"].items():
+                    logging.info(f"{group}: {len(lessons)}")
                     for lesson in lessons:
                         status, info = mark_attendance_lesson(lesson["code"], lessons["students"], delay=0.25)
                         resp[f'{day} {group}'] = f'[{status}] {info}'

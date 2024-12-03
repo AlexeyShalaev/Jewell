@@ -6,6 +6,71 @@
 
 {% block body %}
 
+     <style>
+        /* Pre-loader CSS */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--ct-gray-100);
+            z-index: 9999;
+
+
+            .txt {
+                color: #666;
+                text-align: center;
+                top: 40%;
+                position: relative;
+                text-transform: uppercase;
+                letter-spacing: 0.3rem;
+                font-weight: bold;
+                line-height: 1.5;
+            }
+        }
+
+        /* Spinner animation */
+        .spinner {
+            position: relative;
+            top: 35%;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto;
+            background-color: #ff5b5b;
+            border-radius: 100%;
+            -webkit-animation: sk-scaleout 1.0s infinite ease-in-out;
+            animation: sk-scaleout 1.0s infinite ease-in-out;
+        }
+
+        @-webkit-keyframes sk-scaleout {
+            0% {
+                -webkit-transform: scale(0)
+            }
+            100% {
+                -webkit-transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+
+        @keyframes sk-scaleout {
+            0% {
+                -webkit-transform: scale(0);
+                transform: scale(0);
+            }
+            100% {
+                -webkit-transform: scale(1.0);
+                transform: scale(1.0);
+                opacity: 0;
+            }
+        }
+    </style>
+
+    <div id="next_page_loader" class="page-loader" style="visibility: hidden ">
+        <div class="spinner"></div>
+        <div class="txt">Loading...<br>Пожалуйста, дождитесь конца загрузки<br>Это может занять некоторое время</div>
+    </div>
+
     <!-- Pre-loader -->
     <div id="preloader">
         <div id="status">
@@ -458,6 +523,10 @@
             setTimeout(function () {
                 document.getElementById("btn_mark_attendances").disabled = false;
             }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
+        }
+
+         function show_loader() {
+            document.getElementById("next_page_loader").style.setProperty('visibility', 'visible');
         }
     </script>
 

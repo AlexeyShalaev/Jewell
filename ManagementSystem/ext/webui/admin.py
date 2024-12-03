@@ -1,3 +1,4 @@
+import calendar
 import logging
 import os
 import re
@@ -577,9 +578,9 @@ def admin_attendance_stars_month(month):
 # Уровень:              attendance_stars/export/<month>
 # База данных:          -
 # HTML:                 attendance-stars-export-month
-@admin.route('/attendance_stars_export/<month>', methods=['POST', 'GET'])
+@admin.route('/attendance_stars_export/<month>/<week>', methods=['POST', 'GET'])
 @login_required
-def admin_attendance_stars_export_month(month):
+def admin_attendance_stars_export_month(month, week=1):
     # auto redirect
     status, url = auto_redirect(ignore_role=Role.ADMIN)
     if status:
@@ -593,17 +594,39 @@ def admin_attendance_stars_export_month(month):
 
     now = datetime.now()
     chosen_month = int(month)
+    chosen_week = int(week)
+
     if now.month >= 9:
         start = now.year
         end = start + 1
     else:
         end = now.year
         start = end - 1
+
+    if chosen_month >= 9:
+        gl_year = start
+    else:
+        gl_year = end
+
+    # Определение количества недель в месяце
+    _, last_day = calendar.monthrange(gl_year, chosen_month)
+    first_day_of_month = datetime(gl_year, chosen_month, 1)
+    last_day_of_month = datetime(gl_year, chosen_month, last_day)
+
+    total_weeks = last_day_of_month.isocalendar()[1] - first_day_of_month.isocalendar()[1] + 1
+
     attendances = [attendance
                    for attendance in get_attendances().data
                    if ((attendance.date.year == start and attendance.date.month >= 9) or
                        (attendance.date.year == end and attendance.date.month < 9))
                    and attendance.date.month == chosen_month]
+
+    # Фильтруем посещения по неделе
+    attendances = [
+        attendance for attendance in attendances
+        if attendance.date.isocalendar()[1] == chosen_week
+    ]
+
     attendances.sort(key=lambda x: x.date)
 
     bad_users = {
@@ -647,10 +670,6 @@ def admin_attendance_stars_export_month(month):
         else:
             bad_users['database'].add(i.user_id)
 
-    if chosen_month >= 9:
-        gl_year = start
-    else:
-        gl_year = end
     for day, lessons in get_lessons(gl_year, chosen_month).items():
         if day in days:
             days[day]['lessons'] = lessons
@@ -700,7 +719,7 @@ def admin_attendance_stars_export_month(month):
                     lesson['students'] = dict(sorted(lesson['students'].items(), key=lambda x: x[1]['name']))
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,
-                           lessons_to_create=lessons_to_create, bad_users=bad_users)
+                           lessons_to_create=lessons_to_create, bad_users=bad_users, month=month, current_week=week, total_weeks=total_weeks)
 
 
 # Уровень:              attendance/user_id

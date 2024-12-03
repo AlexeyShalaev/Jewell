@@ -622,10 +622,10 @@ def admin_attendance_stars_export_month(month, week=1):
                    for attendance in get_attendances().data
                    if ((attendance.date.year == start and attendance.date.month >= 9) or
                        (attendance.date.year == end and attendance.date.month < 9))
+                   and attendance.date.month == chosen_month
                    and attendance.date.isocalendar()[1] == target_week_number
                    ]
     attendances.sort(key=lambda x: x.date)
-    logging.error(attendances)
 
     bad_users = {
         'database': set(),

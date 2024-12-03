@@ -6,6 +6,18 @@
 
 {% block body %}
 
+    <!-- Pre-loader -->
+    <div id="preloader">
+        <div id="status">
+            <div class="bouncing-loader">
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+        </div>
+    </div>
+    <!-- End Preloader-->
+
     <!-- start page title -->
     <div class="row">
         <div class="col-12">
@@ -428,10 +440,6 @@
             setTimeout(function () {
                 document.getElementById("btn_mark_attendances").disabled = false;
             }, 3000); // В данном случае, кнопка будет разблокирована через 3 секунды
-        }
-
-         function show_loader() {
-            document.getElementById("next_page_loader").style.setProperty('visibility', 'visible');
         }
     </script>
 

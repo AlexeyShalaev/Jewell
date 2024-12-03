@@ -19,7 +19,7 @@ def get_attendances() -> MongoDBResult:
         return MongoDBResult(False, [])
 
 
-def get_filtered_attendances(start: int, end: int, chosen_month: int) -> MongoDBResult:
+def get_filtered_attendances(start: int, end: int, chosen_month: int):
     # Создаем фильтр
     filter_condition = {
         "$or": [
@@ -34,10 +34,9 @@ def get_filtered_attendances(start: int, end: int, chosen_month: int) -> MongoDB
 
     # Обрабатываем результат
     if res:
-        attendances = [Attendance(i) for i in res]
-        return MongoDBResult(True, attendances)
+        return [Attendance(i) for i in res]
     else:
-        return MongoDBResult(False, [])
+        return []
 
 
 # получение посещаемости по ID

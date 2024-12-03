@@ -842,6 +842,7 @@ def api_stars_export_attendance():
                 logging.info(f"Marking: {day}")
                 for group, lessons in data["lessons"].items():
                     logging.info(f"{group}: {len(lessons)}")
+                    logging.error(lessons)
                     for lesson in lessons:
                         logging.info(f'{lesson["code"]}: {lessons["students"]}')
                         status, info = mark_attendance_lesson(lesson["code"], lessons["students"], delay=0.25)

@@ -615,14 +615,15 @@ def admin_attendance_stars_export_month(month, week=1):
 
     total_weeks = last_day_of_month.isocalendar()[1] - first_day_of_month.isocalendar()[1] + 1
 
-    attendances = [attendance
-                   for attendance in get_attendances().data
-                   if ((attendance.date.year == start and attendance.date.month >= 9) or
-                       (attendance.date.year == end and attendance.date.month < 9))
-                   and attendance.date.month == chosen_month]
+    # Определение порядкового номера первой недели месяца
+    first_week_number = first_day_of_month.isocalendar()[1]
 
-    for attendance in attendances:
-        logging.error(f"{attendance.date.isocalendar()} {attendance.date.isocalendar()[1]}")
+    # Фильтруем посещения только для выбранного месяца и недели
+    attendances = [
+        attendance for attendance in get_attendances().data
+        if attendance.date.month == chosen_month
+           and ((attendance.date.isocalendar()[1] - first_week_number) + 1) == chosen_week
+    ]
 
     # Фильтруем посещения по неделе
     attendances = [
@@ -724,7 +725,8 @@ def admin_attendance_stars_export_month(month, week=1):
                     lesson['students'] = dict(sorted(lesson['students'].items(), key=lambda x: x[1]['name']))
 
     return render_template("admin/courses/attendance-stars-export-month.html", days=days,
-                           lessons_to_create=lessons_to_create, bad_users=bad_users, month=month, current_week=week, total_weeks=total_weeks)
+                           lessons_to_create=lessons_to_create, bad_users=bad_users, month=month, current_week=week,
+                           total_weeks=total_weeks)
 
 
 # Уровень:              attendance/user_id

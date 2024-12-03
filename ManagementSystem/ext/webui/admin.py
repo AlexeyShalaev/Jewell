@@ -612,33 +612,20 @@ def admin_attendance_stars_export_month(month, week=1):
     _, last_day = calendar.monthrange(gl_year, chosen_month)
     first_day_of_month = datetime(gl_year, chosen_month, 1)
     last_day_of_month = datetime(gl_year, chosen_month, last_day)
-
-    logging.error(first_day_of_month)
-    logging.error(last_day_of_month)
-
     total_weeks = last_day_of_month.isocalendar()[1] - first_day_of_month.isocalendar()[1] + 1
-
     # Определение порядкового номера первой недели месяца
     first_week_number = first_day_of_month.isocalendar()[1]
-
-    logging.error(first_week_number)
+    target_week_number = first_week_number + week - 1
 
     # Фильтруем посещения только для выбранного месяца и недели
-    attendances = [
-        attendance for attendance in get_attendances().data
-        if attendance.date.month == chosen_month
-           and ((attendance.date.isocalendar()[1] - first_week_number) + 1) == chosen_week
-    ]
-
-    # Фильтруем посещения по неделе
-    attendances = [
-        attendance for attendance in attendances
-        if attendance.date.isocalendar()[1] == chosen_week
-    ]
-
-    logging.error(attendances)
-
+    attendances = [attendance
+                   for attendance in get_attendances().data
+                   if ((attendance.date.year == start and attendance.date.month >= 9) or
+                       (attendance.date.year == end and attendance.date.month < 9))
+                   and attendance.date.isocalendar()[1] == target_week_number
+                   ]
     attendances.sort(key=lambda x: x.date)
+    logging.error(attendances)
 
     bad_users = {
         'database': set(),

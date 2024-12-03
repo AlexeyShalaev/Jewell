@@ -56,7 +56,7 @@ class StarsShtibel:
         return wrapper
 
 
-stars = StarsShtibel(get_stars_config()['cookies'])
+stars = StarsShtibel(get_stars_config()['cookies'], True)
 
 
 @stars.get

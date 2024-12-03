@@ -82,7 +82,7 @@ def get_stars_export_data(month):
         for category in days_lessons:
             days_lessons[category] = sorted(days_lessons[category],
                                             key=lambda x: int(x['time'].split('-')[1].split(':')[0]), reverse=True)
-    logging.info(days)
+
     logging.info(f"ATTENDANCE STARS EXPORT: collecting and sorting lessons to create")
     lessons_to_create = []
     for day, data in days.items():

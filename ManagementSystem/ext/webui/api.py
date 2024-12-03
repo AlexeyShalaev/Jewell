@@ -843,6 +843,7 @@ def api_stars_export_attendance():
                 for group, lessons in data["lessons"].items():
                     logging.info(f"{group}: {len(lessons)}")
                     for lesson in lessons:
+                        logging.info(f'{lesson["code"]}: {lessons["students"]}')
                         status, info = mark_attendance_lesson(lesson["code"], lessons["students"], delay=0.25)
                         resp[f'{day} {group}'] = f'[{status}] {info}'
             return json.dumps({'success': True, "info": resp}), 200, {'ContentType': 'application/json'}
